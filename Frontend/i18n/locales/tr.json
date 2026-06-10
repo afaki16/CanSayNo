@@ -1,0 +1,118 @@
+{
+  "common": {
+    "welcome": "Hoş Geldiniz",
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "search": "Ara",
+    "changeLanguage": "Dili değiştir"
+  },
+  "auth": {
+    "login": "Giriş Yap",
+    "logout": "Çıkış Yap",
+    "email": "E-posta Adresi",
+    "password": "Şifre",
+    "rememberMe": "Beni Hatırla",
+    "forgotPassword": "Şifremi Unuttum",
+    "noAccount": "Hesabınız yok mu?",
+    "createAccount": "Hesap Oluştur",
+    "brandBadge": "Güvenli Platform",
+    "heroTitle": "Her şeyi tek bir yerden yönetin.",
+    "heroSubtitle": "Hızlı, güvenilir ve çalışma şeklinize göre tasarlanmış.",
+    "welcomeBack": "Tekrar Hoş Geldiniz",
+    "signInSubtitle": "Hesabınıza giriş yapmak için devam edin",
+    "emailPlaceholder": "E-posta adresinizi girin",
+    "passwordPlaceholder": "Şifrenizi girin",
+    "sessionExpired": "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.",
+    "emailNotConfirmed": "E-posta adresiniz doğrulanmamış.",
+    "resendEmailSent": "Doğrulama bağlantısı email adresinize tekrar gönderildi. Lütfen email kutunuzu kontrol edin (spam klasörü dahil).",
+    "resendEmailError": "Email gönderilemedi, lütfen birkaç saniye sonra tekrar deneyin.",
+    "resendButton": "Doğrulama emailini tekrar gönder",
+    "resendButtonSent": "Gönderildi ✓",
+    "or": "veya",
+    "firstNameLabel": "Ad",
+    "lastNameLabel": "Soyad",
+    "phoneLabel": "Telefon Numarası (Opsiyonel)",
+    "confirmPasswordLabel": "Şifreyi Onayla",
+    "passwordStrength": "Şifre Gücü",
+    "createAccountTitle": "Hesap Oluştur",
+    "createAccountSubtitle": "Bize bugün katılın ve başlayın",
+    "agreeTo": "Şunu kabul ediyorum:",
+    "and": "ve",
+    "termsOfService": "Hizmet Şartları",
+    "privacyPolicy": "Gizlilik Politikası",
+    "alreadyHaveAccount": "Zaten hesabınız var mı?",
+    "signIn": "Giriş Yap",
+    "pageTitleRegister": "Hesap Oluştur - Kickstart",
+    "strengthWeak": "Zayıf",
+    "strengthFair": "Orta",
+    "strengthGood": "İyi",
+    "strengthStrong": "Güçlü"
+  },
+  "sidebar": {
+    "menu": {
+      "dashboard": "Anasayfa",
+      "userManagement": "Kullanıcı Yönetimi",
+      "users": "Kullanıcılar",
+      "tenants": "Kiracılar",
+      "roles": "Roller",
+      "permissions": "İzinler",
+      "settings": "Ayarlar",
+      "profile": "Profil"
+    },
+    "actions": {
+      "support": "Destek",
+      "logout": "Çıkış Yap"
+    },
+    "brand": {
+      "tagline": "Güvenli Kimlik Doğrulama Sistemi"
+    }
+  },
+  "dashboard": {
+    "welcome": "Hoş Geldiniz",
+    "subtitle": "Sistem yönetim paneline hoş geldiniz.",
+    "greeting": {
+      "morning": "Günaydın",
+      "afternoon": "İyi günler",
+      "evening": "İyi akşamlar"
+    },
+    "todayLabel": "Bugün:",
+    "trendVsLast7Days": "son 7 günde",
+    "trendNoChange": "değişim yok",
+    "stats": {
+      "totalUsers": "Toplam Kullanıcı",
+      "activeUsers": "Aktif Kullanıcı",
+      "totalRoles": "Toplam Rol",
+      "totalPermissions": "Toplam İzin",
+      "newPermissions": "2 yeni izin"
+    },
+    "weeklyRevenueAnalysis": "Haftalık Gelir Analizi",
+    "revenueLabel": "Gelir (₺)",
+    "days": {
+      "mon": "Pzt",
+      "tue": "Sal",
+      "wed": "Çar",
+      "thu": "Per",
+      "fri": "Cum",
+      "sat": "Cmt",
+      "sun": "Paz"
+    },
+    "pageTitle": "Anasayfa - Kickstart"
+  },
+  "validation": {
+    "required": "Bu alan zorunludur",
+    "emailFormat": "Geçerli bir e-posta adresi girin",
+    "passwordRequired": "Şifre zorunludur",
+    "passwordMinLength": "Şifre en az {min} karakter olmalıdır",
+    "passwordLowercase": "Şifre en az bir küçük harf içermelidir",
+    "passwordUppercase": "Şifre en az bir büyük harf içermelidir",
+    "passwordDigit": "Şifre en az bir rakam içermelidir",
+    "passwordsDoNotMatch": "Şifreler eşleşmiyor",
+    "minLength": "En az {min} karakter girilmelidir",
+    "maxLength": "En fazla {max} karakter girilebilir",
+    "phoneFormat": "Geçerli bir telefon numarası girin"
+  }
+}

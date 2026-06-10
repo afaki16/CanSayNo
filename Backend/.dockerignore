@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+**/out/
+**/.vs/
+**/.idea/
+.git/
+.gitignore
+**/appsettings.Development.json
+**/*.user
+.github/
+setup.sh
+setup.ps1

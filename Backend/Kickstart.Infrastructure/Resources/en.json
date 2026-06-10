@@ -1,0 +1,94 @@
+{
+  "auth": {
+    "invalidCredentials": "Invalid email or password",
+    "emailNotConfirmed": "Please verify your email address. A verification link has been sent to your email.",
+    "multipleAccountsFound": "Multiple accounts found with this email. Please specify a tenant id.",
+    "accessTokenGenerationFailed": "Failed to generate access token",
+    "refreshTokenGenerationFailed": "Failed to generate refresh token",
+    "invalidRefreshToken": "Invalid refresh token",
+    "refreshTokenInactive": "Refresh token is not active",
+    "userNotFound": "User not found",
+    "loginUnexpectedError": "An unexpected error occurred during login",
+    "unauthorized": "You are not authorized to access this resource",
+    "forbidden": "You don't have permission to access this resource",
+    "invalidAccessToken": "Invalid access token",
+    "invalidUserIdInToken": "Invalid user ID in token",
+    "tokenRefreshUnexpectedError": "An unexpected error occurred during token refresh",
+    "userNotAuthenticated": "User not authenticated",
+    "currentPasswordIncorrect": "Current password is incorrect",
+    "invalidOrExpiredResetLink": "Invalid or expired reset link",
+    "invalidOrExpiredVerificationLink": "Invalid or expired verification link"
+  },
+  "users": {
+    "notFound": "User not found",
+    "emailExists": "Email already exists",
+    "phoneExists": "Phone number already exists",
+    "onlySuperAdminCanSpecifyTenant": "Only SuperAdmin can create users in a specific tenant",
+    "cannotAssignSuperAdmin": "You cannot assign the SuperAdmin role",
+    "noAccessToUpdate": "You do not have access to update this user",
+    "noAccessToDelete": "You do not have access to delete this user",
+    "cannotDeleteSelf": "You cannot delete your own account",
+    "cannotDeleteLastSuperAdmin": "Cannot delete the last SuperAdmin in the system"
+  },
+  "roles": {
+    "notFound": "Role not found",
+    "cannotModifySystem": "Cannot modify system roles",
+    "nameExists": "Role name already exists",
+    "createFailed": "An unexpected error occurred while creating the role",
+    "updateFailed": "An unexpected error occurred while updating the role"
+  },
+  "tenants": {
+    "notFound": "Tenant not found",
+    "nameExists": "Tenant name already exists",
+    "domainExists": "Tenant domain already exists"
+  },
+  "password": {
+    "generationFailed": "Failed to generate password",
+    "empty": "Password cannot be empty",
+    "tooShort": "Password must be at least 8 characters long",
+    "missingLowercase": "Password must contain at least one lowercase letter",
+    "missingUppercase": "Password must contain at least one uppercase letter",
+    "missingDigit": "Password must contain at least one digit",
+    "hashFailed": "Failed to hash password",
+    "verifyFailed": "Failed to verify password"
+  },
+  "common": {
+    "unexpectedError": "An unexpected error occurred. Please try again or contact support if the problem persists."
+  },
+  "validation": {
+    "fields": {
+      "id": "ID",
+      "userId": "User ID",
+      "roleId": "Role ID",
+      "tenantId": "Tenant ID",
+      "email": "Email",
+      "password": "Password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Password confirmation",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phoneNumber": "Phone number",
+      "status": "Status",
+      "token": "Token",
+      "accessToken": "Access token",
+      "refreshToken": "Refresh token",
+      "roleName": "Role name",
+      "tenantName": "Tenant name",
+      "description": "Description",
+      "domain": "Domain",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone"
+    },
+    "required": "{0} field is required",
+    "maxLength": "{0} cannot exceed {1} characters",
+    "minLength": "{0} must be at least {1} characters long",
+    "emailFormat": "Please enter a valid email address",
+    "domainFormat": "Invalid domain format",
+    "invalidEnum": "Invalid value for {0}",
+    "greaterThan": "{0} must be greater than {1}",
+    "nameFormat": "{0} can only contain letters, spaces, apostrophes, hyphens and dots",
+    "passwordComplexity": "Password must contain at least one lowercase letter, one uppercase letter, and one digit",
+    "passwordsDoNotMatch": "Passwords do not match"
+  }
+}

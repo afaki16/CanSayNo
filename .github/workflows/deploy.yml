@@ -1,0 +1,53 @@
+name: Build and Deploy Backend
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'Backend/Kickstart.API/**'
+      - 'Backend/Kickstart.Application/**'
+      - 'Backend/Kickstart.Domain/**'
+      - 'Backend/Kickstart.Infrastructure/**'
+      - 'Backend/Kickstart.sln'
+      - '.github/workflows/deploy.yml'
+
+env:
+  IMAGE_NAME: ${{ github.repository_owner }}/kickstart-api
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push (main -> latest)
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Backend
+          file: ./Backend/Kickstart.API/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.IMAGE_NAME }}:latest
+
+      - name: Build and Push (develop -> dev)
+        if: github.ref == 'refs/heads/develop'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Backend
+          file: ./Backend/Kickstart.API/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.IMAGE_NAME }}:dev
+
+# NOT: Bu template'in kendisi deploy edilmiyor — sadece bu template'ten
+# üretilen projeler ediliyor. Üretilen projede VPS'e deploy step'i
+# eklenmeli (SSH ile container update).

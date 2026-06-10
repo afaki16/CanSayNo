@@ -1,0 +1,87 @@
+/* Main CSS file */
+
+/* Vuetify select dropdown fix */
+.v-overlay-container {
+  z-index: 9999 !important;
+}
+
+.v-menu > .v-overlay__content {
+  z-index: 9999 !important;
+}
+
+.v-select .v-field {
+  cursor: pointer !important;
+}
+
+.v-select.v-input--disabled .v-field {
+  cursor: not-allowed !important;
+}
+
+.v-menu .v-list {
+  max-height: 300px !important;
+  overflow-y: auto !important;
+}
+
+/* ========================================
+   GRADIENT BUTTONS (DoctorForm / Theetify style)
+   ======================================== */
+.btn-gradient-primary {
+  background: var(--theme-gradient, linear-gradient(135deg, #006c49 0%, #10b981 100%)) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0.3px !important;
+  padding: 12px 32px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gradient-primary:hover:not(:disabled) {
+  background: var(--theme-gradient-hover, linear-gradient(135deg, #004d34 0%, #006c49 100%)) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.btn-gradient-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.btn-gradient-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-gradient-dark {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: rgb(75, 66, 66) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0.3px !important;
+  padding: 12px 32px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer;
+}
+
+.btn-gradient-dark:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.4) !important;
+}
+
+.btn-gradient-dark:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-gradient-dark:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

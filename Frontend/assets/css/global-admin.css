@@ -1,0 +1,324 @@
+/* ========================================
+   GLOBAL FORM STYLES - Admin Panel
+   ======================================== */
+
+/* ========================================
+   TAB NAVIGATION
+   ======================================== */
+.tabs-container {
+  display: flex;
+  gap: 0;
+  justify-content: flex-start;
+  max-width: 100%;
+  min-width: min-content;
+}
+
+.tab-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: auto;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: rgb(var(--color-on-surface-variant));
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  min-width: 80px;
+  border-radius: 8px;
+  min-height: 60px;
+  text-align: center;
+}
+
+.tab-item:hover:not(:disabled) {
+  color: rgb(var(--color-primary));
+  border-bottom-color: rgb(var(--color-primary));
+  transform: translateY(-2px);
+}
+
+.tab-item.active {
+  color: #ffffff;
+  border-bottom-color: rgb(var(--color-primary));
+  background: rgb(var(--color-primary));
+  font-weight: 600;
+}
+
+.tab-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tab-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tab-icon-wrapper .v-icon {
+  font-size: 22px;
+}
+
+.tab-label {
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* ========================================
+   INPUT FIELDS (Theetify / DoctorForm style)
+   ======================================== */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Modern input — soft surface, theme-aware, Vuetify label-compatible */
+
+/* Ana field — soft surface arka plan */
+.modern-input .v-field {
+  background: rgb(var(--color-surface-container)) !important;
+  border-radius: 12px !important;
+  transition: background 0.25s ease, box-shadow 0.25s ease !important;
+  color: rgb(var(--color-on-surface)) !important;
+}
+
+/* Vuetify'ın outline border'ı — kendi rengimize boyuyoruz (display:none YAPMA) */
+.modern-input .v-field--variant-outlined .v-field__outline {
+  --v-field-border-width: 1px;
+  --v-field-border-opacity: 1;
+  color: rgb(var(--color-outline-variant)) !important;
+}
+
+/* Hover */
+.modern-input .v-field:hover {
+  background: rgb(var(--color-surface-container-high)) !important;
+}
+
+.modern-input .v-field--variant-outlined:hover .v-field__outline {
+  color: rgb(var(--color-outline)) !important;
+}
+
+/* Focus — primary glow */
+.modern-input .v-field--focused {
+  background: rgb(var(--color-surface-container-highest)) !important;
+  box-shadow: 0 0 0 3px rgb(var(--color-primary) / 0.18) !important;
+}
+
+.modern-input .v-field--variant-outlined.v-field--focused .v-field__outline {
+  --v-field-border-width: 2px;
+  color: rgb(var(--color-primary)) !important;
+}
+
+/* Error */
+.modern-input .v-field--error {
+  box-shadow: 0 0 0 3px rgb(var(--color-error) / 0.15) !important;
+}
+
+.modern-input .v-field--variant-outlined.v-field--error .v-field__outline {
+  color: rgb(var(--color-error)) !important;
+}
+
+/* Prepend icon */
+.modern-input .v-field__prepend-inner {
+  padding-inline-end: 8px !important;
+}
+
+.modern-input .v-field__prepend-inner .v-icon {
+  color: rgb(var(--color-on-surface-variant)) !important;
+  opacity: 0.7 !important;
+  transition: color 0.2s ease, opacity 0.2s ease !important;
+}
+
+.modern-input .v-field--focused .v-field__prepend-inner .v-icon {
+  color: rgb(var(--color-primary)) !important;
+  opacity: 1 !important;
+}
+
+/* Label (floating) — Vuetify default davranış korunur, sadece renk override */
+.modern-input .v-field-label {
+  color: rgb(var(--color-on-surface-variant)) !important;
+}
+
+.modern-input .v-field--focused .v-field-label {
+  color: rgb(var(--color-primary)) !important;
+}
+
+.modern-input .v-field--error .v-field-label {
+  color: rgb(var(--color-error)) !important;
+}
+
+/* Input metni */
+.modern-input .v-field input,
+.modern-input .v-field textarea {
+  color: rgb(var(--color-on-surface)) !important;
+}
+
+.modern-input .v-field input::placeholder,
+.modern-input .v-field textarea::placeholder {
+  color: rgb(var(--color-on-surface-variant)) !important;
+  opacity: 0.5 !important;
+}
+
+/* Search input */
+.search-input .v-field {
+  border-radius: 12px !important;
+  background: #f8fafc !important;
+}
+
+/* ========================================
+   QUICK ACTIONS
+   ======================================== */
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* ========================================
+   STATUS COMPONENTS
+   ======================================== */
+.status-switch {
+  margin-bottom: 12px;
+}
+
+.status-switch:deep(.v-switch__track) {
+  opacity: 1 !important;
+}
+
+.status-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-text {
+  font-weight: 500;
+  color: rgb(var(--color-on-surface));
+}
+
+.status-description {
+  font-size: 0.875rem;
+  color: rgb(var(--color-on-surface-variant));
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ========================================
+   EMPTY STATES
+   ======================================== */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+/* ========================================
+   FORM ACTIONS (DoctorForm / Theetify style)
+   ======================================== */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 24px;
+  margin: 0;
+  border-top: 1px solid rgb(var(--color-outline-variant));
+  z-index: 10;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+  .form-actions {
+    flex-direction: column-reverse;
+    padding: 16px 20px;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+  }
+}
+
+/* ==========================================
+   MODERN PILL TABS — Opt-in
+   Kullanım: <div class="tabs-container modern-tabs">
+   ========================================== */
+.tabs-container.modern-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  background: rgb(var(--color-surface-container-low) / 0.4);
+  border: 1px solid rgb(var(--color-outline-variant) / 0.3);
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.tabs-container.modern-tabs .tab-item {
+  flex: 1;
+  flex-direction: row;
+  gap: 10px;
+  min-height: 44px;
+  min-width: 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border-bottom: none;
+  background: transparent;
+  color: rgb(var(--color-on-surface-variant));
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tabs-container.modern-tabs .tab-item:hover:not(:disabled):not(.active) {
+  color: rgb(var(--color-on-surface));
+  background: rgb(var(--color-surface-container-high) / 0.5);
+  border-bottom: none;
+  transform: none;
+}
+
+.tabs-container.modern-tabs .tab-item.active {
+  color: rgb(var(--color-on-primary));
+  background: linear-gradient(
+    135deg,
+    rgb(var(--color-primary)) 0%,
+    rgb(var(--color-primary) / 0.85) 100%
+  );
+  border-bottom: none;
+  box-shadow:
+    0 4px 14px rgb(var(--color-primary) / 0.35),
+    0 0 0 1px rgb(var(--color-primary) / 0.4);
+  font-weight: 600;
+}
+
+.tabs-container.modern-tabs .tab-item .tab-icon-wrapper {
+  flex-shrink: 0;
+}
+
+.tabs-container.modern-tabs .tab-item .tab-icon-wrapper .v-icon {
+  font-size: 18px;
+}
+
+.tabs-container.modern-tabs .tab-item .tab-label {
+  font-size: 13px;
+  font-weight: inherit;
+  letter-spacing: 0.01em;
+}
+
+/* Dark mode ince ayarları */
+.dark .tabs-container.modern-tabs {
+  background: rgb(var(--color-surface-container) / 0.4);
+  border-color: rgb(var(--color-outline-variant) / 0.25);
+}
+
+.dark .tabs-container.modern-tabs .tab-item.active {
+  box-shadow:
+    0 4px 18px rgb(var(--color-primary) / 0.45),
+    0 0 0 1px rgb(var(--color-primary) / 0.5);
+}

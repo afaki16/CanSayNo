@@ -1,0 +1,61 @@
+# Bu dosya production'da kullanılmaz - sadece örnek/dokümantasyon amaçlı.
+# Kickstart'tan yeni proje oluşturduğunuzda bu blokları
+# /opt/services/docker-compose.yml'e ekleyin.
+# PROJECT_NAME ve port numaralarını güncelleyin.
+
+version: '3.8'
+
+services:
+  # Production servis bloğu
+  kickstart-api-prod:
+    image: ghcr.io/GITHUB_USER/kickstart-api:latest
+    container_name: kickstart-api-prod
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=kickstart_prod;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      JwtSettings__SecretKey: ${JWT_SECRET_KICKSTART_PROD}
+      JwtSettings__Issuer: "JWTKickstart"
+      JwtSettings__Audience: "JWTKickstartClients"
+      NotificationService__Mail__Username: ${SMTP_USER_KICKSTART}
+      NotificationService__Mail__Password: ${SMTP_PASS_KICKSTART}
+      NotificationService__Mail__FromAddress: ${SMTP_FROM_KICKSTART}
+      # Seed admin user passwords (only used on first deploy when DB is empty)
+      # Set these in /opt/services/.env, then unset after first successful deploy
+      INITIAL_SUPERADMIN_PASSWORD: ${INITIAL_SUPERADMIN_PASSWORD_KICKSTART_PROD}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD_KICKSTART_PROD}
+    networks: [app-network]
+    ports:
+      - '127.0.0.1:5003:8080'  # 5003: değiştir (kullanılan port'lara göre)
+
+  # Test/Staging servis bloğu
+  kickstart-api-test:
+    image: ghcr.io/GITHUB_USER/kickstart-api:dev
+    container_name: kickstart-api-test
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=kickstart_test;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      JwtSettings__SecretKey: ${JWT_SECRET_KICKSTART_TEST}
+      JwtSettings__Issuer: "JWTKickstart"
+      JwtSettings__Audience: "JWTKickstartClients"
+      NotificationService__Mail__Username: ${SMTP_USER_KICKSTART}
+      NotificationService__Mail__Password: ${SMTP_PASS_KICKSTART}
+      NotificationService__Mail__FromAddress: ${SMTP_FROM_KICKSTART}
+      # Seed admin user passwords (only used on first deploy when DB is empty)
+      # Set these in /opt/services/.env, then unset after first successful deploy
+      INITIAL_SUPERADMIN_PASSWORD: ${INITIAL_SUPERADMIN_PASSWORD_KICKSTART_TEST}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD_KICKSTART_TEST}
+    networks: [app-network]
+    ports:
+      - '127.0.0.1:5004:8080'  # 5004: değiştir (kullanılan port'lara göre)
+
+networks:
+  app-network:
+    external: true

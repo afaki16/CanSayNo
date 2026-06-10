@@ -1,0 +1,118 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "changeLanguage": "Change language"
+  },
+  "auth": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "email": "Email Address",
+    "password": "Password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create Account",
+    "brandBadge": "Secure Platform",
+    "heroTitle": "Manage everything in one place.",
+    "heroSubtitle": "Fast, reliable, and built for the way you work.",
+    "welcomeBack": "Welcome back",
+    "signInSubtitle": "Sign in to your account to continue",
+    "emailPlaceholder": "Enter your email address",
+    "passwordPlaceholder": "Enter your password",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "emailNotConfirmed": "Your email address is not verified.",
+    "resendEmailSent": "Verification link has been sent to your email address. Please check your inbox (including spam folder).",
+    "resendEmailError": "Email could not be sent, please try again in a few seconds.",
+    "resendButton": "Resend verification email",
+    "resendButtonSent": "Sent ✓",
+    "or": "or",
+    "firstNameLabel": "First Name",
+    "lastNameLabel": "Last Name",
+    "phoneLabel": "Phone Number (Optional)",
+    "confirmPasswordLabel": "Confirm Password",
+    "passwordStrength": "Password Strength",
+    "createAccountTitle": "Create Account",
+    "createAccountSubtitle": "Join us today and get started",
+    "agreeTo": "I agree to the",
+    "and": "and",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign In",
+    "pageTitleRegister": "Create Account - Kickstart",
+    "strengthWeak": "Weak",
+    "strengthFair": "Fair",
+    "strengthGood": "Good",
+    "strengthStrong": "Strong"
+  },
+  "sidebar": {
+    "menu": {
+      "dashboard": "Dashboard",
+      "userManagement": "User Management",
+      "users": "Users",
+      "tenants": "Tenants",
+      "roles": "Roles",
+      "permissions": "Permissions",
+      "settings": "Settings",
+      "profile": "Profile"
+    },
+    "actions": {
+      "support": "Support",
+      "logout": "Logout"
+    },
+    "brand": {
+      "tagline": "Secure Authentication System"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "subtitle": "Welcome to the system management panel.",
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "todayLabel": "Today:",
+    "trendVsLast7Days": "in the last 7 days",
+    "trendNoChange": "no change",
+    "stats": {
+      "totalUsers": "Total Users",
+      "activeUsers": "Active Users",
+      "totalRoles": "Total Roles",
+      "totalPermissions": "Total Permissions",
+      "newPermissions": "2 new permissions"
+    },
+    "weeklyRevenueAnalysis": "Weekly Revenue Analysis",
+    "revenueLabel": "Revenue ($)",
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "pageTitle": "Dashboard - Kickstart"
+  },
+  "validation": {
+    "required": "This field is required",
+    "emailFormat": "Please enter a valid email address",
+    "passwordRequired": "Password is required",
+    "passwordMinLength": "Password must be at least {min} characters",
+    "passwordLowercase": "Password must contain at least one lowercase letter",
+    "passwordUppercase": "Password must contain at least one uppercase letter",
+    "passwordDigit": "Password must contain at least one number",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Must be no more than {max} characters",
+    "phoneFormat": "Please enter a valid phone number"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "tenant": {
+    "loginPage": "default"
+  },
+  "app": {
+    "logo": {
+      "src": "/images/logo.svg",
+      "alt": "Kickstart Logo"
+    },
+    "brand": {
+      "text": "Kickstart"
+    }
+  },
+  "theme": {
+    "colors": {
+      "primary": "linear-gradient(180deg, #14532d 0%, #166534 50%, #064e3b 100%)"
+    }
+  },
+  "login": {
+    "backgroundImages": [
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+      "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80",
+      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=2126&q=80",
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2125&q=80",
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+    ],
+    "rotationInterval": 3000
+  },
+  "register": {
+    "backgroundImages": [
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+      "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80",
+      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=2126&q=80",
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2125&q=80",
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+    ],
+    "rotationInterval": 3000,
+    "overlay": {
+      "color": "rgba(0, 0, 0, 0.4)"
+    },
+    "card": {
+      "background": "rgba(255, 255, 255, 0.1)",
+      "backdropFilter": "blur(20px)",
+      "borderRadius": "20px",
+      "border": "1px solid rgba(255, 255, 255, 0.2)",
+      "shadow": "0 25px 45px rgba(0, 0, 0, 0.2)"
+    }
+  }
+}

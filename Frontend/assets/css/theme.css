@@ -1,0 +1,221 @@
+/**
+ * Theme system — light (default) ve dark mode için CSS variables.
+ *
+ * Renkler RGB channel formatında ("R G B" — virgül YOK).
+ * Bu format Tailwind opacity modifier'larını destekler:
+ *   bg-primary    → rgb(var(--color-primary) / 1)
+ *   bg-primary/10 → rgb(var(--color-primary) / 0.1)
+ *   bg-primary/50 → rgb(var(--color-primary) / 0.5)
+ *
+ * tailwind.config.js her renk için 'rgb(var(--color-x) / <alpha-value>)'
+ * referansı kullanıyor — <alpha-value> Tailwind tarafından otomatik dolduruluyor.
+ */
+
+:root {
+  /* Surface palette — light theme (Material 3)
+   * Hex referansları:
+   *   #faf8ff = 250 248 255
+   *   #d2d9f4 = 210 217 244
+   *   #ffffff = 255 255 255
+   *   #f2f3ff = 242 243 255
+   *   #eaedff = 234 237 255
+   *   #e2e7ff = 226 231 255
+   *   #dae2fd = 218 226 253
+   *   #006c49 = 0 108 73
+   */
+  --color-surface-bright: 250 248 255;
+  --color-surface: 250 248 255;
+  --color-surface-dim: 210 217 244;
+  --color-surface-container-lowest: 255 255 255;
+  --color-surface-container-low: 242 243 255;
+  --color-surface-container: 234 237 255;
+  --color-surface-container-high: 226 231 255;
+  --color-surface-container-highest: 218 226 253;
+  --color-surface-variant: 218 226 253;
+  --color-surface-tint: 0 108 73;
+
+  /* On-surface (text on surfaces)
+   *   #131b2e = 19 27 46
+   *   #3c4a42 = 60 74 66
+   */
+  --color-on-surface: 19 27 46;
+  --color-on-surface-variant: 60 74 66;
+
+  /* Background */
+  --color-background: 250 248 255;
+  --color-on-background: 19 27 46;
+
+  /* Primary (brand)
+   *   #006c49 = 0 108 73
+   *   #ffffff = 255 255 255
+   *   #10b981 = 16 185 129
+   *   #00422b = 0 66 43
+   *   #6ffbbe = 111 251 190
+   *   #4edea3 = 78 222 163
+   *   #002113 = 0 33 19
+   *   #005236 = 0 82 54
+   */
+  --color-primary: 0 108 73;
+  --color-on-primary: 255 255 255;
+  --color-primary-container: 16 185 129;
+  --color-on-primary-container: 0 66 43;
+  --color-primary-fixed: 111 251 190;
+  --color-primary-fixed-dim: 78 222 163;
+  --color-on-primary-fixed: 0 33 19;
+  --color-on-primary-fixed-variant: 0 82 54;
+  --color-inverse-primary: 78 222 163;
+
+  /* Secondary (accent / orange)
+   *   #855300 = 133 83 0
+   *   #fea619 = 254 166 25
+   *   #684000 = 104 64 0
+   *   #ffddb8 = 255 221 184
+   *   #ffb95f = 255 185 95
+   *   #2a1700 = 42 23 0
+   *   #653e00 = 101 62 0
+   */
+  --color-secondary: 133 83 0;
+  --color-on-secondary: 255 255 255;
+  --color-secondary-container: 254 166 25;
+  --color-on-secondary-container: 104 64 0;
+  --color-secondary-fixed: 255 221 184;
+  --color-secondary-fixed-dim: 255 185 95;
+  --color-on-secondary-fixed: 42 23 0;
+  --color-on-secondary-fixed-variant: 101 62 0;
+
+  /* Tertiary
+   *   #a43a3a = 164 58 58
+   *   #fc7c78 = 252 124 120
+   *   #711419 = 113 20 25
+   *   #ffdad7 = 255 218 215
+   *   #ffb3af = 255 179 175
+   *   #410005 = 65 0 5
+   *   #842225 = 132 34 37
+   */
+  --color-tertiary: 164 58 58;
+  --color-on-tertiary: 255 255 255;
+  --color-tertiary-container: 252 124 120;
+  --color-on-tertiary-container: 113 20 25;
+  --color-tertiary-fixed: 255 218 215;
+  --color-tertiary-fixed-dim: 255 179 175;
+  --color-on-tertiary-fixed: 65 0 5;
+  --color-on-tertiary-fixed-variant: 132 34 37;
+
+  /* Error
+   *   #ba1a1a = 186 26 26
+   *   #ffdad6 = 255 218 214
+   *   #93000a = 147 0 10
+   */
+  --color-error: 186 26 26;
+  --color-on-error: 255 255 255;
+  --color-error-container: 255 218 214;
+  --color-on-error-container: 147 0 10;
+
+  /* Outlines
+   *   #6c7a71 = 108 122 113
+   *   #bbcabf = 187 202 191
+   */
+  --color-outline: 108 122 113;
+  --color-outline-variant: 187 202 191;
+
+  /* Inverse
+   *   #283044 = 40 48 68
+   *   #eef0ff = 238 240 255
+   */
+  --color-inverse-surface: 40 48 68;
+  --color-inverse-on-surface: 238 240 255;
+}
+
+.dark {
+  /* Surface palette — dark theme
+   *   #1a2235 = 26 34 53
+   *   #0b1326 = 11 19 38
+   *   #161e31 = 22 30 49
+   *   #1e293b = 30 41 59
+   *   #222c45 = 34 44 69
+   *   #2d3748 = 45 55 72
+   *   #4edea3 = 78 222 163
+   */
+  --color-surface-bright: 26 34 53;
+  --color-surface: 11 19 38;
+  --color-surface-dim: 11 19 38;
+  --color-surface-container-lowest: 11 19 38;
+  --color-surface-container-low: 22 30 49;
+  --color-surface-container: 30 41 59;
+  --color-surface-container-high: 34 44 69;
+  --color-surface-container-highest: 45 55 72;
+  --color-surface-variant: 30 41 59;
+  --color-surface-tint: 78 222 163;
+
+  /* On-surface
+   *   #ffffff = 255 255 255
+   *   #94a3b8 = 148 163 184
+   */
+  --color-on-surface: 255 255 255;
+  --color-on-surface-variant: 148 163 184;
+
+  /* Background */
+  --color-background: 11 19 38;
+  --color-on-background: 255 255 255;
+
+  /* Primary (dark mode'da daha açık yeşil ön planda) */
+  --color-primary: 78 222 163;
+  --color-on-primary: 0 33 19;
+  --color-primary-container: 16 185 129;
+  --color-on-primary-container: 0 66 43;
+  --color-primary-fixed: 111 251 190;
+  --color-primary-fixed-dim: 78 222 163;
+  --color-on-primary-fixed: 0 33 19;
+  --color-on-primary-fixed-variant: 0 82 54;
+  --color-inverse-primary: 0 108 73;
+
+  /* Secondary
+   *   #fea619 = 254 166 25
+   */
+  --color-secondary: 254 166 25;
+  --color-on-secondary: 255 255 255;
+  --color-secondary-container: 254 166 25;
+  --color-on-secondary-container: 104 64 0;
+  --color-secondary-fixed: 255 221 184;
+  --color-secondary-fixed-dim: 255 185 95;
+  --color-on-secondary-fixed: 42 23 0;
+  --color-on-secondary-fixed-variant: 101 62 0;
+
+  /* Tertiary */
+  --color-tertiary: 164 58 58;
+  --color-on-tertiary: 255 255 255;
+  --color-tertiary-container: 252 124 120;
+  --color-on-tertiary-container: 113 20 25;
+  --color-tertiary-fixed: 255 218 215;
+  --color-tertiary-fixed-dim: 255 179 175;
+  --color-on-tertiary-fixed: 65 0 5;
+  --color-on-tertiary-fixed-variant: 132 34 37;
+
+  /* Error
+   *   #ff5252 = 255 82 82
+   */
+  --color-error: 255 82 82;
+  --color-on-error: 255 255 255;
+  --color-error-container: 65 0 5;
+  --color-on-error-container: 255 218 214;
+
+  /* Outlines — dark mode'da beyaz tonu kullanıyoruz, opacity Tailwind ile geliyor.
+   * Yani --color-outline: 255 255 255 yazıyoruz; arka planda her zaman opacity ile
+   * kullanılacak (bg-outline/20 gibi). Light tema solid renk kullanıyordu, dark
+   * tema her zaman opacity ile kullanılır — tasarımcı kararı.
+   */
+  --color-outline: 255 255 255;
+  --color-outline-variant: 255 255 255;
+
+  /* Inverse */
+  --color-inverse-surface: 250 248 255;
+  --color-inverse-on-surface: 11 19 38;
+}
+
+/* Smooth color transitions when switching themes
+ * Sadece html ve body — '*' selector'ı performans sorunu yaratıyordu.
+ * İhtiyaç duyan component'ler kendi transition'ını ekleyebilir. */
+html,
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}

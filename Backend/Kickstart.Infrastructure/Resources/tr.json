@@ -1,0 +1,94 @@
+{
+  "auth": {
+    "invalidCredentials": "Email veya şifre hatalı",
+    "emailNotConfirmed": "Lütfen email adresinizi doğrulayın. Doğrulama bağlantısı email adresinize gönderildi.",
+    "multipleAccountsFound": "Bu email adresine ait birden fazla hesap bulundu. Lütfen tenant kimliğini belirtin.",
+    "accessTokenGenerationFailed": "Erişim tokeni oluşturulamadı",
+    "refreshTokenGenerationFailed": "Yenileme tokeni oluşturulamadı",
+    "invalidRefreshToken": "Geçersiz yenileme tokeni",
+    "refreshTokenInactive": "Yenileme tokeni aktif değil",
+    "userNotFound": "Kullanıcı bulunamadı",
+    "loginUnexpectedError": "Giriş sırasında beklenmeyen bir hata oluştu",
+    "unauthorized": "Bu kaynağa erişim yetkiniz yok",
+    "forbidden": "Bu kaynağa erişim izniniz bulunmuyor",
+    "invalidAccessToken": "Geçersiz erişim tokeni",
+    "invalidUserIdInToken": "Token içindeki kullanıcı kimliği geçersiz",
+    "tokenRefreshUnexpectedError": "Token yenileme sırasında beklenmeyen bir hata oluştu",
+    "userNotAuthenticated": "Kullanıcı kimliği doğrulanmamış",
+    "currentPasswordIncorrect": "Mevcut şifre hatalı",
+    "invalidOrExpiredResetLink": "Geçersiz veya süresi dolmuş sıfırlama bağlantısı",
+    "invalidOrExpiredVerificationLink": "Geçersiz veya süresi dolmuş doğrulama bağlantısı"
+  },
+  "users": {
+    "notFound": "Kullanıcı bulunamadı",
+    "emailExists": "Bu email adresi zaten kullanılıyor",
+    "phoneExists": "Bu telefon numarası zaten kullanılıyor",
+    "onlySuperAdminCanSpecifyTenant": "Sadece SuperAdmin başka bir tenant için kullanıcı oluşturabilir",
+    "cannotAssignSuperAdmin": "SuperAdmin rolü atayamazsınız",
+    "noAccessToUpdate": "Bu kullanıcıyı güncelleme yetkiniz yok",
+    "noAccessToDelete": "Bu kullanıcıyı silme yetkiniz yok",
+    "cannotDeleteSelf": "Kendi hesabınızı silemezsiniz",
+    "cannotDeleteLastSuperAdmin": "Sistemdeki son SuperAdmin'i silemezsiniz"
+  },
+  "roles": {
+    "notFound": "Rol bulunamadı",
+    "cannotModifySystem": "Sistem rolleri değiştirilemez",
+    "nameExists": "Bu rol adı zaten kullanılıyor",
+    "createFailed": "Rol oluşturulurken beklenmeyen bir hata oluştu",
+    "updateFailed": "Rol güncellenirken beklenmeyen bir hata oluştu"
+  },
+  "tenants": {
+    "notFound": "Tenant bulunamadı",
+    "nameExists": "Bu tenant adı zaten kullanılıyor",
+    "domainExists": "Bu tenant domaini zaten kullanılıyor"
+  },
+  "password": {
+    "generationFailed": "Şifre oluşturulamadı",
+    "empty": "Şifre boş olamaz",
+    "tooShort": "Şifre en az 8 karakter olmalıdır",
+    "missingLowercase": "Şifre en az bir küçük harf içermelidir",
+    "missingUppercase": "Şifre en az bir büyük harf içermelidir",
+    "missingDigit": "Şifre en az bir rakam içermelidir",
+    "hashFailed": "Şifre işlenirken bir hata oluştu",
+    "verifyFailed": "Şifre doğrulanırken bir hata oluştu"
+  },
+  "common": {
+    "unexpectedError": "Beklenmedik bir hata oluştu. Lütfen tekrar deneyin veya sorun devam ederse destek ekibiyle iletişime geçin."
+  },
+  "validation": {
+    "fields": {
+      "id": "Kimlik",
+      "userId": "Kullanıcı kimliği",
+      "roleId": "Rol kimliği",
+      "tenantId": "Tenant kimliği",
+      "email": "E-posta",
+      "password": "Şifre",
+      "currentPassword": "Mevcut şifre",
+      "newPassword": "Yeni şifre",
+      "confirmPassword": "Şifre tekrarı",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "phoneNumber": "Telefon numarası",
+      "status": "Durum",
+      "token": "Token",
+      "accessToken": "Erişim tokeni",
+      "refreshToken": "Yenileme tokeni",
+      "roleName": "Rol adı",
+      "tenantName": "Tenant adı",
+      "description": "Açıklama",
+      "domain": "Domain",
+      "contactEmail": "İletişim e-postası",
+      "contactPhone": "İletişim telefonu"
+    },
+    "required": "{0} alanı zorunludur",
+    "maxLength": "{0} en fazla {1} karakter olabilir",
+    "minLength": "{0} en az {1} karakter olmalıdır",
+    "emailFormat": "Geçerli bir e-posta adresi girin",
+    "domainFormat": "Geçersiz domain formatı",
+    "invalidEnum": "{0} için geçersiz değer",
+    "greaterThan": "{0} {1}'den büyük olmalıdır",
+    "nameFormat": "{0} yalnızca harf, boşluk, kesme işareti, tire ve nokta içerebilir",
+    "passwordComplexity": "Şifre en az bir küçük harf, bir büyük harf ve bir rakam içermelidir",
+    "passwordsDoNotMatch": "Şifreler eşleşmiyor"
+  }
+}

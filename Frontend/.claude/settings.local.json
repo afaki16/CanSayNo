@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo \"exit:$?\")",
+      "Bash(npx vue-tsc *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Infrastructure\\Resources",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Auth\\Commands\\Login",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Auth\\Commands\\RefreshToken",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Auth\\Commands\\VerifyEmail",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Auth\\Commands\\ResendVerificationEmail",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Auth\\Commands\\Register",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Users\\Commands\\CreateUser",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Users\\Commands\\UpdateUser",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Roles\\Commands\\CreateRole",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Roles\\Commands\\UpdateRole",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Tenants\\Commands\\CreateTenant",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Tenants\\Commands\\UpdateTenant",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Auth\\Commands\\ChangePassword",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Application\\Features\\Auth\\Commands\\ResetPassword",
+      "c:\\Users\\Hp\\Desktop\\Projects\\Kickstart\\Backend\\Kickstart.Infrastructure\\Services"
+    ]
+  }
+}

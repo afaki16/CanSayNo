@@ -1,0 +1,43 @@
+{
+  "name": "kickstart-frontend",
+  "version": "1.0.0",
+  "description": "Kickstart Frontend with Nuxt.js and Vuetify",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "nuxt typecheck"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxt/eslint-config": "^0.2.0",
+    "@nuxt/typescript-build": "^3.0.2",
+    "eslint": "^8.56.0",
+    "nuxt": "^3.8.0",
+    "sass": "^1.69.0",
+    "typescript": "^5.8.3",
+    "vue-tsc": "^3.0.4"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@nuxt/icon": "^1.15.0",
+    "@nuxtjs/google-fonts": "^3.0.2",
+    "@nuxtjs/i18n": "^10.3.0",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@pinia/nuxt": "^0.5.1",
+    "@vueuse/core": "^10.7.0",
+    "@vueuse/nuxt": "^10.7.0",
+    "axios": "^1.6.2",
+    "chart.js": "^4.5.1",
+    "flag-icons": "^7.5.0",
+    "jwt-decode": "^4.0.0",
+    "pinia": "^2.1.7",
+    "vue-chartjs": "^5.3.3",
+    "vuetify": "^3.4.8"
+  }
+}
