@@ -461,7 +461,7 @@ definePageMeta({
   requiresAuth: true,
 });
 
-useHead({ title: "Profilim - Kickstart" });
+useHead({ title: "Profilim - CanSayNo" });
 
 const authStore = useAuthStore();
 const { getUserSessions, changePassword } = useAuth();

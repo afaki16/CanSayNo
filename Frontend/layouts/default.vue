@@ -21,7 +21,7 @@
             style="font-size: 32px"
           />
           <h1 class="text-headline-md font-headline-md font-bold text-on-surface truncate">
-            {{ appData?.app?.brand?.text || 'Kickstart' }}
+            {{ appData?.app?.brand?.text || 'CanSayNo' }}
           </h1>
         </div>
         <button

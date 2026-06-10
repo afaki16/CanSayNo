@@ -1,7 +1,7 @@
 {
-  "name": "kickstart-frontend",
+  "name": "cansayno-frontend",
   "version": "1.0.0",
-  "description": "Kickstart Frontend with Nuxt.js and Vuetify",
+  "description": "CanSayNo Frontend with Nuxt.js and Vuetify",
   "private": true,
   "scripts": {
     "build": "nuxt build",

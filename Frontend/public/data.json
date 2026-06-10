@@ -5,10 +5,10 @@
   "app": {
     "logo": {
       "src": "/images/logo.svg",
-      "alt": "Kickstart Logo"
+      "alt": "CanSayNo Logo"
     },
     "brand": {
-      "text": "Kickstart"
+      "text": "CanSayNo"
     }
   },
   "theme": {

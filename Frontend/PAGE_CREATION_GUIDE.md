@@ -1,4 +1,4 @@
-# Kickstart Frontend — Yeni Sayfa (CRUD) Oluşturma Rehberi
+# CanSayNo Frontend — Yeni Sayfa (CRUD) Oluşturma Rehberi
 
 Bu rehber, projeye yeni bir CRUD sayfası eklerken **hangi dosyaları oluşturman**, **hangi mevcut dosyalara satır eklemen** gerektiğini sırasıyla gösterir. Mevcut **Users** ve **Tenants** sayfaları referans alınmıştır.
 

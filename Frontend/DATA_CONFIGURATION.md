@@ -8,8 +8,8 @@
 {
   "tenant": { "loginPage": "default" },
   "app": {
-    "logo": { "src": "/images/logo.svg", "alt": "Kickstart Logo" },
-    "brand": { "text": "Kickstart" }
+    "logo": { "src": "/images/logo.svg", "alt": "CanSayNo Logo" },
+    "brand": { "text": "CanSayNo" }
   },
   "theme": {
     "colors": {
@@ -61,7 +61,7 @@
 
 - `app.logo.src` — logo görseli (sidebar, login, splash ekranları).
 - `app.logo.alt` — logo görselinin alt metni (erişilebilirlik). Yüklenemezse `"Logo"` fallback'i kullanılır.
-- `app.brand.text` — sidebar marka adı. Yoksa `"Kickstart"` fallback'i kullanılır.
+- `app.brand.text` — sidebar marka adı. Yoksa `"CanSayNo"` fallback'i kullanılır.
 
 ## Login/Register arka planları
 

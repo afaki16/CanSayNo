@@ -178,9 +178,9 @@ onUnmounted(() => {
 
 // SEO
 useHead({
-  title: 'Hesap Oluştur - Kickstart',
+  title: 'Hesap Oluştur - CanSayNo',
   meta: [
-    { name: 'description', content: 'Create your Kickstart account' }
+    { name: 'description', content: 'Create your CanSayNo account' }
   ]
 })
 </script>

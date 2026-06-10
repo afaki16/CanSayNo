@@ -46,7 +46,7 @@
     "privacyPolicy": "Privacy Policy",
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign In",
-    "pageTitleRegister": "Create Account - Kickstart",
+    "pageTitleRegister": "Create Account - CanSayNo",
     "strengthWeak": "Weak",
     "strengthFair": "Fair",
     "strengthGood": "Good",
@@ -100,7 +100,7 @@
       "sat": "Sat",
       "sun": "Sun"
     },
-    "pageTitle": "Dashboard - Kickstart"
+    "pageTitle": "Dashboard - CanSayNo"
   },
   "validation": {
     "required": "This field is required",

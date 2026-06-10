@@ -1,6 +1,6 @@
 /**
  * Backend ErrorCode enum mirror.
- * Source: Backend/Kickstart.Domain/Common/Enums/ErrorCode.cs
+ * Source: Backend/CanSayNo.Domain/Common/Enums/ErrorCode.cs
  */
 export const ErrorCode = {
   EmailNotConfirmed: 1013,

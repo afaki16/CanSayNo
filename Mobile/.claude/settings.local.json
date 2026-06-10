@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const p=require\\('phosphor-react-native'\\); ['House','ChatCircleText','User','Fire','Flame','ArrowRight','Play','Trophy','Target','Star','LockSimple','Lock','X','Briefcase','UsersThree','SmileyWink','Heart','ShoppingBag','SignOut','CaretRight'].forEach\\(n=>console.log\\(n, typeof p[n]\\)\\)\")",
+      "Bash([ -f \"node_modules/phosphor-react-native/src/icons/$n.tsx\" ])",
+      "Bash(npx expo *)",
+      "Bash(npx tsc *)",
+      "Bash(grep -oE \"/\\\\\\(app\\\\\\)[^\\\\\"\\\\\\\\]*|/home\" .expo/types/router.d.ts)",
+      "Bash(echo \"tsc exit: $?\")",
+      "Bash(npx eslint *)",
+      "Bash(echo \"ESLINT EXIT: $?\")"
+    ]
+  }
+}

@@ -67,7 +67,7 @@ definePageMeta({
 });
 
 useHead({
-  title: "Ayarlar - Kickstart",
+  title: "Ayarlar - CanSayNo",
 });
 //#endregion
 

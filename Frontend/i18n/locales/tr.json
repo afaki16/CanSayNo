@@ -46,7 +46,7 @@
     "privacyPolicy": "Gizlilik Politikası",
     "alreadyHaveAccount": "Zaten hesabınız var mı?",
     "signIn": "Giriş Yap",
-    "pageTitleRegister": "Hesap Oluştur - Kickstart",
+    "pageTitleRegister": "Hesap Oluştur - CanSayNo",
     "strengthWeak": "Zayıf",
     "strengthFair": "Orta",
     "strengthGood": "İyi",
@@ -100,7 +100,7 @@
       "sat": "Cmt",
       "sun": "Paz"
     },
-    "pageTitle": "Anasayfa - Kickstart"
+    "pageTitle": "Anasayfa - CanSayNo"
   },
   "validation": {
     "required": "Bu alan zorunludur",

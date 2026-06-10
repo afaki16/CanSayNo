@@ -75,7 +75,7 @@ const onResend = async () => {
 }
 
 useHead({
-  title: 'Email Doğrulama - Kickstart'
+  title: 'Email Doğrulama - CanSayNo'
 })
 </script>
 

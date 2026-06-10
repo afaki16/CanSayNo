@@ -137,7 +137,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.API_BASE_URL || "https://localhost:44333",
-      appName: "Kickstart",
+      appName: "CanSayNo",
       appVersion: "1.0.0",
       defaultLayout: process.env.NUXT_PUBLIC_DEFAULT_LAYOUT || "default",
     },
@@ -145,7 +145,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Kickstart",
+      title: "CanSayNo",
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },

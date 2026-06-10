@@ -109,7 +109,7 @@ export const useAppData = () => {
   const getRegisterConfig = computed(() => appData.value?.register || null)
 
   const getLogo = computed(() => appData.value?.app.logo || null)
-  const getBrandText = computed(() => appData.value?.app.brand.text || 'Kickstart')
+  const getBrandText = computed(() => appData.value?.app.brand.text || 'CanSayNo')
   const getBackgroundImages = computed(
     () => appData.value?.login.backgroundImages || appData.value?.register.backgroundImages || []
   )
