@@ -40,3 +40,7 @@ Backend/Kickstart.Infrastructure/Kickstart.Infrastructure.csproj.lscache
 
 # IDE (additional patterns)
 **/.vs/
+
+# Expo
+**/.expo/
+**/.expo-shared/
