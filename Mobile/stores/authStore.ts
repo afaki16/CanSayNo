@@ -7,10 +7,10 @@
 import { create } from 'zustand';
 
 import { secureStorage, STORAGE_KEYS } from '@/lib/storage/secureStorage';
-import type { AuthTokens, User } from '@/types/auth';
+import type { AuthTokens, StoredUser } from '@/types/auth';
 
 export interface AuthState {
-  user: User | null;
+  user: StoredUser | null;
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean; // user !== null && accessToken !== null
@@ -19,19 +19,19 @@ export interface AuthState {
 
 export interface AuthActions {
   // Login başarılı olunca çağrılır.
-  setAuth: (user: User, tokens: AuthTokens) => Promise<void>;
+  setAuth: (user: StoredUser, tokens: AuthTokens) => Promise<void>;
 
   // Logout / token expire olunca.
   clearAuth: () => Promise<void>;
 
-  // Sadece access token güncelle (refresh token rotation sonrası).
-  updateAccessToken: (accessToken: string) => Promise<void>;
+  // Access + refresh token'ı birlikte güncelle (refresh token rotation sonrası).
+  updateTokens: (accessToken: string, refreshToken: string) => Promise<void>;
 
   // App açılışta secure storage'dan oku, state'i doldur.
   rehydrate: () => Promise<void>;
 
   // User bilgisi güncelle (profil edit sonrası).
-  updateUser: (user: Partial<User>) => Promise<void>;
+  updateUser: (user: Partial<StoredUser>) => Promise<void>;
 }
 
 const initialState: AuthState = {
@@ -83,16 +83,19 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
     }
   },
 
-  updateAccessToken: async (accessToken) => {
+  updateTokens: async (accessToken, refreshToken) => {
     try {
-      await secureStorage.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken);
-      // Refresh token'a dokunma; sadece access token'ı güncelle.
+      await Promise.all([
+        secureStorage.set(STORAGE_KEYS.ACCESS_TOKEN, accessToken),
+        secureStorage.set(STORAGE_KEYS.REFRESH_TOKEN, refreshToken),
+      ]);
       set((state) => ({
         accessToken,
+        refreshToken,
         isAuthenticated: state.user !== null && accessToken !== null,
       }));
     } catch (error) {
-      console.error('[authStore] updateAccessToken başarısız:', error);
+      console.error('[authStore] updateTokens başarısız:', error);
     }
   },
 
@@ -101,7 +104,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
       const [accessToken, refreshToken, user] = await Promise.all([
         secureStorage.get(STORAGE_KEYS.ACCESS_TOKEN),
         secureStorage.get(STORAGE_KEYS.REFRESH_TOKEN),
-        secureStorage.getJSON<User>(STORAGE_KEYS.USER),
+        secureStorage.getJSON<StoredUser>(STORAGE_KEYS.USER),
       ]);
 
       if (user && accessToken) {
@@ -127,7 +130,7 @@ export const useAuthStore = create<AuthState & AuthActions>()((set, get) => ({
       if (!current) {
         return;
       }
-      const updated: User = { ...current, ...partial };
+      const updated: StoredUser = { ...current, ...partial };
       await secureStorage.setJSON(STORAGE_KEYS.USER, updated);
       set({ user: updated });
     } catch (error) {

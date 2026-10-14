@@ -1,22 +1,23 @@
-// Auth domain tipleri. Backend (.NET 9 Clean Architecture, JWT + refresh token)
-// şemasına yakın tutuldu; API bağlandığında bu tipler genişletilebilir.
+// Auth domain tipleri — uygulama içinde taşınan şekiller.
+// Wire format (backend'in döndüğü ham gövde) için: @/types/api/auth.
 
-export interface User {
-  id: string;
+// Secure storage'a yazılan kullanıcı özeti. Backend'in ApiUser'ından
+// türetilir (lib/api/mappers/userMapper), ama roles/permissions taşımaz:
+// kullanılmıyorlar ve şifreli depoda yer kaplıyorlar.
+export interface StoredUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  fullName: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
-  emailVerified: boolean;
-  // İleride: avatar, roles, premiumStatus, vs.
+  emailConfirmed: boolean;
+  profileImageUrl: string | null;
 }
 
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
-  accessTokenExpiresAt?: number; // unix timestamp (ms)
-}
-
-export interface LoginResponse {
-  user: User;
-  tokens: AuthTokens;
+  // Backend'in döndüğü ISO-8601 son kullanma tarihi (oturumun/refresh
+  // token'ın geçerlilik sınırı). Şimdilik sadece bilgi amaçlı.
+  expiresAt?: string;
 }
