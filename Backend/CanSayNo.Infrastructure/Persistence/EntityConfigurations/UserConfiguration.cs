@@ -41,13 +41,16 @@ namespace CanSayNo.Infrastructure.Persistence.EntityConfigurations
             builder.Property(x => x.PhoneNumber)
                 .HasMaxLength(20);
 
+            // Empty string is excluded alongside NULL: a blank phone means "no phone", not
+            // a value that has to be unique. Without the <> '' term the second user who
+            // leaves the phone field blank collides on 23505 and the request 500s.
             builder.HasIndex(x => new { x.TenantId, x.PhoneNumber })
                 .IsUnique()
-                .HasFilter("\"TenantId\" IS NOT NULL AND \"PhoneNumber\" IS NOT NULL AND NOT \"IsDeleted\"");
+                .HasFilter("\"TenantId\" IS NOT NULL AND \"PhoneNumber\" IS NOT NULL AND \"PhoneNumber\" <> '' AND NOT \"IsDeleted\"");
 
             builder.HasIndex(x => x.PhoneNumber)
                 .IsUnique()
-                .HasFilter("\"TenantId\" IS NULL AND \"PhoneNumber\" IS NOT NULL AND NOT \"IsDeleted\"");
+                .HasFilter("\"TenantId\" IS NULL AND \"PhoneNumber\" IS NOT NULL AND \"PhoneNumber\" <> '' AND NOT \"IsDeleted\"");
 
             builder.HasIndex(x => x.TenantId);
 

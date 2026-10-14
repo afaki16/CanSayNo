@@ -95,7 +95,9 @@ namespace CanSayNo.Application.Features.Auth.Commands.Register
                 LastName = request.LastName,
                 Email = normalizedEmail,
                 PasswordHash = passwordResult.Value,
-                PhoneNumber = request.PhoneNumber,
+                // Blank phone is stored as NULL, never "": the unique index treats NULLs as
+                // distinct but would collide on repeated empty strings.
+                PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber) ? null : request.PhoneNumber.Trim(),
                 Status = UserStatus.PendingVerification,
                 EmailConfirmed = false
             };

@@ -79,7 +79,9 @@ namespace CanSayNo.Application.Features.Users.Commands.UpdateUser
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
             user.Email = normalizedEmail;
-            user.PhoneNumber = request.PhoneNumber;
+            // Blank phone is stored as NULL, never "": the unique index treats NULLs as
+            // distinct but would collide on repeated empty strings.
+            user.PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber) ? null : request.PhoneNumber.Trim();
             user.Status = request.Status;
             user.ProfileImageUrl = request.ProfileImageUrl;
 

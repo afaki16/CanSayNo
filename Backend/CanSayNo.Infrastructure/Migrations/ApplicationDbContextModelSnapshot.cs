@@ -22,6 +22,329 @@ namespace CanSayNo.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.DailyUsage", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("SessionsCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TokensUsed")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "Date");
+
+                    b.HasIndex("Date");
+
+                    b.ToTable("DailyUsage", (string)null);
+                });
+
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.Scenario", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Character")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("character");
+
+                    b.Property<int>("ContextId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Difficulty")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EstimatedDurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsFree")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PressureTactics")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("pressure_tactics");
+
+                    b.Property<string>("Scene")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("scene");
+
+                    b.Property<string>("ShortDescription")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("tags");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContextId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("IsFree");
+
+                    b.HasIndex("SortOrder");
+
+                    b.ToTable("Scenarios", (string)null);
+                });
+
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.Session", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CurrentRound")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Evaluation")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("evaluation");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Messages")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("messages");
+
+                    b.Property<string>("ScenarioId")
+                        .IsRequired()
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TokensUsed")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TotalScore")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScenarioId");
+
+                    b.HasIndex("StartedAt");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Sessions", (string)null);
+                });
+
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.Subscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AppId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ProviderTransactionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ProviderUserId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RawWebhookData")
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "AppId");
+
+                    b.ToTable("Subscriptions", (string)null);
+                });
+
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.UserStats", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("CurrentStreak")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateOnly?>("LastPracticeDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LongestStreak")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalCompletedSessions")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalPoints")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalSessions")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UnlockedBadges")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("unlocked_badges");
+
+                    b.Property<int?>("UpdatedBy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserStats", (string)null);
+                });
+
             modelBuilder.Entity("CanSayNo.Domain.Entities.LoginAttempt", b =>
                 {
                     b.Property<int>("Id")
@@ -485,7 +808,7 @@ namespace CanSayNo.Infrastructure.Migrations
 
                     b.HasIndex("PhoneNumber")
                         .IsUnique()
-                        .HasFilter("\"TenantId\" IS NULL AND \"PhoneNumber\" IS NOT NULL AND NOT \"IsDeleted\"");
+                        .HasFilter("\"TenantId\" IS NULL AND \"PhoneNumber\" IS NOT NULL AND \"PhoneNumber\" <> '' AND NOT \"IsDeleted\"");
 
                     b.HasIndex("TenantId");
 
@@ -495,7 +818,7 @@ namespace CanSayNo.Infrastructure.Migrations
 
                     b.HasIndex("TenantId", "PhoneNumber")
                         .IsUnique()
-                        .HasFilter("\"TenantId\" IS NOT NULL AND \"PhoneNumber\" IS NOT NULL AND NOT \"IsDeleted\"");
+                        .HasFilter("\"TenantId\" IS NOT NULL AND \"PhoneNumber\" IS NOT NULL AND \"PhoneNumber\" <> '' AND NOT \"IsDeleted\"");
 
                     b.ToTable("Users", (string)null);
                 });
@@ -599,6 +922,58 @@ namespace CanSayNo.Infrastructure.Migrations
                     b.ToTable("UserVerificationTokens", (string)null);
                 });
 
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.DailyUsage", b =>
+                {
+                    b.HasOne("CanSayNo.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.Session", b =>
+                {
+                    b.HasOne("CanSayNo.Domain.Entities.Hayirci.Scenario", "Scenario")
+                        .WithMany("Sessions")
+                        .HasForeignKey("ScenarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CanSayNo.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Scenario");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.Subscription", b =>
+                {
+                    b.HasOne("CanSayNo.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.UserStats", b =>
+                {
+                    b.HasOne("CanSayNo.Domain.Entities.User", "User")
+                        .WithOne()
+                        .HasForeignKey("CanSayNo.Domain.Entities.Hayirci.UserStats", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CanSayNo.Domain.Entities.PasswordResetToken", b =>
                 {
                     b.HasOne("CanSayNo.Domain.Entities.User", "User")
@@ -678,6 +1053,11 @@ namespace CanSayNo.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CanSayNo.Domain.Entities.Hayirci.Scenario", b =>
+                {
+                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("CanSayNo.Domain.Entities.Permission", b =>
