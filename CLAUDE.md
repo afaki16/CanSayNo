@@ -63,6 +63,9 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 
 - `GET /api/Scenarios` (?contextId, ?isFreeOnly), `GET /api/Scenarios/{id}`, `GET /api/Scenarios/by-context/{contextId}` — hepsi `[Authorize]`
 - Kullanıcıya özel alanlar (isCompleted, bestScore, attemptsCount, lastAttemptAt) Sessions'tan tek GroupBy sorgusuyla hesaplanıyor (N+1 yok)
+- Sessions (`[Authorize]`): `POST /api/Sessions` (body `{scenarioId}`; premium senaryo + abonelik yok → 403 `premiumRequired`, ücretsiz günlük limit → 429 `dailyLimitReached`; aynı senaryoda henüz mesaj atılmamış açık oturum varsa yenisi açılmaz, o döner), `GET /api/Sessions/{id}` (başkasının oturumu → 404), `GET /api/Sessions/my?page&pageSize` (pageSize ≤ 50)
+- Limit ayarları `appsettings.json` → `Hayirci` (`FreeDailySessionLimit`, `UsageDayUtcOffsetHours`=3 → gün TR saatiyle döner). Kullanım `DailyUsage`'a herkes için yazılır, limit sadece premium olmayana uygulanır
+- Kickstart `ValidationBehavior` `PagedResult<T>` için failure üretemiyor (cast hatası → 500) — sayfalı sorgulara validator ekleme, handler'da clamp et
 - Auth (Kickstart): `/api/Auth/login`, `/register`, `/refresh-token` (body `{accessToken, refreshToken}` — ikisi de zorunlu), `/logout` (body `{refreshToken, reason}`), `/me`
 - Rate limiter'lar aktif (login, sensitive, refresh)
 

@@ -40,13 +40,13 @@ public class SessionMessage
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }
 
+// Mobile Sonuç ekranının şekli: 5 eksen 0-100 + liste halinde güçlü yönler / öneriler + koç notu.
 public class SessionEvaluation
 {
-    public Dictionary<EvaluationCriterion, int> Scores { get; set; } = new();  // 0-10 her eksen
-    public Dictionary<EvaluationCriterion, string> Justifications { get; set; } = new();
-    public string StrongPoint { get; set; } = string.Empty;
-    public string ImprovementArea { get; set; } = string.Empty;
-    public string IdealResponseExample { get; set; } = string.Empty;
+    public Dictionary<EvaluationCriterion, int> Scores { get; set; } = new();  // 0-100 her eksen
+    public List<string> Strengths { get; set; } = new();
+    public List<string> Improvements { get; set; } = new();
+    public string CoachNote { get; set; } = string.Empty;
+    public string? IdealResponseExample { get; set; }
     public int TotalScore { get; set; }  // 0-100
-    public string Status { get; set; } = string.Empty;  // "basarili", "gelisim_gerekli", "tekrar_dene"
 }

@@ -16,4 +16,6 @@ public enum ErrorCode
     Forbidden = 1011,
     Unauthorized = 1012,
     EmailNotConfirmed = 1013,
+    DailyLimitReached = 1014,   // Ücretsiz günlük pratik limiti doldu (429)
+    PremiumRequired = 1015,     // Premium içerik, aktif abonelik yok (403)
 }

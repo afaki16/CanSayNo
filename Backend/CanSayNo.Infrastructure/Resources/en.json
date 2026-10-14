@@ -78,7 +78,8 @@
       "description": "Description",
       "domain": "Domain",
       "contactEmail": "Contact email",
-      "contactPhone": "Contact phone"
+      "contactPhone": "Contact phone",
+      "scenarioId": "Scenario"
     },
     "required": "{0} field is required",
     "maxLength": "{0} cannot exceed {1} characters",
@@ -90,5 +91,11 @@
     "nameFormat": "{0} can only contain letters, spaces, apostrophes, hyphens and dots",
     "passwordComplexity": "Password must contain at least one lowercase letter, one uppercase letter, and one digit",
     "passwordsDoNotMatch": "Passwords do not match"
+  },
+  "sessions": {
+    "notFound": "Practice session not found",
+    "scenarioNotFound": "Scenario not found",
+    "premiumRequired": "This scenario is for premium members. Upgrade to unlock all contexts.",
+    "dailyLimitReached": "You've used today's free practice. Come back tomorrow or go premium for unlimited practice."
   }
 }

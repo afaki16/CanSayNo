@@ -51,4 +51,55 @@ public class SessionRepository : RepositoryBase<Session, Guid>, ISessionReposito
 
         return aggregates.ToDictionary(a => a.ScenarioId, a => a);
     }
+
+    public async Task<Session?> GetUserSessionAsync(
+        Guid sessionId,
+        int userId,
+        bool asNoTracking,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Session> query = _context.Sessions.Include(s => s.Scenario);
+        if (asNoTracking)
+            query = query.AsNoTracking();
+
+        return await query.FirstOrDefaultAsync(
+            s => s.Id == sessionId && s.UserId == userId, cancellationToken);
+    }
+
+    public async Task<Session?> GetUnstartedActiveSessionAsync(
+        int userId,
+        string scenarioId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Sessions
+            .Include(s => s.Scenario)
+            .Where(s => s.UserId == userId
+                        && s.ScenarioId == scenarioId
+                        && s.Status == SessionStatus.Active
+                        && s.CurrentRound == 0)
+            .OrderByDescending(s => s.StartedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<(IReadOnlyList<Session> Items, int TotalCount)> GetUserSessionsPagedAsync(
+        int userId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Sessions
+            .AsNoTracking()
+            .Where(s => s.UserId == userId);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .Include(s => s.Scenario)
+            .OrderByDescending(s => s.StartedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }

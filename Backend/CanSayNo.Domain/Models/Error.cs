@@ -41,7 +41,9 @@ public class Error
         var httpStatus = status != 0 ? status : code switch
         {
             ErrorCode.NotFound      => 404,
-            ErrorCode.Forbidden     => 403,
+            ErrorCode.Forbidden
+            or ErrorCode.PremiumRequired => 403,
+            ErrorCode.DailyLimitReached => 429,
             ErrorCode.Unauthorized  => 401,
             ErrorCode.AlreadyExists => 409,
             ErrorCode.InternalError

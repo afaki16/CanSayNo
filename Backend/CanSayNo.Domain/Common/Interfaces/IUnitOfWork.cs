@@ -20,6 +20,8 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     ILoginAttemptRepository LoginAttempts { get; }
     IScenarioRepository Scenarios { get; }
     ISessionRepository Sessions { get; }
+    IDailyUsageRepository DailyUsage { get; }
+    ISubscriptionRepository Subscriptions { get; }
     // Core operations
     /// <summary>
     /// Save all changes made in this unit of work

@@ -78,7 +78,8 @@
       "description": "Açıklama",
       "domain": "Domain",
       "contactEmail": "İletişim e-postası",
-      "contactPhone": "İletişim telefonu"
+      "contactPhone": "İletişim telefonu",
+      "scenarioId": "Senaryo"
     },
     "required": "{0} alanı zorunludur",
     "maxLength": "{0} en fazla {1} karakter olabilir",
@@ -90,5 +91,11 @@
     "nameFormat": "{0} yalnızca harf, boşluk, kesme işareti, tire ve nokta içerebilir",
     "passwordComplexity": "Şifre en az bir küçük harf, bir büyük harf ve bir rakam içermelidir",
     "passwordsDoNotMatch": "Şifreler eşleşmiyor"
+  },
+  "sessions": {
+    "notFound": "Pratik bulunamadı",
+    "scenarioNotFound": "Senaryo bulunamadı",
+    "premiumRequired": "Bu senaryo premium üyelere özel. Premium'a geçerek tüm bağlamların kilidini açabilirsin.",
+    "dailyLimitReached": "Bugünkü ücretsiz pratik hakkını kullandın. Yarın tekrar gel ya da premium ile sınırsız pratik yap."
   }
 }

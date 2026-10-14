@@ -1,5 +1,6 @@
 using CanSayNo.Application.Interfaces;
 using CanSayNo.Application.Common.Localization;
+using CanSayNo.Application.Common.Settings;
 using CanSayNo.Infrastructure.Localization;
 using CanSayNo.Domain.Common.Interfaces;
 using CanSayNo.Domain.Common.Interfaces.Repositories;
@@ -34,6 +35,10 @@ namespace CanSayNo.Infrastructure
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddRepositories(typeof(DependencyInjection).Assembly);
 
+
+        // Hayırcı ürün ayarları (günlük limit, abonelik AppId). Bölüm yoksa default'lar kullanılır.
+        services.AddSingleton(
+            configuration.GetSection(HayirciSettings.SectionName).Get<HayirciSettings>() ?? new HayirciSettings());
 
         // Add Memory Cache
         services.AddMemoryCache();

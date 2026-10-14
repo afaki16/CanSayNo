@@ -20,4 +20,34 @@ public interface ISessionRepository : IRepository<Session, System.Guid>
         int userId,
         IEnumerable<string>? scenarioIds = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Kullanıcıya ait oturumu senaryosuyla birlikte döndürür; başka kullanıcının
+    /// oturumu için null (varlığını sızdırmamak için NotFound gibi ele alınır).
+    /// </summary>
+    /// <param name="asNoTracking">Query handler'larda true; güncellenecekse false.</param>
+    Task<Session?> GetUserSessionAsync(
+        System.Guid sessionId,
+        int userId,
+        bool asNoTracking,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Kullanıcının bu senaryoda açık ve henüz hiç mesaj göndermediği (CurrentRound == 0)
+    /// en son oturumu. Pratik ekranı yeniden açıldığında günlük limiti yakmadan
+    /// aynı oturuma devam etmek için kullanılır. Tracked döner.
+    /// </summary>
+    Task<Session?> GetUnstartedActiveSessionAsync(
+        int userId,
+        string scenarioId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Kullanıcının oturumlarını en yeniden eskiye, senaryosuyla birlikte sayfalı döndürür.
+    /// </summary>
+    Task<(IReadOnlyList<Session> Items, int TotalCount)> GetUserSessionsPagedAsync(
+        int userId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }
