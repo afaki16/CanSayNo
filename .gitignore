@@ -44,3 +44,9 @@ Backend/Kickstart.Infrastructure/Kickstart.Infrastructure.csproj.lscache
 # Expo
 **/.expo/
 **/.expo-shared/
+
+# Claude Code yerel ayarları
+**/.claude/settings.local.json
+
+# Claude Design export (büyük, repo dışı referans)
+CanSayNo Ekranlar.html
