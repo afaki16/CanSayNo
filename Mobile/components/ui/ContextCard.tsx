@@ -1,27 +1,32 @@
-// Bağlam kartı — Senaryolar tab'ındaki renkli grid'in tek hücresi.
-// Dolgun bağlam rengi zemin, beyaz içerik. Premium bağlamlarda kilit + PREMIUM chip,
-// ücretsizlerde "tamamlanan/toplam" mini ilerleme göstergesi.
+// Bağlam kartı — Senaryolar tab'ındaki grid'in tek hücresi.
+// Beyaz kart, bağlam renginde soft ikon kutusu. Premium bağlamlarda kilitli
+// "Premium" chip'i, ücretsizlerde "tamamlanan/toplam" ilerleme chip'i.
 
-import { Lock } from 'phosphor-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { LockSimple } from 'phosphor-react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+
+import { Text } from './Text';
 
 import {
   Colors,
   FontSize,
   FontWeight,
   Radius,
-  Shadow,
-  Spacing,
 } from '@/constants/theme';
 import { getContextIcon } from '@/lib/icons';
-import type { Context } from '@/types/scenario';
+import type { Context, ContextProgress } from '@/types/scenario';
 
 export interface ContextCardProps {
   context: Context;
+  // Sayılar API'den türetilir, metadata'da tutulmaz — çağıran ekran verir.
+  progress: ContextProgress;
   onPress: () => void;
 }
 
-export function ContextCard({ context, onPress }: ContextCardProps) {
+// Senaryolar ekranındaki skeleton bu yüksekliği kullanır — layout kaymasın.
+export const CONTEXT_CARD_MIN_HEIGHT = 190;
+
+export function ContextCard({ context, progress, onPress }: ContextCardProps) {
   const Icon = getContextIcon(context.iconName);
   const isLocked = !context.isFree;
 
@@ -30,40 +35,31 @@ export function ContextCard({ context, onPress }: ContextCardProps) {
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={context.name}
-      style={({ pressed }) => [
-        styles.card,
-        { backgroundColor: context.color, opacity: pressed ? 0.85 : 1 },
-      ]}
+      style={({ pressed }) => [styles.card, { opacity: pressed ? 0.85 : 1 }]}
     >
-      {/* Üst satır: ikon + (kilit) */}
-      <View style={styles.topRow}>
-        <Icon size={32} color={Colors.surface} weight="fill" />
-        {isLocked ? (
-          <Lock size={20} color={Colors.surface} weight="fill" style={styles.lock} />
-        ) : null}
+      <View style={[styles.iconBox, { backgroundColor: context.softColor }]}>
+        <Icon size={26} color={context.color} weight="fill" />
       </View>
 
-      {/* Alt blok: başlık + açıklama + ilerleme/etiket */}
-      <View style={styles.bottom}>
-        <Text style={styles.title} numberOfLines={1}>
-          {context.name}
-        </Text>
-        <Text style={styles.description} numberOfLines={2}>
-          {context.description}
-        </Text>
+      <Text style={styles.title} numberOfLines={2}>
+        {context.name}
+      </Text>
+      <Text style={styles.description} numberOfLines={2}>
+        {context.description}
+      </Text>
 
-        {isLocked ? (
-          <View style={styles.premiumChip}>
-            <Text style={[styles.premiumChipText, { color: context.color }]}>
-              PREMIUM
-            </Text>
-          </View>
-        ) : (
-          <Text style={styles.progress}>
-            {context.completedCount}/{context.scenariosCount} tamamlandı
+      {isLocked ? (
+        <View style={styles.chip}>
+          <LockSimple size={13} color={Colors.textMuted} weight="fill" />
+          <Text style={styles.chipText}>Premium</Text>
+        </View>
+      ) : (
+        <View style={[styles.chip, { backgroundColor: context.softColor }]}>
+          <Text style={[styles.chipText, { color: context.color }]}>
+            {progress.completedCount}/{progress.scenariosCount} tamamlandı
           </Text>
-        )}
-      </View>
+        </View>
+      )}
     </Pressable>
   );
 }
@@ -71,52 +67,49 @@ export function ContextCard({ context, onPress }: ContextCardProps) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    minHeight: 140,
-    padding: Spacing.lg,
+    minHeight: CONTEXT_CARD_MIN_HEIGHT,
+    padding: 18,
     borderRadius: Radius.xl,
-    justifyContent: 'space-between',
-    ...Shadow.md,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
   },
-  topRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  lock: {
-    opacity: 0.8,
-  },
-  bottom: {
-    marginTop: Spacing.md,
-    gap: 2,
+  iconBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
   },
   title: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: Colors.surface,
+    fontSize: FontSize.base,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: -0.32,
+    lineHeight: 19,
+    color: Colors.text,
   },
   description: {
+    marginTop: 5,
+    minHeight: 32,
     fontSize: FontSize.xs,
-    color: Colors.surface,
-    opacity: 0.85,
+    lineHeight: 16,
+    color: Colors.textMuted,
   },
-  progress: {
-    marginTop: Spacing.sm,
-    fontSize: FontSize.xs,
-    color: Colors.surface,
-    opacity: 0.9,
-    fontWeight: FontWeight.semibold,
-  },
-  premiumChip: {
-    marginTop: Spacing.sm,
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: Colors.surface,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
+    gap: 5,
+    marginTop: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: Radius.full,
+    backgroundColor: Colors.chip,
   },
-  premiumChipText: {
-    fontSize: FontSize.xs,
+  chipText: {
+    fontSize: 11,
     fontWeight: FontWeight.bold,
-    letterSpacing: 0.5,
+    color: Colors.textMuted,
   },
 });

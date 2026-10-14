@@ -1,15 +1,17 @@
 // Form alanları için genel Input bileşeni. Label, error, helperText ve
-// sol/sağ icon slot'larını destekler. Focus durumunda border rengi primary,
-// error durumunda error rengi olur.
+// sol/sağ icon slot'larını destekler. Focus durumunda 2px primary border,
+// error durumunda error rengi olur. Kalınlaşan border padding'den düşülür ki
+// focus'ta içerik kaymasın.
 
 import { useState } from 'react';
 import {
-  Text,
   TextInput,
   View,
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
+
+import { Text } from './Text';
 
 // onFocus/onBlur event tipleri RN 0.81'de FocusEvent/BlurEvent oldu. Bunları
 // doğrudan import edemediğimiz için TextInputProps'tan türetiyoruz.
@@ -20,6 +22,7 @@ type BlurArg = Parameters<BlurHandler>[0];
 
 import {
   Colors,
+  Fonts,
   FontSize,
   FontWeight,
   Radius,
@@ -66,15 +69,16 @@ export function Input({
     : isFocused
     ? Colors.primary
     : Colors.border;
+  const borderWidth = isFocused || error ? 2 : 1;
 
   return (
     <View style={containerStyle}>
       {label ? (
         <Text
           style={{
-            marginBottom: Spacing.xs,
-            fontSize: FontSize.sm,
-            fontWeight: FontWeight.medium,
+            marginBottom: Spacing.sm,
+            fontSize: 13,
+            fontWeight: FontWeight.semibold,
             color: Colors.textSecondary,
           }}
         >
@@ -87,14 +91,15 @@ export function Input({
           flexDirection: 'row',
           alignItems: 'center',
           backgroundColor: Colors.surface,
-          borderWidth: 1,
+          borderWidth,
           borderColor,
           borderRadius: Radius.md,
-          paddingHorizontal: Spacing.md,
+          paddingHorizontal: Spacing.md + 1 - borderWidth,
+          gap: 10,
         }}
       >
         {leftIcon ? (
-          <View style={{ marginRight: Spacing.sm }}>{leftIcon}</View>
+          <View>{leftIcon}</View>
         ) : null}
 
         <TextInput
@@ -105,8 +110,9 @@ export function Input({
           style={[
             {
               flex: 1,
-              paddingVertical: Spacing.md,
+              paddingVertical: 15 + 1 - borderWidth,
               fontSize: FontSize.base,
+              fontFamily: Fonts.regular,
               color: Colors.text,
             },
             style,
@@ -114,7 +120,7 @@ export function Input({
         />
 
         {rightIcon ? (
-          <View style={{ marginLeft: Spacing.sm }}>{rightIcon}</View>
+          <View>{rightIcon}</View>
         ) : null}
       </View>
 

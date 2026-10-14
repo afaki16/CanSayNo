@@ -1,20 +1,23 @@
 // Genel amaçlı Button bileşeni. 4 varyant (primary/secondary/outline/ghost)
 // ve 3 boyut (sm/md/lg) destekler. Loading / disabled / icon slot'ları içerir.
 // Pressable kullanır; pressed state'inde opacity ile feedback verir.
+// Primary varyantta tasarımdaki mavi renkli gölge (Shadow.primary) var.
 
 import {
   ActivityIndicator,
   Pressable,
-  Text,
   View,
   type GestureResponderEvent,
 } from 'react-native';
+
+import { Text } from './Text';
 
 import {
   Colors,
   FontSize,
   FontWeight,
   Radius,
+  Shadow,
   Spacing,
 } from '@/constants/theme';
 
@@ -38,9 +41,8 @@ type VariantStyle = {
   borderColor: string;
   borderWidth: number;
   textColor: string;
-  // Sadece primary varyantında shadow var; diğerlerinde 0.
-  shadowOpacity: number;
-  elevation: number;
+  // Sadece primary varyantında (renkli) shadow var.
+  hasShadow: boolean;
 };
 
 const VARIANT_STYLES: Record<ButtonVariant, VariantStyle> = {
@@ -49,32 +51,29 @@ const VARIANT_STYLES: Record<ButtonVariant, VariantStyle> = {
     borderColor: Colors.primary,
     borderWidth: 0,
     textColor: Colors.surface,
-    shadowOpacity: 0.15,
-    elevation: 2,
+    hasShadow: true,
   },
   secondary: {
     backgroundColor: Colors.secondary,
     borderColor: Colors.secondary,
     borderWidth: 0,
     textColor: Colors.surface,
-    shadowOpacity: 0,
-    elevation: 0,
+    hasShadow: false,
   },
+  // Beyaz zemin + ince kenar (örn. sonuç ekranındaki 'Tekrar dene')
   outline: {
-    backgroundColor: 'transparent',
-    borderColor: Colors.primary,
+    backgroundColor: Colors.surface,
+    borderColor: Colors.border,
     borderWidth: 1,
-    textColor: Colors.primary,
-    shadowOpacity: 0,
-    elevation: 0,
+    textColor: Colors.text,
+    hasShadow: false,
   },
   ghost: {
     backgroundColor: 'transparent',
     borderColor: 'transparent',
     borderWidth: 0,
-    textColor: Colors.primary,
-    shadowOpacity: 0,
-    elevation: 0,
+    textColor: Colors.textSecondary,
+    hasShadow: false,
   },
 };
 
@@ -82,9 +81,9 @@ const SIZE_STYLES: Record<
   ButtonSize,
   { paddingVertical: number; paddingHorizontal: number; fontSize: number }
 > = {
-  sm: { paddingVertical: 8, paddingHorizontal: 16, fontSize: FontSize.sm },
-  md: { paddingVertical: 12, paddingHorizontal: 20, fontSize: FontSize.base },
-  lg: { paddingVertical: 16, paddingHorizontal: 24, fontSize: FontSize.lg },
+  sm: { paddingVertical: 10, paddingHorizontal: 16, fontSize: FontSize.sm },
+  md: { paddingVertical: 15, paddingHorizontal: 20, fontSize: FontSize.base },
+  lg: { paddingVertical: 17, paddingHorizontal: 24, fontSize: 17 },
 };
 
 export function Button({
@@ -114,19 +113,13 @@ export function Button({
         justifyContent: 'center',
         paddingVertical: sizeStyle.paddingVertical,
         paddingHorizontal: sizeStyle.paddingHorizontal,
-        borderRadius: Radius.md,
+        borderRadius: Radius.lg,
         backgroundColor: variantStyle.backgroundColor,
         borderColor: variantStyle.borderColor,
         borderWidth: variantStyle.borderWidth,
         alignSelf: fullWidth ? 'stretch' : 'flex-start',
-        opacity: disabled ? 0.5 : pressed ? 0.7 : 1,
-        // iOS shadow
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: variantStyle.shadowOpacity,
-        shadowRadius: 4,
-        // Android shadow
-        elevation: variantStyle.elevation,
+        opacity: disabled ? 0.45 : pressed ? 0.8 : 1,
+        ...(variantStyle.hasShadow && !disabled ? Shadow.primary : null),
       })}
     >
       {loading ? (
@@ -144,7 +137,7 @@ export function Button({
             style={{
               color: variantStyle.textColor,
               fontSize: sizeStyle.fontSize,
-              fontWeight: FontWeight.semibold,
+              fontWeight: FontWeight.bold,
             }}
           >
             {children}

@@ -1,10 +1,11 @@
-// Anasayfa: oyunsu/canlı gamification ekranı. Streak, bugünkü görev, istatistikler,
-// XP ilerleme çubuğu ve son aktiviteler. Tüm veriler şimdilik mock data'dan gelir.
+// Anasayfa: oyunlaştırma ekranı. Seri (haftalık gün çizelgesiyle), bugünkü görev,
+// istatistikler, XP ilerlemesi ve son pratikler. userStats ve recentActivity hâlâ
+// mock — Sessions/UserStats endpoint'leri gelince gerçek veriye bağlanacak.
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import {
-  ArrowRight,
+  Check,
   Fire,
   Flame,
   Play,
@@ -13,15 +14,10 @@ import {
   Trophy,
   User,
 } from 'phosphor-react-native';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Text } from '@/components/ui';
 import {
   Colors,
   FontSize,
@@ -33,17 +29,36 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { getContextIcon } from '@/lib/icons';
 import {
-  mockContexts,
+  contexts,
   mockRecentActivities,
   mockUserStats,
 } from '@/lib/mockData';
 import { formatRelativeTime } from '@/lib/utils/datetime';
+
+const WEEK_DAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+
+// Bugünkü görev şimdilik sabit; öneri endpoint'i gelince API'den seçilecek.
+const TODAYS_TASK_SCENARIO_ID = 'is_001_cuma_mesaji';
 
 // Skora göre badge renk eşlemesi (soft bg + text).
 function scoreColors(score: number) {
   if (score >= 80) return { bg: Colors.successSoft, text: Colors.success };
   if (score >= 60) return { bg: Colors.warningSoft, text: Colors.warning };
   return { bg: Colors.errorSoft, text: Colors.error };
+}
+
+type DayState = 'done' | 'today' | 'future' | 'missed';
+
+// Seri sayısından bu haftanın gün durumlarını türetir: bugünden geriye
+// `streak` gün tamamlanmış sayılır. Bugün pratik yapıldıysa bugün de dahil.
+function buildWeek(streak: number, practicedToday: boolean): DayState[] {
+  const todayIndex = (new Date().getDay() + 6) % 7; // Pazartesi = 0
+  const doneBeforeToday = practicedToday ? streak - 1 : streak;
+  return WEEK_DAYS.map((_, i) => {
+    if (i > todayIndex) return 'future';
+    if (i === todayIndex) return practicedToday ? 'done' : 'today';
+    return todayIndex - i <= doneBeforeToday ? 'done' : 'missed';
+  });
 }
 
 export default function HomeScreen() {
@@ -53,6 +68,7 @@ export default function HomeScreen() {
   const firstName = user?.firstName ?? 'dostum';
   const xpRatio = Math.min(stats.xp / stats.xpToNextLevel, 1);
   const xpRemaining = Math.max(stats.xpToNextLevel - stats.xp, 0);
+  const week = buildWeek(stats.currentStreak, stats.todaySessionsCount > 0);
 
   const goScenarios = () => router.push('/(app)/(tabs)/scenarios');
   const goProfile = () => router.push('/(app)/(tabs)/profile');
@@ -66,13 +82,12 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* A) Başlık — selamlama + avatar */}
+        {/* Başlık — selamlama + avatar */}
         <View style={styles.header}>
           <View style={styles.headerText}>
-            <Text style={styles.greeting}>Selam, {firstName}! 👋</Text>
+            <Text style={styles.greeting}>Selam, {firstName} 👋</Text>
             <Text style={styles.greetingSub}>
               Bugün hangi sınırını koyacaksın?
             </Text>
@@ -87,44 +102,67 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        {/* B) Streak kartı — en prominent, warm gradient */}
+        {/* Seri kartı */}
         <Pressable onPress={goScenarios} accessibilityRole="button">
           <LinearGradient
-            colors={['#FF6B35', '#F4A261']}
+            colors={['#FF8A5B', '#FF6B35']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.streakCard}
           >
-            <Fire size={48} color="#FFFFFF" weight="fill" />
-            <View style={styles.streakText}>
-              <Text style={styles.streakTitle}>
-                {stats.currentStreak} GÜNLÜK SERİ
-              </Text>
-              <Text style={styles.streakSub}>
-                Bugün de pratik yap, seriyi kaybetme!
-              </Text>
+            <View style={styles.streakTop}>
+              <View style={styles.streakIcon}>
+                <Fire size={30} color="#FFFFFF" weight="fill" />
+              </View>
+              <View style={styles.flex}>
+                <Text style={styles.streakTitle}>
+                  {stats.currentStreak} günlük seri 🔥
+                </Text>
+                <Text style={styles.streakSub}>
+                  Bugün de pratik yap, kaybetme!
+                </Text>
+              </View>
             </View>
-            <ArrowRight size={20} color="#FFFFFF" weight="bold" />
+            <View style={styles.weekRow}>
+              {week.map((state, i) => (
+                <View key={WEEK_DAYS[i]} style={styles.dayCol}>
+                  <View style={[styles.dayDot, dayDotStyle[state]]}>
+                    {state === 'done' ? (
+                      <Check size={15} color="#FF6B35" weight="bold" />
+                    ) : null}
+                  </View>
+                  <Text
+                    style={[
+                      styles.dayLabel,
+                      state === 'today' && styles.dayLabelToday,
+                      state === 'future' && styles.dayLabelFuture,
+                    ]}
+                  >
+                    {state === 'today' ? 'Bugün' : WEEK_DAYS[i]}
+                  </Text>
+                </View>
+              ))}
+            </View>
           </LinearGradient>
         </Pressable>
 
-        {/* C) Bugünkü görev — büyük CTA */}
+        {/* Bugünkü görev */}
         <Pressable
-          onPress={() => goScenarioDetail('is_001')}
+          onPress={() => goScenarioDetail(TODAYS_TASK_SCENARIO_ID)}
           style={styles.taskCard}
           accessibilityRole="button"
         >
-          <View style={styles.taskTextBlock}>
+          <View style={styles.flex}>
             <Text style={styles.taskLabel}>BUGÜNKÜ GÖREV</Text>
             <Text style={styles.taskTitle}>İş baskısıyla pratik yap</Text>
-            <Text style={styles.taskSub}>Cuma 18:00 mesajını ele al</Text>
+            <Text style={styles.taskSub}>Cuma 18:00 mesajını ele al · 5 dk</Text>
           </View>
           <View style={styles.playButton}>
-            <Play size={28} color={Colors.primary} weight="fill" />
+            <Play size={24} color={Colors.primary} weight="fill" />
           </View>
         </Pressable>
 
-        {/* D) İstatistikler — 2x2 grid */}
+        {/* İstatistikler — 2x2 grid */}
         <View style={styles.statsGrid}>
           <StatCard
             icon={<Trophy size={24} color={Colors.primary} weight="fill" />}
@@ -142,14 +180,14 @@ export default function HomeScreen() {
             label="Bu Hafta"
           />
           <StatCard
-            icon={<Star size={24} color={Colors.warning} weight="fill" />}
+            icon={<Star size={24} color={Colors.amber} weight="fill" />}
             value={`${stats.level}`}
             label="Seviye"
           />
         </View>
 
-        {/* E) XP ilerleme çubuğu */}
-        <View style={styles.xpCard}>
+        {/* XP ilerlemesi */}
+        <View style={styles.card}>
           <View style={styles.xpHeader}>
             <Text style={styles.xpLevel}>Seviye {stats.level}</Text>
             <Text style={styles.xpValue}>
@@ -157,62 +195,68 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View style={styles.xpTrack}>
-            <View style={[styles.xpFill, { width: `${xpRatio * 100}%` }]} />
+            <LinearGradient
+              colors={[Colors.primary, Colors.primaryLight]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.xpFill, { width: `${xpRatio * 100}%` }]}
+            />
           </View>
           <Text style={styles.xpRemaining}>
-            Sonraki seviyeye {xpRemaining} XP
+            Sonraki seviyeye{' '}
+            <Text style={styles.xpRemainingAccent}>{xpRemaining} XP</Text>
           </Text>
         </View>
 
-        {/* F) Son aktiviteler */}
-        <View style={styles.activitySection}>
-          <View style={styles.activityHeader}>
-            <Text style={styles.sectionTitle}>Son Pratiklerin</Text>
-            <Pressable onPress={goScenarios} accessibilityRole="link">
-              <Text style={styles.seeAll}>Tümü →</Text>
-            </Pressable>
-          </View>
+        {/* Son pratikler */}
+        <View style={styles.activityHeader}>
+          <Text style={styles.sectionTitle}>Son Pratiklerin</Text>
+          <Pressable onPress={goScenarios} accessibilityRole="link">
+            <Text style={styles.seeAll}>Tümü →</Text>
+          </Pressable>
+        </View>
 
-          <View style={styles.activityList}>
-            {mockRecentActivities.map((activity) => {
-              const context = mockContexts.find(
-                (c) => c.id === activity.contextId,
-              );
-              const ContextIcon = getContextIcon(context?.iconName ?? '');
-              const sc = scoreColors(activity.score);
-              return (
-                <Pressable
-                  key={activity.id}
-                  onPress={() => goScenarioDetail(activity.scenarioId)}
-                  style={styles.activityItem}
-                  accessibilityRole="button"
+        <View style={styles.activityList}>
+          {mockRecentActivities.map((activity) => {
+            const context = contexts.find((c) => c.id === activity.contextId);
+            const ContextIcon = getContextIcon(context?.iconName ?? '');
+            const sc = scoreColors(activity.score);
+            return (
+              <Pressable
+                key={activity.id}
+                onPress={() => goScenarioDetail(activity.scenarioId)}
+                style={styles.activityItem}
+                accessibilityRole="button"
+              >
+                <View
+                  style={[
+                    styles.activityIcon,
+                    { backgroundColor: context?.softColor ?? Colors.primarySoft },
+                  ]}
                 >
-                  <View
-                    style={[
-                      styles.activityIcon,
-                      { backgroundColor: activity.contextColor },
-                    ]}
-                  >
-                    <ContextIcon size={20} color="#FFFFFF" weight="fill" />
-                  </View>
-                  <View style={styles.activityInfo}>
-                    <Text style={styles.activityTitle} numberOfLines={1}>
-                      {activity.scenarioTitle}
-                    </Text>
-                    <Text style={styles.activityMeta} numberOfLines={1}>
-                      {activity.contextName} ·{' '}
-                      {formatRelativeTime(activity.completedAt)}
-                    </Text>
-                  </View>
-                  <View style={[styles.scoreBadge, { backgroundColor: sc.bg }]}>
-                    <Text style={[styles.scoreText, { color: sc.text }]}>
-                      {activity.score}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
+                  <ContextIcon
+                    size={21}
+                    color={context?.color ?? Colors.primary}
+                    weight="fill"
+                  />
+                </View>
+                <View style={styles.activityInfo}>
+                  <Text style={styles.activityTitle} numberOfLines={1}>
+                    {activity.scenarioTitle}
+                  </Text>
+                  <Text style={styles.activityMeta} numberOfLines={1}>
+                    {activity.contextName} ·{' '}
+                    {formatRelativeTime(activity.completedAt)}
+                  </Text>
+                </View>
+                <View style={[styles.scoreBadge, { backgroundColor: sc.bg }]}>
+                  <Text style={[styles.scoreText, { color: sc.text }]}>
+                    {activity.score}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -235,18 +279,31 @@ function StatCard({ icon, value, label }: StatCardProps) {
   );
 }
 
+const WHITE_SOFT = 'rgba(255,255,255,0.28)';
+
+const dayDotStyle = StyleSheet.create({
+  done: { backgroundColor: '#FFFFFF' },
+  today: { borderWidth: 2.5, borderColor: '#FFFFFF' },
+  future: { backgroundColor: WHITE_SOFT },
+  missed: { backgroundColor: WHITE_SOFT },
+});
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.background,
   },
+  flex: {
+    flex: 1,
+  },
   scrollContent: {
-    padding: Spacing.md,
-    paddingBottom: Spacing.xxl + 40,
-    gap: Spacing.lg,
+    paddingHorizontal: 20,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.lg,
+    gap: 18,
   },
 
-  // A) Header
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -257,221 +314,262 @@ const styles = StyleSheet.create({
     paddingRight: Spacing.md,
   },
   greeting: {
-    fontSize: FontSize.xxl,
-    fontWeight: FontWeight.bold,
+    fontSize: 26,
+    fontWeight: FontWeight.black,
+    letterSpacing: -0.8,
     color: Colors.text,
   },
   greetingSub: {
-    marginTop: Spacing.xs,
+    marginTop: 3,
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
-    fontStyle: 'italic',
   },
   avatar: {
-    width: 40,
-    height: 40,
+    width: 46,
+    height: 46,
     borderRadius: Radius.full,
     backgroundColor: Colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  // B) Streak
+  // Seri
   streakCard: {
+    padding: 20,
+    borderRadius: 22,
+    shadowColor: '#FF6B35',
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 6,
+  },
+  streakTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
-    padding: Spacing.lg,
-    borderRadius: Radius.xl,
-    ...Shadow.md,
+    gap: 14,
   },
-  streakText: {
-    flex: 1,
+  streakIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   streakTitle: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.bold,
+    fontSize: FontSize.xl,
+    fontWeight: FontWeight.black,
+    letterSpacing: -0.4,
     color: '#FFFFFF',
-    letterSpacing: 1,
   },
   streakSub: {
-    marginTop: Spacing.xs,
-    fontSize: FontSize.sm,
+    marginTop: 1,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.9)',
+  },
+  weekRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 18,
+  },
+  dayCol: {
+    alignItems: 'center',
+    gap: 6,
+  },
+  dayDot: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dayLabel: {
+    fontSize: 11,
+    fontWeight: FontWeight.semibold,
+    color: 'rgba(255,255,255,0.85)',
+  },
+  dayLabelToday: {
     color: '#FFFFFF',
-    opacity: 0.9,
+    fontWeight: FontWeight.extrabold,
+  },
+  dayLabelFuture: {
+    color: 'rgba(255,255,255,0.7)',
   },
 
-  // C) Bugünkü görev
+  // Bugünkü görev
   taskCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: Spacing.lg,
-    borderRadius: Radius.xl,
+    gap: 14,
+    padding: 20,
+    borderRadius: 22,
     backgroundColor: Colors.primary,
-    ...Shadow.md,
-  },
-  taskTextBlock: {
-    flex: 1,
-    paddingRight: Spacing.md,
+    ...Shadow.primary,
   },
   taskLabel: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.bold,
-    color: '#FFFFFF',
-    opacity: 0.7,
-    letterSpacing: 1,
+    fontSize: 11,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: 1.1,
+    color: 'rgba(255,255,255,0.7)',
   },
   taskTitle: {
-    marginTop: Spacing.xs,
+    marginTop: 5,
     fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: -0.36,
     color: '#FFFFFF',
   },
   taskSub: {
     marginTop: 2,
-    fontSize: FontSize.sm,
-    color: '#FFFFFF',
-    opacity: 0.8,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.85)',
   },
   playButton: {
-    width: 48,
-    height: 48,
-    borderRadius: Radius.full,
-    backgroundColor: Colors.primarySoft,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  // D) İstatistikler
+  // İstatistikler
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.md,
+    gap: 12,
   },
   statCard: {
-    // 2 sütun: (toplam genişlik - gap) / 2 → flexBasis ile yaklaşık %48
-    flexBasis: '47%',
     flexGrow: 1,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
+    flexBasis: '46%',
     padding: Spacing.md,
-    gap: Spacing.xs,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
   },
   statValue: {
-    fontSize: FontSize.xxl,
-    fontWeight: FontWeight.bold,
-    color: Colors.primary,
+    marginTop: Spacing.sm,
+    fontSize: 26,
+    fontWeight: FontWeight.black,
+    letterSpacing: -0.8,
+    color: Colors.text,
   },
   statLabel: {
-    fontSize: FontSize.xs,
+    fontSize: 13,
     color: Colors.textSecondary,
   },
 
-  // E) XP
-  xpCard: {
-    backgroundColor: Colors.surface,
+  // XP
+  card: {
+    padding: 18,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
-    gap: Spacing.sm,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
   },
   xpHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
   xpLevel: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.bold,
+    fontSize: 15,
+    fontWeight: FontWeight.extrabold,
     color: Colors.text,
   },
   xpValue: {
-    fontSize: FontSize.sm,
+    fontSize: 13,
+    fontWeight: FontWeight.semibold,
     color: Colors.textSecondary,
   },
   xpTrack: {
-    height: 8,
+    height: 10,
     borderRadius: Radius.full,
-    backgroundColor: Colors.border,
+    backgroundColor: Colors.track,
     overflow: 'hidden',
   },
   xpFill: {
     height: '100%',
     borderRadius: Radius.full,
-    backgroundColor: Colors.primary,
   },
   xpRemaining: {
+    marginTop: 10,
     fontSize: FontSize.xs,
     color: Colors.textMuted,
     textAlign: 'center',
   },
-
-  // F) Son aktiviteler
-  activitySection: {
-    gap: Spacing.md,
+  xpRemainingAccent: {
+    color: Colors.primary,
+    fontWeight: FontWeight.bold,
   },
+
+  // Son pratikler
   activityHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2,
   },
   sectionTitle: {
     fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: -0.36,
     color: Colors.text,
   },
   seeAll: {
     fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
     color: Colors.primary,
-    fontWeight: FontWeight.semibold,
   },
   activityList: {
-    gap: Spacing.sm,
+    gap: 10,
+    marginTop: -8,
   },
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    gap: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     borderRadius: Radius.lg,
-    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
   },
   activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: Radius.full,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
   },
   activityInfo: {
     flex: 1,
+    minWidth: 0,
   },
   activityTitle: {
-    fontSize: FontSize.base,
-    fontWeight: FontWeight.medium,
+    fontSize: 15,
+    fontWeight: FontWeight.bold,
+    letterSpacing: -0.15,
     color: Colors.text,
   },
   activityMeta: {
-    marginTop: 2,
+    marginTop: 1,
     fontSize: FontSize.xs,
     color: Colors.textMuted,
   },
   scoreBadge: {
-    minWidth: 40,
-    height: 32,
-    paddingHorizontal: Spacing.sm,
+    minWidth: 42,
+    height: 30,
+    paddingHorizontal: 10,
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scoreText: {
     fontSize: FontSize.sm,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.extrabold,
   },
 });

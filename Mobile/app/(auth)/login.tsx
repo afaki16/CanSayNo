@@ -1,25 +1,35 @@
-// Login ekranı: gerçek form (react-hook-form + zod), mock backend ile bağlı.
-// friendly playful tasarım — sıcak başlık, ikonlu input'lar, net tek aksiyon.
+// Login ekranı: react-hook-form + zod, gerçek backend'e (POST /api/Auth/login) bağlı.
+// Tasarım: kare geri butonu, büyük başlık, ikonlu input'lar, tek net aksiyon.
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import { ArrowLeft, Envelope, Eye, EyeSlash, Lock } from 'phosphor-react-native';
+import {
+  ArrowLeft,
+  EnvelopeSimple,
+  Eye,
+  EyeSlash,
+  LockSimple,
+} from 'phosphor-react-native';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { Button, FormField } from '@/components/ui';
+import {
+  Button,
+  FormError,
+  FormField,
+  IconButton,
+  Text,
+} from '@/components/ui';
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -31,8 +41,7 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
-  const { login } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login, isLoggingIn, loginError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -46,16 +55,11 @@ export default function LoginScreen() {
   });
 
   const onSubmit = async (data: LoginForm) => {
-    setIsSubmitting(true);
     try {
       await login(data.email, data.password);
       router.replace('/(app)/(tabs)/home');
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Bir şeyler ters gitti';
-      Alert.alert('Giriş yapılamadı', message);
-    } finally {
-      setIsSubmitting(false);
+    } catch {
+      // Hata mesajı loginError üzerinden formun altında gösteriliyor.
     }
   };
 
@@ -72,20 +76,18 @@ export default function LoginScreen() {
         >
           {/* Üst bar */}
           <View style={styles.topBar}>
-            <Button
-              variant="ghost"
-              size="sm"
+            <IconButton
+              icon={ArrowLeft}
+              bordered
               onPress={() => router.back()}
-              leftIcon={<ArrowLeft size={20} color={Colors.primary} />}
-            >
-              Geri
-            </Button>
+              accessibilityLabel="Geri"
+            />
           </View>
 
           {/* Başlık */}
           <View style={styles.header}>
-            <Text style={styles.title}>Tekrar hoş geldin</Text>
-            <Text style={styles.subtitle}>Devam etmek için giriş yap</Text>
+            <Text style={styles.title}>Tekrar hoş geldin 👋</Text>
+            <Text style={styles.subtitle}>Kaldığın yerden devam et.</Text>
           </View>
 
           {/* Form */}
@@ -98,7 +100,7 @@ export default function LoginScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
-              leftIcon={<Envelope size={20} color={Colors.textMuted} />}
+              leftIcon={<EnvelopeSimple size={19} color={Colors.textMuted} />}
             />
 
             <FormField<LoginForm>
@@ -108,7 +110,7 @@ export default function LoginScreen() {
               placeholder="Şifreni gir"
               secureTextEntry={!showPassword}
               autoCapitalize="none"
-              leftIcon={<Lock size={20} color={Colors.textMuted} />}
+              leftIcon={<LockSimple size={19} color={Colors.textMuted} />}
               rightIcon={
                 <Pressable
                   onPress={() => setShowPassword((prev) => !prev)}
@@ -119,9 +121,9 @@ export default function LoginScreen() {
                   }
                 >
                   {showPassword ? (
-                    <EyeSlash size={20} color={Colors.textMuted} />
+                    <EyeSlash size={19} color={Colors.textMuted} />
                   ) : (
-                    <Eye size={20} color={Colors.textMuted} />
+                    <Eye size={19} color={Colors.textMuted} />
                   )}
                 </Pressable>
               }
@@ -129,15 +131,17 @@ export default function LoginScreen() {
           </View>
 
           {/* Aksiyon */}
+          <FormError message={loginError} />
+
           <Button
             variant="primary"
             size="lg"
             fullWidth
             disabled={!isValid}
-            loading={isSubmitting}
+            loading={isLoggingIn}
             onPress={handleSubmit(onSubmit)}
           >
-            Giriş Yap
+            Giriş yap
           </Button>
 
           {/* Alt link */}
@@ -167,21 +171,22 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: 28,
+    paddingTop: Spacing.md,
     paddingBottom: Spacing.xl,
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: -Spacing.sm,
   },
   header: {
-    marginTop: Spacing.md,
-    marginBottom: Spacing.xl,
+    marginTop: 26,
+    marginBottom: 30,
   },
   title: {
-    fontSize: FontSize.xxl,
-    fontWeight: FontWeight.bold,
+    fontSize: 30,
+    fontWeight: FontWeight.black,
+    letterSpacing: -0.9,
     color: Colors.text,
   },
   subtitle: {
@@ -190,8 +195,8 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   form: {
-    gap: Spacing.md,
-    marginBottom: Spacing.xl,
+    gap: 18,
+    marginBottom: Spacing.lg,
   },
   bottomLink: {
     marginTop: Spacing.lg,
@@ -204,7 +209,6 @@ const styles = StyleSheet.create({
   },
   bottomLinkAccent: {
     color: Colors.primary,
-    fontWeight: FontWeight.semibold,
-    textDecorationLine: 'underline',
+    fontWeight: FontWeight.bold,
   },
 });

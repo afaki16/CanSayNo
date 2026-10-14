@@ -1,10 +1,11 @@
 // Chat mesaj balonu. AI (sol) ve kullanıcı (sağ) varyantları + "yazıyor" göstergesi.
-// AI balonlarında sol tarafta yuvarlak avatar placeholder (Phosphor User) yer alır;
+// AI balonlarında sol tarafta karakterin baş harfleriyle yuvarlak avatar yer alır;
 // gruplanmış ardışık AI mesajlarında avatar gizlenip yerine boşluk bırakılır (gutter korunur).
 
-import { User } from 'phosphor-react-native';
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+
+import { Text } from './Text';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -20,10 +21,11 @@ import {
   FontSize,
   FontWeight,
   Radius,
+  Shadow,
   Spacing,
 } from '@/constants/theme';
 
-const AVATAR_SIZE = 32;
+const AVATAR_SIZE = 30;
 const DOT_BOUNCE_PX = 4;
 const DOT_DURATION_MS = 300;
 const DOT_STAGGER_MS = 150;
@@ -34,6 +36,7 @@ export interface MessageBubbleProps {
   characterName?: string; // AI mesajı için; genelde sadece ilk mesajda verilir.
   showAvatar?: boolean; // AI mesajının yanında avatar göster (gruplama için kapatılabilir).
   contextColor?: string; // Avatar arka plan rengi (bağlam rengi).
+  avatarLabel?: string; // Avatar içindeki baş harfler (örn: "MB").
   isTyping?: boolean; // true ise content yerine "yazıyor" animasyonu gösterilir.
 }
 
@@ -88,6 +91,7 @@ export function MessageBubble({
   characterName,
   showAvatar = false,
   contextColor = Colors.primary,
+  avatarLabel,
   isTyping = false,
 }: MessageBubbleProps) {
   const isAI = role === 'ai';
@@ -98,23 +102,25 @@ export function MessageBubble({
         {/* Avatar gutter — avatar gizliyse hizayı koruyan boşluk bırakılır. */}
         {showAvatar ? (
           <View style={[styles.avatar, { backgroundColor: contextColor }]}>
-            <User size={18} color={Colors.surface} weight="fill" />
+            <Text style={styles.avatarText}>{avatarLabel}</Text>
           </View>
         ) : (
           <View style={styles.avatarSpacer} />
         )}
 
-        <View style={styles.aiBubble}>
+        <View style={styles.aiColumn}>
           {characterName ? (
             <Text style={styles.characterName}>{characterName}</Text>
           ) : null}
-          {isTyping ? (
-            <TypingIndicator />
-          ) : (
-            <Text style={styles.aiText} selectable>
-              {content}
-            </Text>
-          )}
+          <View style={styles.aiBubble}>
+            {isTyping ? (
+              <TypingIndicator />
+            ) : (
+              <Text style={styles.aiText} selectable>
+                {content}
+              </Text>
+            )}
+          </View>
         </View>
       </View>
     );
@@ -138,7 +144,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     alignSelf: 'flex-start',
     gap: Spacing.sm,
-    maxWidth: '85%',
+    maxWidth: '88%',
   },
   avatar: {
     width: AVATAR_SIZE,
@@ -147,29 +153,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  avatarText: {
+    fontSize: 11,
+    fontWeight: FontWeight.black,
+    color: Colors.surface,
+  },
   avatarSpacer: {
     width: AVATAR_SIZE,
   },
-  aiBubble: {
+  aiColumn: {
     flexShrink: 1,
+  },
+  aiBubble: {
     backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    borderBottomLeftRadius: Radius.sm, // klasik chat bubble görünümü
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    gap: 2,
+    borderRadius: 18,
+    borderBottomLeftRadius: 5, // klasik chat bubble görünümü
+    paddingHorizontal: 15,
+    paddingVertical: 13,
+    ...Shadow.sm,
   },
   characterName: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
-    color: Colors.primary,
+    marginLeft: Spacing.xs,
+    marginBottom: Spacing.xs,
+    fontSize: 11,
+    fontWeight: FontWeight.bold,
+    color: Colors.textMuted,
   },
   aiText: {
-    fontSize: FontSize.base,
+    fontSize: FontSize.sm,
     color: Colors.text,
-    lineHeight: FontSize.base * 1.5,
+    lineHeight: 21,
   },
 
   // Kullanıcı (sağ)
@@ -177,20 +190,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignSelf: 'flex-end',
-    maxWidth: '75%',
+    maxWidth: '80%',
   },
   userBubble: {
     flexShrink: 1,
     backgroundColor: Colors.primary,
-    borderRadius: Radius.lg,
-    borderBottomRightRadius: Radius.sm,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    borderRadius: 18,
+    borderBottomRightRadius: 5,
+    paddingHorizontal: 15,
+    paddingVertical: 13,
   },
   userText: {
-    fontSize: FontSize.base,
+    fontSize: FontSize.sm,
     color: Colors.surface,
-    lineHeight: FontSize.base * 1.5,
+    lineHeight: 21,
   },
 
   // Typing indicator
@@ -205,6 +218,6 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: Radius.full,
-    backgroundColor: Colors.textMuted,
+    backgroundColor: Colors.textDisabled,
   },
 });

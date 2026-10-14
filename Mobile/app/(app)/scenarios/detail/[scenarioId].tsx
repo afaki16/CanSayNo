@@ -1,128 +1,176 @@
 // Senaryo detayı — pratiğe başlamadan önceki brifing. Hero (bağlam chip + başlık + meta),
 // sahne / karakter / hedef / ipucu kartları, geçmiş istatistikler ve sticky "Pratiğe Başla".
+//
+// Veri API'den (GET /api/Scenarios/{id}). bestScore/attemptsCount gerçek veriden gelir —
+// session yazma akışı henüz olmadığı için şu an hepsi 0/null.
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Clock, Play, User } from 'phosphor-react-native';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  ArrowLeft,
+  Clock,
+  Lightbulb,
+  MapPin,
+  Play,
+  Target,
+  Trophy,
+  User,
+} from 'phosphor-react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button, StarRating } from '@/components/ui';
+import {
+  Button,
+  ErrorState,
+  IconButton,
+  Skeleton,
+  StarRating,
+  Text,
+} from '@/components/ui';
 import {
   Colors,
   FontSize,
   FontWeight,
   Radius,
-  Shadow,
   Spacing,
 } from '@/constants/theme';
+import { useScenarioDetail } from '@/hooks/queries/useScenarios';
+import { isNotFoundError, toScenarioErrorMessage } from '@/lib/api';
 import { getContextIcon } from '@/lib/icons';
-import { getScenarioById, mockContexts } from '@/lib/mockData';
+import { contexts } from '@/lib/mockData';
+import { getInitials } from '@/lib/utils/initials';
+import { getDifficultyLabel, getDifficultyLevel } from '@/types/scenario';
 
-// Skora göre chip rengi (Home/ScenarioCard ile tutarlı).
-function scoreColors(score: number) {
-  if (score >= 80) return { bg: Colors.successSoft, text: Colors.success };
-  if (score >= 60) return { bg: Colors.warningSoft, text: Colors.warning };
-  return { bg: Colors.errorSoft, text: Colors.error };
-}
+// contextId metadata'da yoksa (backend yeni bir bağlam eklerse) ekran yine çizilsin.
+const FALLBACK_CONTEXT = {
+  name: 'Senaryo',
+  iconName: '',
+  color: Colors.primary,
+  softColor: Colors.primarySoft,
+};
 
 export default function ScenarioDetailScreen() {
   const { scenarioId } = useLocalSearchParams<{ scenarioId: string }>();
-  const scenario = getScenarioById(scenarioId);
+  const insets = useSafeAreaInsets();
+  const { data: scenario, isPending, isError, error, refetch, isFetching } =
+    useScenarioDetail(scenarioId);
+
   const context = scenario
-    ? mockContexts.find((c) => c.id === scenario.contextId)
+    ? contexts.find((c) => c.id === scenario.contextId)
     : undefined;
 
-  if (!scenario || !context) {
+  if (isPending) {
+    return <DetailSkeleton />;
+  }
+
+  // 404 ayrı ele alınır: hata değil, "böyle bir senaryo yok".
+  if (isNotFoundError(error)) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.notFound}>
           <Text style={styles.notFoundText}>Senaryo bulunamadı.</Text>
-          <Button variant="ghost" onPress={() => router.back()}>
-            Geri
+          <Button variant="primary" onPress={() => router.back()}>
+            Geri dön
           </Button>
         </View>
       </SafeAreaView>
     );
   }
 
-  const Icon = getContextIcon(context.iconName);
+  if (isError) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.stateWrapper}>
+          <ErrorState
+            message={toScenarioErrorMessage(error)}
+            onRetry={() => refetch()}
+            isRetrying={isFetching}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Bağlam metadata'sı client'ta sabit; bilinmeyen contextId gelirse yine de
+  // ekranı çizebilmek için nötr bir tema kullan.
+  const theme = context ?? FALLBACK_CONTEXT;
+  const Icon = getContextIcon(theme.iconName);
   const hasHistory = scenario.attemptsCount > 0;
-  const completedScore =
-    scenario.isCompleted && scenario.bestScore !== null
-      ? scoreColors(scenario.bestScore)
-      : null;
+  const level = getDifficultyLevel(scenario.difficulty);
+  const { character } = scenario;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      {/* Üst bar — transparan, hero üzerinde */}
-      <View style={styles.topBar}>
-        <Button
-          variant="ghost"
-          size="sm"
-          onPress={() => router.back()}
-          leftIcon={<ArrowLeft size={18} color={Colors.primary} weight="bold" />}
-        >
-          Geri
-        </Button>
-        {completedScore ? (
-          <View style={[styles.topScore, { backgroundColor: completedScore.bg }]}>
-            <Text style={[styles.topScoreText, { color: completedScore.text }]}>
-              En iyi: {scenario.bestScore}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Hero */}
+    <View style={styles.safeArea}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Hero — bağlam soft renginden zemine geçiş, status bar'ın arkasına uzanır */}
         <LinearGradient
-          colors={[context.softColor, Colors.background]}
+          colors={[theme.softColor, Colors.background]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
-          style={styles.hero}
+          style={[styles.hero, { paddingTop: insets.top + 12 }]}
         >
-          <View style={[styles.contextChip, { backgroundColor: context.color }]}>
-            <Icon size={16} color={Colors.surface} weight="fill" />
-            <Text style={styles.contextChipText}>{context.name}</Text>
+          <View style={styles.topBar}>
+            <IconButton
+              icon={ArrowLeft}
+              onPress={() => router.back()}
+              accessibilityLabel="Geri"
+            />
+            {scenario.isCompleted && scenario.bestScore !== null ? (
+              <View style={styles.bestPill}>
+                <Trophy size={14} color={Colors.success} weight="fill" />
+                <Text style={styles.bestPillText}>
+                  En iyi: {scenario.bestScore}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+
+          <View style={[styles.contextChip, { backgroundColor: theme.color }]}>
+            <Icon size={14} color={Colors.surface} weight="fill" />
+            <Text style={styles.contextChipText}>{theme.name}</Text>
           </View>
           <Text style={styles.heroTitle}>{scenario.title}</Text>
           <Text style={styles.heroSubtitle}>{scenario.shortDescription}</Text>
           <View style={styles.metaRow}>
-            <StarRating count={scenario.difficulty} size={16} />
-            <Text style={styles.metaSep}>·</Text>
-            <Clock size={16} color={Colors.textSecondary} weight="bold" />
-            <Text style={styles.metaText}>
-              {scenario.estimatedDurationMinutes} dk
-            </Text>
+            <View style={styles.metaItem}>
+              <StarRating count={scenario.difficulty} size={15} />
+              <Text style={styles.metaLevel}>{getDifficultyLabel(level)}</Text>
+            </View>
+            <View style={styles.metaItem}>
+              <Clock size={15} color={Colors.textSecondary} />
+              <Text style={styles.metaText}>
+                {scenario.estimatedDurationMinutes} dk
+              </Text>
+            </View>
           </View>
         </LinearGradient>
 
         <View style={styles.body}>
           {/* Sahne */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>📍 SAHNE</Text>
+            <CardLabel icon={<MapPin size={16} color={Colors.secondary} weight="fill" />}>
+              SAHNE
+            </CardLabel>
             <Text style={styles.settingText}>{scenario.scene.setting}</Text>
             <Text style={styles.situationText}>{scenario.scene.situation}</Text>
           </View>
 
           {/* Karakter */}
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>👤 KARŞINDA</Text>
+            <CardLabel icon={<User size={16} color={Colors.primary} weight="fill" />}>
+              KARŞINDA
+            </CardLabel>
             <View style={styles.characterRow}>
               <View style={styles.avatar}>
-                <User size={28} color={Colors.primary} weight="fill" />
+                <Text style={styles.avatarText}>{getInitials(character.name)}</Text>
               </View>
               <View style={styles.characterInfo}>
-                <Text style={styles.characterName}>{scenario.character.name}</Text>
-                <Text style={styles.characterRole}>
-                  {scenario.character.role}, {scenario.character.age}
+                <Text style={styles.characterName}>
+                  {character.name}, {character.age}
                 </Text>
+                <Text style={styles.characterRole}>{character.role}</Text>
                 <Text style={styles.characterRelationship}>
-                  {scenario.character.relationship}
+                  {character.relationship}
                 </Text>
               </View>
             </View>
@@ -130,14 +178,20 @@ export default function ScenarioDetailScreen() {
 
           {/* Hedef */}
           <View style={styles.goalCard}>
-            <Text style={styles.goalLabel}>🎯 SENİN HEDEFİN</Text>
+            <CardLabel
+              icon={<Target size={16} color={Colors.primary} weight="fill" />}
+              color={Colors.primary}
+            >
+              SENİN HEDEFİN
+            </CardLabel>
             <Text style={styles.goalText}>{scenario.scene.userGoal}</Text>
           </View>
 
           {/* İpucu (varsa) */}
           {scenario.scene.hint ? (
             <View style={styles.hintCard}>
-              <Text style={styles.hintText}>💡 {scenario.scene.hint}</Text>
+              <Lightbulb size={16} color={Colors.secondary} weight="fill" />
+              <Text style={styles.hintText}>{scenario.scene.hint}</Text>
             </View>
           ) : null}
 
@@ -145,11 +199,13 @@ export default function ScenarioDetailScreen() {
           {hasHistory ? (
             <View style={styles.statsRow}>
               <View style={styles.statBox}>
-                <Text style={styles.statValue}>{scenario.bestScore ?? '-'}</Text>
+                <Text style={[styles.statValue, { color: Colors.success }]}>
+                  {scenario.bestScore ?? '-'}
+                </Text>
                 <Text style={styles.statLabel}>En iyi skorum</Text>
               </View>
               <View style={styles.statBox}>
-                <Text style={[styles.statValue, { color: Colors.secondary }]}>
+                <Text style={[styles.statValue, { color: Colors.primary }]}>
                   {scenario.attemptsCount}
                 </Text>
                 <Text style={styles.statLabel}>Deneme sayım</Text>
@@ -160,7 +216,7 @@ export default function ScenarioDetailScreen() {
       </ScrollView>
 
       {/* Sticky CTA */}
-      <View style={styles.ctaBar}>
+      <View style={[styles.ctaBar, { paddingBottom: insets.bottom + 16 }]}>
         <Button
           variant="primary"
           size="lg"
@@ -171,10 +227,48 @@ export default function ScenarioDetailScreen() {
               params: { scenarioId: scenario.id },
             })
           }
-          leftIcon={<Play size={20} color={Colors.surface} weight="fill" />}
+          leftIcon={<Play size={19} color={Colors.surface} weight="fill" />}
         >
           Pratiğe Başla
         </Button>
+      </View>
+    </View>
+  );
+}
+
+function CardLabel({
+  icon,
+  color = Colors.textMuted,
+  children,
+}: {
+  icon: React.ReactNode;
+  color?: string;
+  children: string;
+}) {
+  return (
+    <View style={styles.cardLabelRow}>
+      {icon}
+      <Text style={[styles.cardLabel, { color }]}>{children}</Text>
+    </View>
+  );
+}
+
+// Gerçek düzenin iskeleti: hero + üç kart. Ölçüler gerçek içerikle aynı
+// hizada tutuldu ki veri gelince sayfa zıplamasın.
+function DetailSkeleton() {
+  return (
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.skeletonHero}>
+        <Skeleton width={40} height={40} borderRadius={13} />
+        <Skeleton width={110} height={26} borderRadius={Radius.full} />
+        <Skeleton width="85%" height={34} />
+        <Skeleton width="70%" height={20} />
+        <Skeleton width={140} height={16} />
+      </View>
+      <View style={styles.body}>
+        <Skeleton height={140} borderRadius={18} />
+        <Skeleton height={120} borderRadius={18} />
+        <Skeleton height={80} borderRadius={18} />
       </View>
     </SafeAreaView>
   );
@@ -189,185 +283,197 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
+    marginBottom: 18,
   },
-  topScore: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
+  bestPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: Radius.full,
+    backgroundColor: Colors.successSoft,
   },
-  topScoreText: {
+  bestPillText: {
     fontSize: FontSize.xs,
     fontWeight: FontWeight.bold,
-  },
-  scrollContent: {
-    paddingBottom: 100,
+    color: Colors.success,
   },
 
   // Hero
   hero: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.sm,
+    paddingHorizontal: 22,
     paddingBottom: Spacing.lg,
-    gap: Spacing.sm,
   },
   contextChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.xs,
     alignSelf: 'flex-start',
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
+    gap: 6,
+    paddingHorizontal: 13,
+    paddingVertical: 6,
     borderRadius: Radius.full,
+    marginBottom: 14,
   },
   contextChipText: {
     fontSize: FontSize.xs,
-    fontWeight: FontWeight.semibold,
+    fontWeight: FontWeight.bold,
     color: Colors.surface,
   },
   heroTitle: {
-    fontSize: FontSize.hero,
-    fontWeight: FontWeight.bold,
+    fontSize: 30,
+    fontWeight: FontWeight.black,
+    letterSpacing: -0.9,
+    lineHeight: 33,
     color: Colors.text,
+    marginBottom: Spacing.sm,
   },
   heroSubtitle: {
-    fontSize: FontSize.base,
+    fontSize: 15,
+    lineHeight: 21,
     color: Colors.textSecondary,
+    marginBottom: 14,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.xs,
-    marginTop: Spacing.xs,
+    gap: 14,
   },
-  metaSep: {
-    fontSize: FontSize.base,
-    color: Colors.textMuted,
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaLevel: {
+    marginLeft: 3,
+    fontSize: 13,
+    fontWeight: FontWeight.bold,
+    color: Colors.textSecondary,
   },
   metaText: {
-    fontSize: FontSize.sm,
+    fontSize: 13,
+    fontWeight: FontWeight.semibold,
     color: Colors.textSecondary,
-    fontWeight: FontWeight.medium,
   },
 
-  // Body / cards
+  // Gövde
   body: {
-    paddingHorizontal: Spacing.md,
-    gap: Spacing.md,
+    paddingHorizontal: 20,
+    paddingTop: 6,
+    paddingBottom: Spacing.lg,
+    gap: 14,
   },
   card: {
-    backgroundColor: Colors.surface,
+    padding: 18,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    gap: Spacing.sm,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
+  },
+  cardLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    marginBottom: 10,
   },
   cardLabel: {
     fontSize: FontSize.xs,
-    fontWeight: FontWeight.bold,
-    color: Colors.textSecondary,
-    letterSpacing: 1,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: 0.72,
   },
   settingText: {
-    fontSize: FontSize.base,
-    fontWeight: FontWeight.medium,
+    fontSize: 15,
+    fontWeight: FontWeight.bold,
     color: Colors.text,
+    marginBottom: 6,
   },
   situationText: {
-    fontSize: FontSize.base,
+    fontSize: FontSize.sm,
+    lineHeight: 21,
     fontStyle: 'italic',
     color: Colors.textSecondary,
-    lineHeight: FontSize.base * 1.5,
   },
-
-  // Karakter
   characterRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
-    marginTop: Spacing.xs,
+    gap: 14,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: Radius.full,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: Colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  avatarText: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.black,
+    color: Colors.primary,
+  },
   characterInfo: {
     flex: 1,
-    gap: 2,
   },
   characterName: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
+    fontSize: 17,
+    fontWeight: FontWeight.extrabold,
     color: Colors.text,
   },
   characterRole: {
-    fontSize: FontSize.sm,
+    fontSize: 13,
     color: Colors.textSecondary,
   },
   characterRelationship: {
+    marginTop: 2,
     fontSize: FontSize.xs,
-    color: Colors.textMuted,
     fontStyle: 'italic',
+    color: Colors.textMuted,
   },
-
-  // Hedef
   goalCard: {
+    padding: 18,
+    borderRadius: 18,
     backgroundColor: Colors.primarySoft,
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    gap: Spacing.sm,
-  },
-  goalLabel: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.bold,
-    color: Colors.primary,
-    letterSpacing: 1,
   },
   goalText: {
     fontSize: FontSize.base,
-    fontWeight: FontWeight.semibold,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: -0.16,
+    lineHeight: 22,
     color: Colors.text,
   },
-
-  // İpucu — sol kenarda vurgu çubuğu
   hintCard: {
-    backgroundColor: Colors.secondarySoft,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.md,
     borderLeftWidth: 4,
     borderLeftColor: Colors.secondary,
-    borderRadius: Radius.md,
-    padding: Spacing.md,
+    borderRadius: 12,
+    backgroundColor: Colors.tipSoft,
   },
   hintText: {
-    fontSize: FontSize.sm,
-    color: Colors.text,
-    lineHeight: FontSize.sm * 1.5,
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#7A5230',
   },
-
-  // İstatistikler
   statsRow: {
     flexDirection: 'row',
-    gap: Spacing.md,
+    gap: 10,
   },
   statBox: {
     flex: 1,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
     alignItems: 'center',
-    gap: Spacing.xs,
+    padding: 14,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
   },
   statValue: {
-    fontSize: FontSize.xxl,
-    fontWeight: FontWeight.bold,
-    color: Colors.primary,
+    fontSize: 24,
+    fontWeight: FontWeight.black,
   },
   statLabel: {
     fontSize: FontSize.xs,
@@ -376,15 +482,27 @@ const styles = StyleSheet.create({
 
   // Sticky CTA
   ctaBar: {
-    padding: Spacing.md,
+    paddingHorizontal: 20,
+    paddingTop: 14,
     backgroundColor: Colors.background,
     borderTopWidth: 1,
-    borderTopColor: Colors.divider,
-    ...Shadow.lg,
-    shadowOffset: { width: 0, height: -4 },
+    borderTopColor: '#ECEAE3',
   },
 
-  // Not found
+  // Skeleton
+  skeletonHero: {
+    paddingHorizontal: 22,
+    paddingTop: 12,
+    paddingBottom: Spacing.lg,
+    gap: 12,
+  },
+
+  // Durumlar
+  stateWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: Spacing.lg,
+  },
   notFound: {
     flex: 1,
     alignItems: 'center',

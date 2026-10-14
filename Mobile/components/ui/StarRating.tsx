@@ -1,4 +1,4 @@
-// Zorluk göstergesi: 5 yıldızın `count` kadarı dolu (weight="fill"), kalanı ince çizgi.
+// Zorluk göstergesi: 5 yıldızın `count` kadarı amber dolu, kalanı açık gri çizgi.
 // Senaryo kartı, liste başlıkları ve detay ekranında ortak kullanılır.
 
 import { Star } from 'phosphor-react-native';
@@ -10,13 +10,15 @@ export interface StarRatingProps {
   count: number; // dolu yıldız sayısı (1-5)
   size?: number;
   color?: string;
+  emptyColor?: string;
   total?: number;
 }
 
 export function StarRating({
   count,
   size = 14,
-  color = Colors.warning,
+  color = Colors.amber,
+  emptyColor = '#D8D5CE',
   total = 5,
 }: StarRatingProps) {
   return (
@@ -25,7 +27,7 @@ export function StarRating({
         <Star
           key={i}
           size={size}
-          color={color}
+          color={i < count ? color : emptyColor}
           weight={i < count ? 'fill' : 'regular'}
         />
       ))}

@@ -1,17 +1,28 @@
-// Senaryolar tab — bağlam seçimi. 5 renkli bağlam kartı 2-sütun grid'de; son kart
+// Senaryolar tab — bağlam seçimi. 5 bağlam kartı 2-sütun grid'de; son kart
 // (tek kalan) satırı doldurur ("öne çıkan" hissi). Ücretsiz bağlam senaryo listesine,
 // premium bağlam paywall'a yönlendirir.
+//
+// Bağlam metadata'sı (isim/renk/ikon) client'ta sabit; kartlardaki senaryo sayıları
+// API'den gelen listeden hesaplanır.
 
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ContextCard } from '@/components/ui';
-import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
-import { mockContexts } from '@/lib/mockData';
+import { ContextCard, ErrorState, Skeleton, Text } from '@/components/ui';
+import { CONTEXT_CARD_MIN_HEIGHT } from '@/components/ui/ContextCard';
+import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
+import { useScenarios } from '@/hooks/queries/useScenarios';
+import { toScenarioErrorMessage } from '@/lib/api';
+import { contexts } from '@/lib/mockData';
+import { buildContextProgress, progressFor } from '@/lib/scenarios/contextProgress';
 import type { Context } from '@/types/scenario';
 
 export default function ScenariosScreen() {
+  const { data, isPending, isError, error, refetch, isFetching } = useScenarios();
+
+  const progress = buildContextProgress(data);
+
   const handlePress = (context: Context) => {
     if (context.isFree) {
       router.push({
@@ -34,15 +45,42 @@ export default function ScenariosScreen() {
           <Text style={styles.subtitle}>Pratik yapmak istediğin alanı seç</Text>
         </View>
 
-        <View style={styles.grid}>
-          {mockContexts.map((context) => (
-            <View key={context.id} style={styles.gridItem}>
-              <ContextCard context={context} onPress={() => handlePress(context)} />
-            </View>
-          ))}
-        </View>
+        {isPending ? (
+          <GridSkeleton />
+        ) : isError ? (
+          <ErrorState
+            message={toScenarioErrorMessage(error)}
+            onRetry={() => refetch()}
+            isRetrying={isFetching}
+          />
+        ) : (
+          <View style={styles.grid}>
+            {contexts.map((context) => (
+              <View key={context.id} style={styles.gridItem}>
+                <ContextCard
+                  context={context}
+                  progress={progressFor(progress, context.id)}
+                  onPress={() => handlePress(context)}
+                />
+              </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+// Kartlarla aynı grid düzeni ve aynı minHeight — veri gelince layout kaymaz.
+function GridSkeleton() {
+  return (
+    <View style={styles.grid}>
+      {contexts.map((context) => (
+        <View key={context.id} style={styles.gridItem}>
+          <Skeleton height={CONTEXT_CARD_MIN_HEIGHT} borderRadius={Radius.xl} />
+        </View>
+      ))}
+    </View>
   );
 }
 
@@ -52,27 +90,28 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   scrollContent: {
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.lg,
-    paddingBottom: 100,
-    gap: Spacing.lg,
+    paddingHorizontal: 20,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.lg,
+    gap: 22,
   },
   header: {
-    gap: Spacing.xs,
+    gap: 3,
   },
   title: {
     fontSize: FontSize.xxl,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.black,
+    letterSpacing: -0.85,
     color: Colors.text,
   },
   subtitle: {
-    fontSize: FontSize.sm,
+    fontSize: 15,
     color: Colors.textSecondary,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.md,
+    gap: 14,
   },
   gridItem: {
     // 2 sütun; tek kalan son kart satırı doldurur (flexGrow).

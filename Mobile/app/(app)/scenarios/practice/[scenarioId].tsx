@@ -1,6 +1,9 @@
-// Pratik (chat) sahnesi. Senaryonun karakteriyle text-based roleplay; AI cevapları
-// mock script'ten (getAIResponseScript) sırayla gelir. 3-4 raunt sonunda kapanış mesajı
-// + "Pratik Tamamlandı" banner'ı gösterilir. Backend bağlanınca mock yerini API'ye bırakır.
+// Pratik (chat) sahnesi. Senaryonun karakteriyle text-based roleplay.
+//
+// Senaryo başlığı/karakteri API'den (useScenarioDetail) gelir; AI cevapları HÂLÂ
+// mock script'ten (getAIResponseScript) sırayla geliyor — gerçek LLM entegrasyonu
+// sonraki sprint. Script'ler senaryo id'siyle anahtarlı, backend'in uzun id'leriyle
+// eşleşmeleri şart (ör. is_001_cuma_mesaji).
 
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { PaperPlaneTilt, User, X } from 'phosphor-react-native';
@@ -12,26 +15,33 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  Text,
   TextInput,
   View,
 } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, MessageBubble } from '@/components/ui';
+import {
+  Button,
+  ErrorState,
+  IconButton,
+  MessageBubble,
+  Skeleton,
+  Text,
+} from '@/components/ui';
 import {
   Colors,
+  Fonts,
   FontSize,
   FontWeight,
   Radius,
+  Shadow,
   Spacing,
 } from '@/constants/theme';
-import {
-  getAIResponseScript,
-  getScenarioById,
-  mockContexts,
-} from '@/lib/mockData';
+import { useScenarioDetail } from '@/hooks/queries/useScenarios';
+import { toScenarioErrorMessage } from '@/lib/api';
+import { contexts, getAIResponseScript } from '@/lib/mockData';
+import { getInitials } from '@/lib/utils/initials';
 
 // Zamanlama sabitleri — gerçekçi "yazıyor" hissi için.
 const OPENING_DELAY_MS = 500; // mount sonrası ilk typing'in başlama gecikmesi
@@ -53,10 +63,18 @@ function nextMessageId(): string {
 
 export default function PracticeScreen() {
   const { scenarioId } = useLocalSearchParams<{ scenarioId: string }>();
-  const scenario = getScenarioById(scenarioId);
+  const {
+    data: scenario,
+    isPending,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useScenarioDetail(scenarioId);
+
   const script = getAIResponseScript(scenarioId);
   const context = scenario
-    ? mockContexts.find((c) => c.id === scenario.contextId)
+    ? contexts.find((c) => c.id === scenario.contextId)
     : undefined;
 
   const contextColor = context?.color ?? Colors.primary;
@@ -152,9 +170,46 @@ export default function PracticeScreen() {
     );
   }, []);
 
-  const goToScenarios = useCallback(() => {
-    router.replace('/(app)/(tabs)/scenarios');
-  }, []);
+  const goToResult = useCallback(() => {
+    router.replace({
+      pathname: '/(app)/scenarios/result/[scenarioId]',
+      params: { scenarioId },
+    });
+  }, [scenarioId]);
+
+  if (isPending) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={[styles.header, { backgroundColor: contextSoftColor }]}>
+          <View style={styles.headerSide} />
+          <View style={styles.headerCenter}>
+            <Skeleton width={40} height={40} borderRadius={Radius.full} />
+            <View style={styles.headerInfo}>
+              <Skeleton width={120} height={16} />
+            </View>
+          </View>
+          <View style={styles.headerSide} />
+        </View>
+        <View style={styles.listContent}>
+          <Skeleton height={72} borderRadius={Radius.lg} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (isError) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={styles.flex}>
+          <ErrorState
+            message={toScenarioErrorMessage(error)}
+            onRetry={() => refetch()}
+            isRetrying={isFetching}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   // Fallback: senaryo/script yoksa pratik hazır değil.
   if (!scenario || !script) {
@@ -169,7 +224,7 @@ export default function PracticeScreen() {
             Bu senaryo için pratik henüz hazırlanmadı.
           </Text>
           <Button variant="primary" onPress={() => router.back()}>
-            Geri Dön
+            Geri dön
           </Button>
         </View>
       </SafeAreaView>
@@ -177,6 +232,7 @@ export default function PracticeScreen() {
   }
 
   const displayRound = Math.min(currentRound + 1, totalRounds);
+  const initials = getInitials(scenario.character.name);
 
   const renderItem = ({ item, index }: { item: Message; index: number }) => {
     const isAI = item.role === 'ai';
@@ -197,6 +253,7 @@ export default function PracticeScreen() {
           characterName={characterName}
           showAvatar={showAvatar}
           contextColor={contextColor}
+          avatarLabel={initials}
         />
       </Animated.View>
     );
@@ -205,22 +262,22 @@ export default function PracticeScreen() {
   const sendDisabled = inputText.trim().length === 0 || isAITyping || isCompleted;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: contextSoftColor }]}
+      edges={['top']}
+    >
       {/* Header */}
       <View style={[styles.header, { backgroundColor: contextSoftColor }]}>
-        <Pressable
+        <IconButton
+          icon={X}
+          size={38}
           onPress={confirmExit}
-          accessibilityRole="button"
           accessibilityLabel="Pratiği bırak"
-          hitSlop={8}
-          style={styles.headerSide}
-        >
-          <X size={22} color={Colors.text} weight="bold" />
-        </Pressable>
+        />
 
         <View style={styles.headerCenter}>
           <View style={[styles.headerAvatar, { backgroundColor: contextColor }]}>
-            <User size={20} color={Colors.surface} weight="fill" />
+            <Text style={styles.headerAvatarText}>{initials}</Text>
           </View>
           <View style={styles.headerInfo}>
             <Text style={styles.headerName} numberOfLines={1}>
@@ -232,17 +289,15 @@ export default function PracticeScreen() {
           </View>
         </View>
 
-        <View style={styles.headerSide}>
-          <View style={styles.roundChip}>
-            <Text style={styles.roundChipText}>
-              {displayRound}/{totalRounds}
-            </Text>
-          </View>
+        <View style={styles.roundChip}>
+          <Text style={[styles.roundChipText, { color: contextColor }]}>
+            {displayRound}/{totalRounds}
+          </Text>
         </View>
       </View>
 
       <KeyboardAvoidingView
-        style={styles.flex}
+        style={styles.chatArea}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <FlatList
@@ -258,22 +313,26 @@ export default function PracticeScreen() {
           ListFooterComponent={
             isAITyping ? (
               <View style={styles.messageWrapper}>
-                <MessageBubble role="ai" showAvatar contextColor={contextColor} isTyping />
+                <MessageBubble
+                  role="ai"
+                  showAvatar
+                  contextColor={contextColor}
+                  avatarLabel={initials}
+                  isTyping
+                />
               </View>
             ) : null
           }
         />
 
-        {/* Alt alan: tamamlandıysa banner, değilse input */}
+        {/* Alt alan: tamamlandıysa sonuca geçiş, değilse input */}
         {isCompleted ? (
           <View style={styles.completedBar}>
-            <View style={styles.completedBanner}>
-              <Text style={styles.completedText}>
-                🎉 Pratik tamamlandı! Hayır demeyi pratik ettiğin için tebrikler.
-              </Text>
-            </View>
-            <Button variant="primary" size="lg" fullWidth onPress={goToScenarios}>
-              Senaryolara Dön
+            <Text style={styles.completedText}>
+              🎉 Pratik tamamlandı! Bakalım nasıl geçti.
+            </Text>
+            <Button variant="primary" size="lg" fullWidth onPress={goToResult}>
+              Sonucunu gör
             </Button>
           </View>
         ) : (
@@ -296,10 +355,7 @@ export default function PracticeScreen() {
               accessibilityState={{ disabled: sendDisabled }}
               style={[
                 styles.sendButton,
-                {
-                  backgroundColor: sendDisabled ? Colors.border : Colors.primary,
-                  opacity: sendDisabled ? 0.5 : 1,
-                },
+                sendDisabled ? styles.sendButtonDisabled : Shadow.primary,
               ]}
             >
               <PaperPlaneTilt size={20} color={Colors.surface} weight="fill" />
@@ -311,13 +367,20 @@ export default function PracticeScreen() {
   );
 }
 
+// Chat zemini — tasarımda diğer ekranlardan biraz daha soğuk gri.
+const CHAT_BACKGROUND = '#F4F6F9';
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: CHAT_BACKGROUND,
   },
   flex: {
     flex: 1,
+  },
+  chatArea: {
+    flex: 1,
+    backgroundColor: CHAT_BACKGROUND,
   },
 
   // Header
@@ -325,8 +388,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    gap: Spacing.sm,
+    paddingTop: Spacing.sm,
+    paddingBottom: 14,
+    gap: 12,
   },
   headerSide: {
     minWidth: 40,
@@ -341,18 +405,24 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   headerAvatar: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerAvatarText: {
+    fontSize: 15,
+    fontWeight: FontWeight.black,
+    color: Colors.surface,
   },
   headerInfo: {
     flex: 1,
   },
   headerName: {
     fontSize: FontSize.base,
-    fontWeight: FontWeight.semibold,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: -0.16,
     color: Colors.text,
   },
   headerRole: {
@@ -361,21 +431,20 @@ const styles = StyleSheet.create({
   },
   roundChip: {
     backgroundColor: Colors.surface,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: Radius.full,
   },
   roundChipText: {
     fontSize: FontSize.xs,
-    fontWeight: FontWeight.bold,
-    color: Colors.textSecondary,
+    fontWeight: FontWeight.extrabold,
   },
 
   // List
   listContent: {
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.lg,
-    gap: Spacing.md,
+    paddingVertical: 18,
+    gap: 14,
   },
   messageWrapper: {
     // gap (listContent) balonlar arası boşluğu yönetir; wrapper tam genişlik.
@@ -386,32 +455,38 @@ const styles = StyleSheet.create({
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: Spacing.sm,
-    padding: Spacing.md,
+    gap: 10,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 12,
     backgroundColor: Colors.surface,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
   input: {
     flex: 1,
-    minHeight: 44,
+    minHeight: 46,
     maxHeight: 110, // ~3 satır, sonrası iç scroll
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: Radius.lg,
+    borderRadius: 22,
     paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.sm,
-    paddingBottom: Spacing.sm,
-    fontSize: FontSize.base,
+    paddingTop: 13,
+    paddingBottom: 13,
+    fontSize: FontSize.sm,
+    fontFamily: Fonts.regular,
     color: Colors.text,
-    backgroundColor: Colors.background,
+    backgroundColor: CHAT_BACKGROUND,
   },
   sendButton: {
-    width: 44,
-    height: 44,
+    width: 46,
+    height: 46,
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: Colors.primary,
+  },
+  sendButtonDisabled: {
+    backgroundColor: Colors.textDisabled,
   },
 
   // Completed
@@ -422,16 +497,10 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.border,
     gap: Spacing.md,
   },
-  completedBanner: {
-    backgroundColor: Colors.successSoft,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
-  },
   completedText: {
     fontSize: FontSize.sm,
     color: Colors.success,
-    fontWeight: FontWeight.medium,
-    lineHeight: FontSize.sm * 1.5,
+    fontWeight: FontWeight.bold,
     textAlign: 'center',
   },
 

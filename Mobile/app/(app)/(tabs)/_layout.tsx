@@ -1,18 +1,18 @@
 // Ana tab navigator: Anasayfa / Senaryolar / Profil.
 // Active ikon Phosphor "fill" weight (dolu), inactive "regular" (ince çizgi) —
-// oyunsu hissin önemli bir parçası. Tab bar straight bottom, üstte hafif gölge.
+// oyunsu hissin önemli bir parçası. Beyaz tab bar, üstte ince kenar çizgisi.
 
 import { Tabs } from 'expo-router';
-import { ChatCircleText, House, User } from 'phosphor-react-native';
+import { CardsThree, House, User } from 'phosphor-react-native';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors, FontSize, Shadow } from '@/constants/theme';
+import { Colors, Fonts } from '@/constants/theme';
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   // Android'de tab bar daha kısa; iOS'ta home indicator için inset eklenir.
-  const baseHeight = Platform.OS === 'android' ? 56 : 60;
+  const baseHeight = Platform.OS === 'android' ? 62 : 64;
 
   return (
     <Tabs
@@ -23,15 +23,15 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: Colors.surface,
           height: baseHeight + insets.bottom,
-          paddingTop: 6,
-          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
-          borderTopWidth: 0,
-          // Yukarı doğru hafif gölge (Shadow.md tabanlı, offset yukarı).
-          ...Shadow.md,
-          shadowOffset: { width: 0, height: -2 },
+          paddingTop: 10,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 10,
+          borderTopWidth: 1,
+          borderTopColor: Colors.divider,
+          elevation: 0,
         },
         tabBarLabelStyle: {
-          fontSize: FontSize.xs,
+          fontSize: 11,
+          fontFamily: Fonts.bold,
           marginTop: 2,
         },
       }}
@@ -39,7 +39,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Anasayfa',
+          title: 'Ana Sayfa',
           tabBarIcon: ({ color, focused }) => (
             <House size={24} color={color} weight={focused ? 'fill' : 'regular'} />
           ),
@@ -50,11 +50,7 @@ export default function TabsLayout() {
         options={{
           title: 'Senaryolar',
           tabBarIcon: ({ color, focused }) => (
-            <ChatCircleText
-              size={24}
-              color={color}
-              weight={focused ? 'fill' : 'regular'}
-            />
+            <CardsThree size={24} color={color} weight={focused ? 'fill' : 'regular'} />
           ),
         }}
       />

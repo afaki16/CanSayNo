@@ -11,6 +11,10 @@ export default function AppLayout() {
       <Stack.Screen name="scenarios/[id]" />
       <Stack.Screen name="scenarios/detail/[scenarioId]" />
       <Stack.Screen name="scenarios/practice/[scenarioId]" />
+      <Stack.Screen
+        name="scenarios/result/[scenarioId]"
+        options={{ gestureEnabled: false }}
+      />
     </Stack>
   );
 }

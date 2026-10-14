@@ -1,58 +1,205 @@
-// Profil tab — placeholder. Avatar + isim/email + çıkış. Detaylı profil sonraki sprint'te.
+// Profil tab — kimlik + seviye rozeti, istatistik üçlüsü, rozetler, premium
+// banner'ı ve çıkış. İstatistik/rozetler hâlâ mock userStats'tan gelir —
+// UserStats endpoint'i gelince gerçek veriye bağlanacak.
 
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Crown, SignOut, User } from 'phosphor-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  ArrowRight,
+  Crown,
+  Fire,
+  HandPalm,
+  type Icon,
+  LockSimple,
+  Medal,
+  SignOut,
+  Star,
+} from 'phosphor-react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/ui';
-import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
+import { Text } from '@/components/ui';
+import {
+  Colors,
+  FontSize,
+  FontWeight,
+  Radius,
+  Shadow,
+  Spacing,
+} from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { mockRecentActivities, mockUserStats } from '@/lib/mockData';
+import { getInitials } from '@/lib/utils/initials';
+
+// Seviye unvanları — XP sistemi backend'e taşınınca oradan gelecek.
+const LEVEL_TITLES: Record<number, string> = {
+  1: 'Başlangıç',
+  2: 'Kararlı',
+  3: 'Net',
+  4: 'Sınır Ustası',
+};
+
+interface BadgeDef {
+  id: string;
+  label: string;
+  icon: Icon;
+  color: string;
+  softColor: string;
+}
+
+// Rozet kataloğu; kazanılanlar userStats.badges'teki id'lerle eşleşir.
+const BADGES: BadgeDef[] = [
+  { id: 'first_no', label: 'İlk Hayır', icon: HandPalm, color: Colors.primary, softColor: Colors.primarySoft },
+  { id: 'three_day_streak', label: '3 Gün Seri', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
+  { id: 'seven_day_streak', label: '7 Gün Seri', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
+  { id: 'master', label: 'Usta', icon: Medal, color: Colors.amber, softColor: Colors.amberSoft },
+];
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoggingOut } = useAuth();
+  const stats = mockUserStats;
 
+  // logout() bilerek throw etmiyor: backend'e ulaşılamasa veya token süresi
+  // dolmuş olsa bile local oturum kapanır ve kullanıcı Welcome'a döner.
   const handleLogout = async () => {
     await logout();
     router.replace('/');
   };
 
-  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
+  const fullName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Kullanıcı';
+  const scores = mockRecentActivities.map((a) => a.score);
+  const averageScore = scores.length
+    ? Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length)
+    : 0;
+  const levelTitle = LEVEL_TITLES[stats.level] ?? 'Sınır Ustası';
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.container}>
-        <View style={styles.profileHeader}>
-          <View style={styles.avatar}>
-            <User size={40} color={Colors.primary} weight="fill" />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Kimlik */}
+        <View style={styles.identity}>
+          <LinearGradient
+            colors={[Colors.primaryLight, Colors.primary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.avatar}
+          >
+            <Text style={styles.avatarText}>{getInitials(fullName)}</Text>
+          </LinearGradient>
+          <View style={styles.identityText}>
+            <Text style={styles.name}>{fullName}</Text>
+            <Text style={styles.email}>{user?.email ?? ''}</Text>
           </View>
-          <Text style={styles.name}>{fullName || 'Kullanıcı'}</Text>
-          <Text style={styles.email}>{user?.email ?? ''}</Text>
+          <View style={styles.levelPill}>
+            <Star size={14} color={Colors.amber} weight="fill" />
+            <Text style={styles.levelPillText}>
+              Seviye {stats.level} · {levelTitle}
+            </Text>
+          </View>
         </View>
 
-        <Text style={styles.hint}>Detaylı profil yakında</Text>
+        {/* İstatistik üçlüsü */}
+        <View style={styles.statsRow}>
+          <StatBox value={stats.currentStreak} label="Güncel seri" color={Colors.secondary} />
+          <StatBox value={stats.totalSessions} label="Pratik" color={Colors.primary} />
+          <StatBox value={averageScore} label="Ort. skor" color={Colors.success} />
+        </View>
 
-        <View style={styles.actions}>
-          {/* Geçici: paywall modal'ını test etmek için giriş noktası */}
-          <Button
-            variant="secondary"
-            fullWidth
-            onPress={() => router.push('/(app)/paywall')}
-            leftIcon={<Crown size={20} color={Colors.surface} weight="fill" />}
+        {/* Rozetler */}
+        <Text style={styles.sectionTitle}>Rozetlerin</Text>
+        <View style={styles.badgeRow}>
+          {BADGES.map((badge) => {
+            const earned = stats.badges.includes(badge.id);
+            const BadgeIcon = earned ? badge.icon : LockSimple;
+            return (
+              <View key={badge.id} style={styles.badge}>
+                <View
+                  style={[
+                    styles.badgeCircle,
+                    { backgroundColor: earned ? badge.softColor : '#F1F0EC' },
+                  ]}
+                >
+                  <BadgeIcon
+                    size={earned ? 28 : 24}
+                    color={earned ? badge.color : Colors.textDisabled}
+                    weight="fill"
+                  />
+                </View>
+                <Text
+                  style={[styles.badgeLabel, !earned && styles.badgeLabelLocked]}
+                  numberOfLines={2}
+                >
+                  {badge.label}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Premium banner */}
+        <Pressable
+          onPress={() => router.push('/(app)/paywall')}
+          accessibilityRole="button"
+          accessibilityLabel="Premium'a geç"
+        >
+          <LinearGradient
+            colors={[Colors.ink, '#2B2F3A']}
+            start={{ x: 0, y: 0.3 }}
+            end={{ x: 1, y: 0.7 }}
+            style={styles.premiumBanner}
           >
-            Premium&apos;a Yükselt
-          </Button>
-          <Button
-            variant="outline"
-            fullWidth
+            <View style={styles.premiumIcon}>
+              <Crown size={23} color={Colors.ink} weight="fill" />
+            </View>
+            <View style={styles.flex}>
+              <Text style={styles.premiumTitle}>Premium&apos;a geç</Text>
+              <Text style={styles.premiumSub}>Tüm bağlamların kilidini aç</Text>
+            </View>
+            <ArrowRight size={18} color="#FFFFFF" weight="bold" />
+          </LinearGradient>
+        </Pressable>
+
+        {/* Ayarlar */}
+        <View style={styles.settings}>
+          <Pressable
             onPress={handleLogout}
-            leftIcon={<SignOut size={20} color={Colors.primary} />}
+            disabled={isLoggingOut}
+            accessibilityRole="button"
+            style={({ pressed }) => [styles.settingRow, pressed && styles.pressed]}
           >
-            Çıkış Yap
-          </Button>
+            {isLoggingOut ? (
+              <ActivityIndicator size="small" color={Colors.error} />
+            ) : (
+              <SignOut size={21} color={Colors.error} />
+            )}
+            <Text style={[styles.settingText, { color: Colors.error }]}>
+              Çıkış yap
+            </Text>
+          </Pressable>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function StatBox({
+  value,
+  label,
+  color,
+}: {
+  value: number;
+  label: string;
+  color: string;
+}) {
+  return (
+    <View style={styles.statBox}>
+      <Text style={[styles.statValue, { color }]}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
   );
 }
 
@@ -61,40 +208,170 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  container: {
+  flex: {
     flex: 1,
-    padding: Spacing.lg,
   },
-  profileHeader: {
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.lg,
+  },
+
+  // Kimlik
+  identity: {
     alignItems: 'center',
-    paddingVertical: Spacing.xl,
-    gap: Spacing.sm,
+    gap: 10,
   },
   avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: Radius.full,
-    backgroundColor: Colors.primarySoft,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.sm,
+    ...Shadow.primary,
+  },
+  avatarText: {
+    fontSize: 30,
+    fontWeight: FontWeight.black,
+    color: '#FFFFFF',
+  },
+  identityText: {
+    alignItems: 'center',
   },
   name: {
     fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.black,
+    letterSpacing: -0.44,
     color: Colors.text,
   },
   email: {
     fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-  },
-  hint: {
-    textAlign: 'center',
-    fontSize: FontSize.sm,
     color: Colors.textMuted,
   },
-  actions: {
-    marginTop: 'auto',
+  levelPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 13,
+    paddingVertical: 6,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.amberSoft,
+  },
+  levelPillText: {
+    fontSize: 13,
+    fontWeight: FontWeight.extrabold,
+    color: '#9A7400',
+  },
+
+  // İstatistik
+  statsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 22,
+  },
+  statBox: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: FontWeight.black,
+  },
+  statLabel: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+  },
+
+  // Rozetler
+  sectionTitle: {
+    marginTop: Spacing.lg,
+    marginBottom: 12,
+    fontSize: FontSize.base,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: -0.16,
+    color: Colors.text,
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  badge: {
+    flex: 1,
+    alignItems: 'center',
     gap: Spacing.sm,
+  },
+  badgeCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeLabel: {
+    fontSize: 11,
+    lineHeight: 13,
+    fontWeight: FontWeight.bold,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
+  badgeLabelLocked: {
+    color: Colors.textDisabled,
+  },
+
+  // Premium
+  premiumBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 13,
+    marginTop: 22,
+    padding: Spacing.md,
+    borderRadius: 18,
+  },
+  premiumIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: Colors.amber,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  premiumTitle: {
+    fontSize: 15,
+    fontWeight: FontWeight.extrabold,
+    color: '#FFFFFF',
+  },
+  premiumSub: {
+    fontSize: FontSize.xs,
+    color: 'rgba(255,255,255,0.7)',
+  },
+
+  // Ayarlar
+  settings: {
+    marginTop: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
+    overflow: 'hidden',
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 13,
+    paddingVertical: 15,
+    paddingHorizontal: Spacing.md,
+  },
+  settingText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: FontWeight.semibold,
+  },
+  pressed: {
+    backgroundColor: Colors.chip,
   },
 });

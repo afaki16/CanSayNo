@@ -1,57 +1,56 @@
-// Register ekranı: gerçek form (react-hook-form + zod), mock backend ile bağlı.
-// friendly playful tasarım — login ile tutarlı, ad/soyad yan yana.
+// Register ekranı: react-hook-form + zod, gerçek backend'e (POST /api/Auth/register) bağlı.
+// Kayıt sonrası otomatik login YOK — hesap e-posta doğrulanana kadar giriş yapamaz.
+// Tasarım login ile tutarlı. Tek şifre alanı + göz ikonu; backend confirmPassword
+// istediği için aynı şifre iki alana da gönderilir.
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import {
   ArrowLeft,
-  Envelope,
+  EnvelopeSimple,
   Eye,
   EyeSlash,
-  Lock,
+  LockSimple,
   User,
 } from 'phosphor-react-native';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { Button, FormField } from '@/components/ui';
+import {
+  Button,
+  FormError,
+  FormField,
+  IconButton,
+  Text,
+} from '@/components/ui';
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 
-const registerSchema = z
-  .object({
-    firstName: z.string().min(2, 'Ad en az 2 karakter olmalı'),
-    lastName: z.string().min(2, 'Soyad en az 2 karakter olmalı'),
-    email: z.string().email('Geçerli bir e-posta girin'),
-    password: z
-      .string()
-      .min(8, 'Şifre en az 8 karakter olmalı')
-      .regex(/[A-Z]/, 'En az bir büyük harf içermeli')
-      .regex(/[0-9]/, 'En az bir rakam içermeli'),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Şifreler eşleşmiyor',
-    path: ['confirmPassword'],
-  });
+const registerSchema = z.object({
+  firstName: z.string().min(2, 'Ad en az 2 karakter olmalı'),
+  lastName: z.string().min(2, 'Soyad en az 2 karakter olmalı'),
+  email: z.string().email('Geçerli bir e-posta girin'),
+  password: z
+    .string()
+    .min(8, 'Şifre en az 8 karakter olmalı')
+    .regex(/[A-Z]/, 'En az bir büyük harf içermeli')
+    .regex(/[0-9]/, 'En az bir rakam içermeli'),
+});
 
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
-  const { register } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { register, isRegistering, registerError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -66,26 +65,25 @@ export default function RegisterScreen() {
       lastName: '',
       email: '',
       password: '',
-      confirmPassword: '',
     },
   });
 
   const onSubmit = async (data: RegisterForm) => {
-    setIsSubmitting(true);
     try {
-      await register({
+      const result = await register({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
         password: data.password,
+        confirmPassword: data.password,
       });
-      router.replace('/(app)/(tabs)/home');
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Bir şeyler ters gitti';
-      Alert.alert('Kayıt oluşturulamadı', message);
-    } finally {
-      setIsSubmitting(false);
+      // Otomatik login yok: hesap doğrulanmadan backend girişi reddediyor.
+      router.replace({
+        pathname: '/(auth)/verify-email',
+        params: { email: result.email },
+      });
+    } catch {
+      // Hata mesajı registerError üzerinden formun altında gösteriliyor.
     }
   };
 
@@ -102,46 +100,38 @@ export default function RegisterScreen() {
         >
           {/* Üst bar */}
           <View style={styles.topBar}>
-            <Button
-              variant="ghost"
-              size="sm"
+            <IconButton
+              icon={ArrowLeft}
+              bordered
               onPress={() => router.back()}
-              leftIcon={<ArrowLeft size={20} color={Colors.primary} />}
-            >
-              Geri
-            </Button>
+              accessibilityLabel="Geri"
+            />
           </View>
 
           {/* Başlık */}
           <View style={styles.header}>
-            <Text style={styles.title}>Hadi tanışalım</Text>
-            <Text style={styles.subtitle}>
-              Hesap oluştur, pratik yapmaya başla
-            </Text>
+            <Text style={styles.title}>Hesabını oluştur</Text>
+            <Text style={styles.subtitle}>Bugün ilk “hayır”ını söyle.</Text>
           </View>
 
           {/* Form */}
           <View style={styles.form}>
-            <View style={styles.row}>
-              <FormField<RegisterForm>
-                name="firstName"
-                control={control}
-                containerStyle={styles.rowItem}
-                label="Ad"
-                placeholder="Adın"
-                autoCapitalize="words"
-                leftIcon={<User size={20} color={Colors.textMuted} />}
-              />
-              <FormField<RegisterForm>
-                name="lastName"
-                control={control}
-                containerStyle={styles.rowItem}
-                label="Soyad"
-                placeholder="Soyadın"
-                autoCapitalize="words"
-                leftIcon={<User size={20} color={Colors.textMuted} />}
-              />
-            </View>
+            <FormField<RegisterForm>
+              name="firstName"
+              control={control}
+              label="Ad"
+              placeholder="Adın"
+              autoCapitalize="words"
+              leftIcon={<User size={19} color={Colors.textMuted} />}
+            />
+            <FormField<RegisterForm>
+              name="lastName"
+              control={control}
+              label="Soyad"
+              placeholder="Soyadın"
+              autoCapitalize="words"
+              leftIcon={<User size={19} color={Colors.textMuted} />}
+            />
 
             <FormField<RegisterForm>
               name="email"
@@ -151,7 +141,7 @@ export default function RegisterScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
-              leftIcon={<Envelope size={20} color={Colors.textMuted} />}
+              leftIcon={<EnvelopeSimple size={19} color={Colors.textMuted} />}
             />
 
             <FormField<RegisterForm>
@@ -161,7 +151,7 @@ export default function RegisterScreen() {
               placeholder="En az 8 karakter"
               secureTextEntry={!showPassword}
               autoCapitalize="none"
-              leftIcon={<Lock size={20} color={Colors.textMuted} />}
+              leftIcon={<LockSimple size={19} color={Colors.textMuted} />}
               rightIcon={
                 <Pressable
                   onPress={() => setShowPassword((prev) => !prev)}
@@ -172,36 +162,36 @@ export default function RegisterScreen() {
                   }
                 >
                   {showPassword ? (
-                    <EyeSlash size={20} color={Colors.textMuted} />
+                    <EyeSlash size={19} color={Colors.textMuted} />
                   ) : (
-                    <Eye size={20} color={Colors.textMuted} />
+                    <Eye size={19} color={Colors.textMuted} />
                   )}
                 </Pressable>
               }
             />
 
-            <FormField<RegisterForm>
-              name="confirmPassword"
-              control={control}
-              label="Şifre Tekrar"
-              placeholder="Şifreni tekrar gir"
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              leftIcon={<Lock size={20} color={Colors.textMuted} />}
-            />
           </View>
 
           {/* Aksiyon */}
+          <FormError message={registerError} />
+
           <Button
             variant="primary"
             size="lg"
             fullWidth
             disabled={!isValid}
-            loading={isSubmitting}
+            loading={isRegistering}
             onPress={handleSubmit(onSubmit)}
           >
-            Kayıt Ol
+            Hesap oluştur
           </Button>
+
+          <Text style={styles.terms}>
+            Devam ederek{' '}
+            <Text style={styles.termsAccent}>Kullanım Koşulları</Text> ve{' '}
+            <Text style={styles.termsAccent}>Gizlilik Politikası</Text>&apos;nı
+            kabul edersin.
+          </Text>
 
           {/* Alt link */}
           <Pressable
@@ -211,7 +201,7 @@ export default function RegisterScreen() {
           >
             <Text style={styles.bottomLinkText}>
               Zaten hesabın var mı?{' '}
-              <Text style={styles.bottomLinkAccent}>Giriş Yap</Text>
+              <Text style={styles.bottomLinkAccent}>Giriş yap</Text>
             </Text>
           </Pressable>
         </ScrollView>
@@ -230,21 +220,22 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: 28,
+    paddingTop: Spacing.md,
     paddingBottom: Spacing.xl,
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: -Spacing.sm,
   },
   header: {
-    marginTop: Spacing.md,
-    marginBottom: Spacing.xl,
+    marginTop: 26,
+    marginBottom: 28,
   },
   title: {
-    fontSize: FontSize.xxl,
-    fontWeight: FontWeight.bold,
+    fontSize: 30,
+    fontWeight: FontWeight.black,
+    letterSpacing: -0.9,
     color: Colors.text,
   },
   subtitle: {
@@ -254,17 +245,21 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: Spacing.md,
-    marginBottom: Spacing.xl,
+    marginBottom: 22,
   },
-  row: {
-    flexDirection: 'row',
-    gap: Spacing.md,
+  terms: {
+    marginTop: 18,
+    fontSize: FontSize.xs,
+    lineHeight: 18,
+    color: Colors.textMuted,
+    textAlign: 'center',
   },
-  rowItem: {
-    flex: 1,
+  termsAccent: {
+    color: Colors.textSecondary,
+    fontWeight: FontWeight.semibold,
   },
   bottomLink: {
-    marginTop: Spacing.lg,
+    marginTop: Spacing.md,
     alignItems: 'center',
     paddingVertical: Spacing.sm,
   },
@@ -274,7 +269,6 @@ const styles = StyleSheet.create({
   },
   bottomLinkAccent: {
     color: Colors.primary,
-    fontWeight: FontWeight.semibold,
-    textDecorationLine: 'underline',
+    fontWeight: FontWeight.bold,
   },
 });

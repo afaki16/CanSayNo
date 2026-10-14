@@ -1,21 +1,18 @@
-// Senaryo kartı — senaryo listesinde tek satır. Solda bağlam renginde yuvarlak ikon,
-// ortada başlık/açıklama/meta, sağda tamamlanmışsa skor chip'i yoksa ileri ok.
+// Senaryo kartı — senaryo listesinde tek satır. Solda başlık/açıklama ve
+// zorluk + süre meta'sı; sağda tamamlanmışsa en iyi skor, değilse oynat butonu.
 
-import { ArrowRight } from 'phosphor-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Clock, Play } from 'phosphor-react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import {
-  Colors,
-  FontSize,
-  FontWeight,
-  Radius,
-  Shadow,
-  Spacing,
-} from '@/constants/theme';
-import { getContextIcon } from '@/lib/icons';
+import { Text } from './Text';
+
+import { Colors, FontSize, FontWeight, Radius } from '@/constants/theme';
 import type { Context, Scenario } from '@/types/scenario';
-
-import { StarRating } from './StarRating';
+import {
+  getDifficultyColor,
+  getDifficultyLabel,
+  getDifficultyLevel,
+} from '@/types/scenario';
 
 export interface ScenarioCardProps {
   scenario: Scenario;
@@ -23,7 +20,10 @@ export interface ScenarioCardProps {
   onPress: () => void;
 }
 
-// Skora göre chip rengi (Home'daki eşleme ile tutarlı).
+// Senaryo listesindeki skeleton bu yüksekliği kullanır — layout kaymasın.
+export const SCENARIO_CARD_MIN_HEIGHT = 104;
+
+// Skora göre rozet rengi (Home'daki eşleme ile tutarlı).
 function scoreColors(score: number) {
   if (score >= 80) return { bg: Colors.successSoft, text: Colors.success };
   if (score >= 60) return { bg: Colors.warningSoft, text: Colors.warning };
@@ -31,7 +31,7 @@ function scoreColors(score: number) {
 }
 
 export function ScenarioCard({ scenario, context, onPress }: ScenarioCardProps) {
-  const Icon = getContextIcon(context.iconName);
+  const level = getDifficultyLevel(scenario.difficulty);
   const sc =
     scenario.isCompleted && scenario.bestScore !== null
       ? scoreColors(scenario.bestScore)
@@ -44,33 +44,45 @@ export function ScenarioCard({ scenario, context, onPress }: ScenarioCardProps) 
       accessibilityLabel={scenario.title}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <View style={[styles.iconCircle, { backgroundColor: context.softColor }]}>
-        <Icon size={24} color={context.color} weight="fill" />
-      </View>
-
       <View style={styles.info}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={styles.title} numberOfLines={2}>
           {scenario.title}
         </Text>
-        <Text style={styles.description} numberOfLines={1}>
+        <Text style={styles.description} numberOfLines={2}>
           {scenario.shortDescription}
         </Text>
         <View style={styles.metaRow}>
-          <Text style={styles.meta}>
-            {scenario.estimatedDurationMinutes} dk ·{' '}
-          </Text>
-          <StarRating count={scenario.difficulty} size={12} />
+          <View style={styles.levelChip}>
+            <View
+              style={[
+                styles.levelDot,
+                { backgroundColor: Colors[getDifficultyColor(level)] },
+              ]}
+            />
+            <Text style={styles.levelText}>{getDifficultyLabel(level)}</Text>
+          </View>
+          <View style={styles.duration}>
+            <Clock size={13} color={Colors.textMuted} />
+            <Text style={styles.durationText}>
+              {scenario.estimatedDurationMinutes} dk
+            </Text>
+          </View>
         </View>
       </View>
 
       {sc ? (
-        <View style={[styles.scoreBadge, { backgroundColor: sc.bg }]}>
-          <Text style={[styles.scoreText, { color: sc.text }]}>
-            {scenario.bestScore}
-          </Text>
+        <View style={styles.scoreCol}>
+          <View style={[styles.circle, { backgroundColor: sc.bg }]}>
+            <Text style={[styles.scoreText, { color: sc.text }]}>
+              {scenario.bestScore}
+            </Text>
+          </View>
+          <Text style={styles.scoreLabel}>en iyi</Text>
         </View>
       ) : (
-        <ArrowRight size={20} color={Colors.textMuted} weight="bold" />
+        <View style={[styles.circle, { backgroundColor: context.softColor }]}>
+          <Play size={18} color={context.color} weight="fill" />
+        </View>
       )}
     </Pressable>
   );
@@ -80,57 +92,87 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
-    minHeight: 90,
-    backgroundColor: Colors.surface,
+    gap: 14,
+    minHeight: SCENARIO_CARD_MIN_HEIGHT,
+    padding: 15,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.lg,
-    padding: Spacing.md,
-    ...Shadow.sm,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
   },
   pressed: {
     opacity: 0.7,
   },
-  iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: Radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   info: {
     flex: 1,
-    gap: 2,
+    minWidth: 0,
   },
   title: {
     fontSize: FontSize.base,
-    fontWeight: FontWeight.semibold,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: -0.32,
+    lineHeight: 19,
     color: Colors.text,
   },
   description: {
-    fontSize: FontSize.xs,
+    marginTop: 3,
+    fontSize: 13,
+    lineHeight: 17,
     color: Colors.textMuted,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 2,
+    gap: 8,
+    marginTop: 10,
   },
-  meta: {
-    fontSize: FontSize.xs,
+  levelChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.chip,
+  },
+  levelDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  levelText: {
+    fontSize: 11,
+    fontWeight: FontWeight.bold,
+    color: Colors.textSecondary,
+  },
+  duration: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  durationText: {
+    fontSize: 11,
+    fontWeight: FontWeight.semibold,
     color: Colors.textMuted,
   },
-  scoreBadge: {
-    minWidth: 40,
-    height: 32,
-    paddingHorizontal: Spacing.sm,
-    borderRadius: Radius.full,
+  scoreCol: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  circle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scoreText: {
-    fontSize: FontSize.sm,
-    fontWeight: FontWeight.bold,
+    fontSize: 15,
+    fontWeight: FontWeight.black,
+  },
+  scoreLabel: {
+    fontSize: 10,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textMuted,
   },
 });
