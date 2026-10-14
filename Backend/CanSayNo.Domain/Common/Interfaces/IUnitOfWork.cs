@@ -18,6 +18,8 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     IUserVerificationTokenRepository UserVerificationTokens { get; }
     ITenantRepository Tenants { get; }
     ILoginAttemptRepository LoginAttempts { get; }
+    IScenarioRepository Scenarios { get; }
+    ISessionRepository Sessions { get; }
     // Core operations
     /// <summary>
     /// Save all changes made in this unit of work

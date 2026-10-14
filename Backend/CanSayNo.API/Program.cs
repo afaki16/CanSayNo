@@ -18,7 +18,19 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Enum'lar integer yerine camelCase string olarak serialize/deserialize edilsin.
+        // Ör: ContextId.Is -> "is", SessionStatus.Active -> "active".
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter(
+                namingPolicy: System.Text.Json.JsonNamingPolicy.CamelCase));
+
+        // Property isimleri de camelCase (tutarlılık için).
+        options.JsonSerializerOptions.PropertyNamingPolicy =
+            System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 // Add HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
@@ -147,5 +159,8 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<CanSayNo.Infrastructure.Persistence.ApplicationDbContext>();
     await CanSayNo.Infrastructure.Persistence.SeedData.SeedPermissionsAsync(context);
 }
+
+// Hayırcı test senaryolarını seed et (idempotent — varsa atlar)
+await CanSayNo.Infrastructure.Persistence.Seeding.HayirciSeedData.SeedScenariosAsync(app.Services);
 
 app.Run();

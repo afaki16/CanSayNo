@@ -24,6 +24,8 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
     private readonly Lazy<IUserVerificationTokenRepository> _userVerificationTokens;
     private readonly Lazy<ITenantRepository> _tenants;
     private readonly Lazy<ILoginAttemptRepository> _loginAttempts;
+    private readonly Lazy<IScenarioRepository> _scenarios;
+    private readonly Lazy<ISessionRepository> _sessions;
 
     public UnitOfWork(ApplicationDbContext context, IServiceProvider serviceProvider)
     {
@@ -39,6 +41,8 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
         _userVerificationTokens = new Lazy<IUserVerificationTokenRepository>(() => _serviceProvider.GetRequiredService<IUserVerificationTokenRepository>());
         _tenants = new Lazy<ITenantRepository>(() => _serviceProvider.GetRequiredService<ITenantRepository>());
         _loginAttempts = new Lazy<ILoginAttemptRepository>(() => _serviceProvider.GetRequiredService<ILoginAttemptRepository>());
+        _scenarios = new Lazy<IScenarioRepository>(() => _serviceProvider.GetRequiredService<IScenarioRepository>());
+        _sessions = new Lazy<ISessionRepository>(() => _serviceProvider.GetRequiredService<ISessionRepository>());
 
     }
 
@@ -51,6 +55,8 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
     public IUserVerificationTokenRepository UserVerificationTokens => _userVerificationTokens.Value;
     public ITenantRepository Tenants => _tenants.Value;
     public ILoginAttemptRepository LoginAttempts => _loginAttempts.Value;
+    public IScenarioRepository Scenarios => _scenarios.Value;
+    public ISessionRepository Sessions => _sessions.Value;
 
 
 

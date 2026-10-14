@@ -28,6 +28,9 @@ namespace CanSayNo.API.Extensions
                     }
                 });
 
+                // Enum'ları Swagger şemasında inline string olarak göster (JsonStringEnumConverter ile uyumlu).
+                c.UseInlineDefinitionsForEnums();
+
                 // Include XML comments
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);

@@ -2,6 +2,7 @@ using CanSayNo.Application.Interfaces;
 using CanSayNo.Domain.Common.Interfaces;
 using CanSayNo.Domain.Common.Interfaces.Repositories;
 using CanSayNo.Domain.Entities;
+using CanSayNo.Domain.Entities.Hayirci;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Linq.Expressions;
@@ -28,6 +29,13 @@ namespace CanSayNo.Infrastructure.Persistence
         public DbSet<UserVerificationToken> UserVerificationTokens { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<LoginAttempt> LoginAttempts { get; set; }
+
+        // Hayırcı (CanSayNo) domain entities
+        public DbSet<Scenario> Scenarios { get; set; }
+        public DbSet<Session> Sessions { get; set; }
+        public DbSet<UserStats> UserStats { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<DailyUsage> DailyUsage { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
