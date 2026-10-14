@@ -92,7 +92,7 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 
 **Tamamlandı**: backend kurulumu, domain modeli, scenarios read API, enum string serialization, mobile 3 parçalık entegrasyon (API altyapısı, auth, senaryolar), phoneNumber unique index düzeltmesi.
 
-**Yeni tasarım uygulandı (2026-10-14)**: Claude Design "CanSayNo Ekranlar" — mavi `#2D7FF9` + mercan palet, Satoshi font (`assets/fonts/`, `useFonts` ile; ağırlık → dosya eşlemesi `components/ui/Text.tsx`'te — RN `Text` yerine her yerde bunu kullan). Tüm ekranlar yenilendi + yeni Sonuç ekranı (`scenarios/result/[scenarioId]`, mock `lib/mockData/evaluation.ts`). Marka adı UI'da "CanSayNo". Paywall fiyatı ₺79 aylık / ₺499 yıllık. Kayıtta "Şifre tekrar" alanı kaldırıldı (confirmPassword = password gönderiliyor).
+**Yeni tasarım uygulandı (2026-10-14)**: Claude Design "CanSayNo Ekranlar" — mavi `#2D7FF9` + mercan palet, Satoshi font (`assets/fonts/`, `useFonts` ile; ağırlık → dosya eşlemesi `components/ui/Text.tsx`'te — RN `Text` yerine her yerde bunu kullan). Tüm ekranlar yenilendi + yeni Sonuç ekranı (`scenarios/result/[scenarioId]`, mock `lib/mockData/evaluation.ts`). Marka adı UI'da "CanSayNo". Paywall fiyatı ₺79 aylık / ₺499 yıllık. Tüm bu iş `feature/scenarios-redesign` branch'inde commit'lendi (main'e henüz merge edilmedi). Kayıtta "Şifre tekrar" alanı kaldırıldı (confirmPassword = password gönderiliyor).
 
 **Bekleyen küçük işler**:
 1. Emulator'de görsel test — yeni tasarımın tüm ekranları + senaryo ekranlarının skeleton, error state, "Tekrar Dene" ve "0/6 tamamlandı" davranışları ekranda gözle görülmedi
@@ -111,7 +111,15 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
 - Anthropic API key sadece backend'de (user secrets / appsettings.Development.json), asla mobile'da
 - Sonra mobile chat ekranını bu endpoint'lere bağla, `aiResponses.ts`'i sil
 
-**Koda başlamadan konuşulması gereken kararlar**: karakter system prompt yapısı, raunt yönetimi (MaxRounds + PressureTactics sırası), değerlendirme prompt'u ve JSON çıktı şeması, model seçimi, token/maliyet limitleri, ücretsiz kullanıcı günlük limiti.
+**Alınan kararlar (2026-10-14)**:
+- **Model**: karakter cevapları ve değerlendirme için `claude-sonnet-5-5` (resmi Anthropic C# SDK)
+- **Ücretsiz limit**: günde **1 pratik** (`DailyUsage`); premium sınırsız
+- **Değerlendirme şeması** yeni Sonuç ekranına göre: 5 eksen (netlik, nezaket, dayaniklilik, alternatifSunma, ozurDengesi) **0–100**, `strengths[]`, `improvements[]`, `coachNote`, opsiyonel `idealResponseExample`, `totalScore` 0–100. Mevcut `SessionEvaluation` buna göre güncellenecek (JSONB — migration muhtemelen gerekmez). Structured outputs ile alınacak
+- **Karakter prompt'u**: sabit kural bloğu (cache'lenir) + senaryo bloğu (sahne, karakter, arketip, o rauntun taktikleri). Kısa, doğal, Türkçe mesajlaşma dili
+- **Raunt yönetimi**: backend sayar; her kullanıcı mesajı = 1 raunt, o rauntun `PressureTactics` listesi prompt'a girer; `MaxRounds` dolunca kapanış mesajı + session Completed
+- **Limitler**: cevap başına düşük `max_tokens`, kullanıcı mesajı ≤ 500 karakter (backend de doğrular), session başına token tavanı (`TokensUsed`)
+
+**Uygulama sırası**: (1) Sessions CRUD + günlük limit (LLM'siz) → (2) messages endpoint + Anthropic çağrısı → (3) evaluate + UserStats → (4) mobile chat/sonuç bağlama, mock'ları silme → (5) Anasayfa/Profil gerçek istatistik.
 
 ## Diğer Bekleyenler
 
