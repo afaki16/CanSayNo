@@ -1,6 +1,6 @@
 // Profil tab — kimlik + seviye rozeti, istatistik üçlüsü, rozetler, premium
-// banner'ı ve çıkış. İstatistik/rozetler hâlâ mock userStats'tan gelir —
-// UserStats endpoint'i gelince gerçek veriye bağlanacak.
+// banner'ı ve çıkış. Ortalama skor gerçek oturumlardan (GET /api/Sessions/my);
+// seri/pratik sayısı/rozetler hâlâ mock userStats — UserStats endpoint'i gelince bağlanacak.
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -27,8 +27,9 @@ import {
   Shadow,
   Spacing,
 } from '@/constants/theme';
+import { useMySessions } from '@/hooks/queries/useSessions';
 import { useAuth } from '@/hooks/useAuth';
-import { mockRecentActivities, mockUserStats } from '@/lib/mockData';
+import { mockUserStats } from '@/lib/mockData';
 import { getInitials } from '@/lib/utils/initials';
 
 // Seviye unvanları — XP sistemi backend'e taşınınca oradan gelecek.
@@ -38,6 +39,8 @@ const LEVEL_TITLES: Record<number, string> = {
   3: 'Net',
   4: 'Sınır Ustası',
 };
+
+const AVERAGE_SAMPLE_SIZE = 50;
 
 interface BadgeDef {
   id: string;
@@ -68,10 +71,14 @@ export default function ProfileScreen() {
 
   const fullName =
     [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Kullanıcı';
-  const scores = mockRecentActivities.map((a) => a.score);
+  // Son 50 oturumun skorlu olanlarının ortalaması; hiç skor yoksa "–".
+  const { data: sessions } = useMySessions(AVERAGE_SAMPLE_SIZE);
+  const scores = (sessions?.items ?? [])
+    .map((s) => s.totalScore)
+    .filter((score): score is number => score !== null);
   const averageScore = scores.length
     ? Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length)
-    : 0;
+    : '–';
   const levelTitle = LEVEL_TITLES[stats.level] ?? 'Sınır Ustası';
 
   return (
@@ -191,7 +198,7 @@ function StatBox({
   label,
   color,
 }: {
-  value: number;
+  value: number | string;
   label: string;
   color: string;
 }) {

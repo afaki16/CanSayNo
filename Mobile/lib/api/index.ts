@@ -12,7 +12,12 @@ export {
   type ApiErrorPayload,
   type ApiErrorCode,
 } from './client';
-export { AUTH_ENDPOINTS, SCENARIO_ENDPOINTS, isPath } from './endpoints';
+export {
+  AUTH_ENDPOINTS,
+  SCENARIO_ENDPOINTS,
+  SESSION_ENDPOINTS,
+  isPath,
+} from './endpoints';
 export { queryClient } from './queryClient';
 export {
   apiGet,
@@ -23,6 +28,13 @@ export {
 } from './hooks';
 export { authService } from './services/authService';
 export { scenarioService } from './services/scenarioService';
+export { sessionService } from './services/sessionService';
+export {
+  toStartSessionError,
+  toSessionErrorMessage,
+  type StartSessionError,
+  type StartSessionErrorKind,
+} from './services/sessionErrors';
 export {
   toLoginErrorMessage,
   toRegisterErrorMessage,

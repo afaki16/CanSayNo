@@ -4,6 +4,9 @@
 // mock script'ten (getAIResponseScript) sırayla geliyor — gerçek LLM entegrasyonu
 // sonraki sprint. Script'ler senaryo id'siyle anahtarlı, backend'in uzun id'leriyle
 // eşleşmeleri şart (ör. is_001_cuma_mesaji).
+//
+// Oturum detay ekranında açılır (POST /api/Sessions) ve sessionId param'ıyla gelir;
+// mesajlar henüz backend'e yazılmıyor, sessionId Sonuç ekranına taşınır.
 
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { PaperPlaneTilt, User, X } from 'phosphor-react-native';
@@ -62,7 +65,10 @@ function nextMessageId(): string {
 }
 
 export default function PracticeScreen() {
-  const { scenarioId } = useLocalSearchParams<{ scenarioId: string }>();
+  const { scenarioId, sessionId } = useLocalSearchParams<{
+    scenarioId: string;
+    sessionId?: string;
+  }>();
   const {
     data: scenario,
     isPending,
@@ -173,9 +179,9 @@ export default function PracticeScreen() {
   const goToResult = useCallback(() => {
     router.replace({
       pathname: '/(app)/scenarios/result/[scenarioId]',
-      params: { scenarioId },
+      params: { scenarioId, sessionId },
     });
-  }, [scenarioId]);
+  }, [scenarioId, sessionId]);
 
   if (isPending) {
     return (

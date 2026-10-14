@@ -76,8 +76,9 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 - `lib/api/services/`: authService, scenarioService, hata → Türkçe mesaj eşlemeleri
 - `hooks/queries/useScenarios.ts`: hiyerarşik `scenarioKeys` — session yazdıktan sonra `invalidateQueries({ queryKey: scenarioKeys.all })`
 - `stores/authStore.ts`: secure storage; sadece `StoredUser` saklanır (roles/permissions değil)
-- **Gerçek veriden**: auth, senaryo listesi/detayı, bağlam kartı sayıları
-- **Hâlâ mock**: chat AI cevapları (`lib/mockData/aiResponses.ts`, gerçek senaryo ID'leriyle anahtarlı), `userStats`, `recentActivity`, sonuç ekranı değerlendirmesi (`evaluation.ts`)
+- **Gerçek veriden**: auth, senaryo listesi/detayı, bağlam kartı sayıları, pratik başlatma (`hooks/useStartPractice.ts` → POST /api/Sessions; premium → paywall, günlük limit → Alert), Anasayfa "Son Pratiklerin" ve Profil ortalama skoru (GET /api/Sessions/my)
+- **Hâlâ mock**: chat AI cevapları (`lib/mockData/aiResponses.ts`, gerçek senaryo ID'leriyle anahtarlı — mesajlar backend'e yazılmıyor, oturum CurrentRound=0'da kalıyor), `userStats` (seri/XP/rozetler), sonuç ekranı değerlendirmesi (`evaluation.ts`)
+- Pratik ekranı `sessionId` query param'ı alır ve Sonuç ekranına geçirir; Anthropic entegrasyonu (2. adım) sonraya bırakıldı
 - `lib/mockData/contexts.ts` kalıcı UI metadata (isim, renk, ikon) — mock değil, ileride `lib/constants/`'a taşınabilir
 - Register'da phoneNumber `null` gönderiliyor (formda alan yok)
 

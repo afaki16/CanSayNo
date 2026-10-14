@@ -1,8 +1,9 @@
 // Senaryo detayı — pratiğe başlamadan önceki brifing. Hero (bağlam chip + başlık + meta),
 // sahne / karakter / hedef / ipucu kartları, geçmiş istatistikler ve sticky "Pratiğe Başla".
 //
-// Veri API'den (GET /api/Scenarios/{id}). bestScore/attemptsCount gerçek veriden gelir —
-// session yazma akışı henüz olmadığı için şu an hepsi 0/null.
+// Veri API'den (GET /api/Scenarios/{id}). bestScore/attemptsCount gerçek veriden gelir.
+// "Pratiğe Başla" backend'de oturum açar (useStartPractice): premium → paywall,
+// günlük limit → uyarı.
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -35,6 +36,7 @@ import {
   Spacing,
 } from '@/constants/theme';
 import { useScenarioDetail } from '@/hooks/queries/useScenarios';
+import { useStartPractice } from '@/hooks/useStartPractice';
 import { isNotFoundError, toScenarioErrorMessage } from '@/lib/api';
 import { getContextIcon } from '@/lib/icons';
 import { contexts } from '@/lib/mockData';
@@ -52,6 +54,7 @@ const FALLBACK_CONTEXT = {
 export default function ScenarioDetailScreen() {
   const { scenarioId } = useLocalSearchParams<{ scenarioId: string }>();
   const insets = useSafeAreaInsets();
+  const { startPractice, isStarting } = useStartPractice();
   const { data: scenario, isPending, isError, error, refetch, isFetching } =
     useScenarioDetail(scenarioId);
 
@@ -221,12 +224,8 @@ export default function ScenarioDetailScreen() {
           variant="primary"
           size="lg"
           fullWidth
-          onPress={() =>
-            router.push({
-              pathname: '/(app)/scenarios/practice/[scenarioId]',
-              params: { scenarioId: scenario.id },
-            })
-          }
+          loading={isStarting}
+          onPress={() => startPractice(scenario.id)}
           leftIcon={<Play size={19} color={Colors.surface} weight="fill" />}
         >
           Pratiğe Başla

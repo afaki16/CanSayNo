@@ -1,6 +1,7 @@
 // Anasayfa: oyunlaştırma ekranı. Seri (haftalık gün çizelgesiyle), bugünkü görev,
-// istatistikler, XP ilerlemesi ve son pratikler. userStats ve recentActivity hâlâ
-// mock — Sessions/UserStats endpoint'leri gelince gerçek veriye bağlanacak.
+// istatistikler, XP ilerlemesi ve son pratikler. Son pratikler gerçek veriden
+// (GET /api/Sessions/my); seri/XP/istatistikler hâlâ mock userStats — UserStats
+// endpoint'i gelince bağlanacak.
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -17,7 +18,7 @@ import {
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Text } from '@/components/ui';
+import { Skeleton, Text } from '@/components/ui';
 import {
   Colors,
   FontSize,
@@ -26,13 +27,11 @@ import {
   Shadow,
   Spacing,
 } from '@/constants/theme';
+import { useMySessions } from '@/hooks/queries/useSessions';
 import { useAuth } from '@/hooks/useAuth';
+import { toSessionErrorMessage } from '@/lib/api';
 import { getContextIcon } from '@/lib/icons';
-import {
-  contexts,
-  mockRecentActivities,
-  mockUserStats,
-} from '@/lib/mockData';
+import { contexts, mockUserStats } from '@/lib/mockData';
 import { formatRelativeTime } from '@/lib/utils/datetime';
 
 const WEEK_DAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
@@ -216,50 +215,104 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        <View style={styles.activityList}>
-          {mockRecentActivities.map((activity) => {
-            const context = contexts.find((c) => c.id === activity.contextId);
-            const ContextIcon = getContextIcon(context?.iconName ?? '');
-            const sc = scoreColors(activity.score);
-            return (
-              <Pressable
-                key={activity.id}
-                onPress={() => goScenarioDetail(activity.scenarioId)}
-                style={styles.activityItem}
-                accessibilityRole="button"
-              >
-                <View
-                  style={[
-                    styles.activityIcon,
-                    { backgroundColor: context?.softColor ?? Colors.primarySoft },
-                  ]}
-                >
-                  <ContextIcon
-                    size={21}
-                    color={context?.color ?? Colors.primary}
-                    weight="fill"
-                  />
-                </View>
-                <View style={styles.activityInfo}>
-                  <Text style={styles.activityTitle} numberOfLines={1}>
-                    {activity.scenarioTitle}
-                  </Text>
-                  <Text style={styles.activityMeta} numberOfLines={1}>
-                    {activity.contextName} ·{' '}
-                    {formatRelativeTime(activity.completedAt)}
-                  </Text>
-                </View>
-                <View style={[styles.scoreBadge, { backgroundColor: sc.bg }]}>
-                  <Text style={[styles.scoreText, { color: sc.text }]}>
-                    {activity.score}
-                  </Text>
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
+        <RecentSessions
+          onOpenScenario={goScenarioDetail}
+          onBrowse={goScenarios}
+        />
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+const RECENT_SESSIONS_COUNT = 3;
+
+// Son pratikler — GET /api/Sessions/my. Skoru olmayan (henüz değerlendirilmemiş)
+// oturumlar "Devam" rozetiyle gösterilir.
+function RecentSessions({
+  onOpenScenario,
+  onBrowse,
+}: {
+  onOpenScenario: (scenarioId: string) => void;
+  onBrowse: () => void;
+}) {
+  const { data, isPending, isError, error } = useMySessions(RECENT_SESSIONS_COUNT);
+
+  if (isPending) {
+    return (
+      <View style={styles.activityList}>
+        {Array.from({ length: RECENT_SESSIONS_COUNT }, (_, i) => (
+          <Skeleton key={i} height={68} borderRadius={Radius.lg} />
+        ))}
+      </View>
+    );
+  }
+
+  if (isError) {
+    return <Text style={styles.activityNote}>{toSessionErrorMessage(error)}</Text>;
+  }
+
+  if (data.items.length === 0) {
+    return (
+      <Pressable
+        onPress={onBrowse}
+        style={styles.emptyActivity}
+        accessibilityRole="button"
+      >
+        <Text style={styles.emptyActivityTitle}>Henüz pratik yapmadın</Text>
+        <Text style={styles.emptyActivityText}>
+          İlk senaryonu seç, ilk “hayır”ını söyle →
+        </Text>
+      </Pressable>
+    );
+  }
+
+  return (
+    <View style={styles.activityList}>
+      {data.items.map((session) => {
+        const context = contexts.find((c) => c.id === session.scenarioContextId);
+        const ContextIcon = getContextIcon(context?.iconName ?? '');
+        const score = session.totalScore;
+        const badge =
+          score !== null
+            ? scoreColors(score)
+            : { bg: Colors.primarySoft, text: Colors.primary };
+        return (
+          <Pressable
+            key={session.id}
+            onPress={() => onOpenScenario(session.scenarioId)}
+            style={styles.activityItem}
+            accessibilityRole="button"
+          >
+            <View
+              style={[
+                styles.activityIcon,
+                { backgroundColor: context?.softColor ?? Colors.primarySoft },
+              ]}
+            >
+              <ContextIcon
+                size={21}
+                color={context?.color ?? Colors.primary}
+                weight="fill"
+              />
+            </View>
+            <View style={styles.activityInfo}>
+              <Text style={styles.activityTitle} numberOfLines={1}>
+                {session.scenarioTitle}
+              </Text>
+              <Text style={styles.activityMeta} numberOfLines={1}>
+                {context?.name ?? 'Senaryo'} ·{' '}
+                {formatRelativeTime(session.completedAt ?? session.startedAt)}
+              </Text>
+            </View>
+            <View style={[styles.scoreBadge, { backgroundColor: badge.bg }]}>
+              <Text style={[styles.scoreText, { color: badge.text }]}>
+                {score ?? 'Devam'}
+              </Text>
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }
 
@@ -526,6 +579,30 @@ const styles = StyleSheet.create({
   activityList: {
     gap: 10,
     marginTop: -8,
+  },
+  activityNote: {
+    marginTop: -8,
+    fontSize: 13,
+    color: Colors.textMuted,
+  },
+  emptyActivity: {
+    marginTop: -8,
+    padding: 18,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
+    gap: 4,
+  },
+  emptyActivityTitle: {
+    fontSize: 15,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+  },
+  emptyActivityText: {
+    fontSize: 13,
+    fontWeight: FontWeight.semibold,
+    color: Colors.primary,
   },
   activityItem: {
     flexDirection: 'row',

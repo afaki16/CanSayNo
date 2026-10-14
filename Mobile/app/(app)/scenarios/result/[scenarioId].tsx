@@ -2,7 +2,8 @@
 // iyi yapılanlar, gelişim önerileri ve koç notu.
 //
 // Değerlendirme şimdilik mock (lib/mockData/evaluation.ts). POST
-// /api/sessions/{id}/evaluate gelince session id ile gerçek veriye bağlanacak.
+// /api/sessions/{id}/evaluate gelince sessionId param'ıyla gerçek veriye bağlanacak.
+// "Tekrar dene" yeni bir oturum açar (günlük limit burada da geçerli).
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -20,6 +21,7 @@ import Svg, { Circle } from 'react-native-svg';
 
 import { BrandMark, Button, Text } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
+import { useStartPractice } from '@/hooks/useStartPractice';
 import {
   EVALUATION_AXIS_LABELS,
   mockEvaluation,
@@ -47,15 +49,12 @@ export default function ResultScreen() {
   const { scenarioId } = useLocalSearchParams<{ scenarioId: string }>();
   const insets = useSafeAreaInsets();
   const evaluation = mockEvaluation;
+  const { startPractice, isStarting } = useStartPractice();
 
   const axes = Object.entries(evaluation.axes) as [EvaluationAxis, number][];
   const dashOffset = RING_CIRCUMFERENCE * (1 - evaluation.totalScore / 100);
 
-  const retry = () =>
-    router.replace({
-      pathname: '/(app)/scenarios/practice/[scenarioId]',
-      params: { scenarioId },
-    });
+  const retry = () => startPractice(scenarioId, { replace: true });
 
   return (
     <View style={styles.root}>
@@ -189,7 +188,13 @@ export default function ResultScreen() {
           {/* Aksiyonlar */}
           <View style={styles.ctaRow}>
             <View style={styles.ctaSecondary}>
-              <Button variant="outline" size="md" fullWidth onPress={retry}>
+              <Button
+                variant="outline"
+                size="md"
+                fullWidth
+                loading={isStarting}
+                onPress={retry}
+              >
                 Tekrar dene
               </Button>
             </View>

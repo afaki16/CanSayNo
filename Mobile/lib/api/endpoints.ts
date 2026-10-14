@@ -22,6 +22,13 @@ export const SCENARIO_ENDPOINTS = {
   BY_CONTEXT: (contextId: string) => `/api/Scenarios/by-context/${contextId}`,
 } as const;
 
+// Pratik oturumu uçları. MY sayfalama parametrelerini axios `params` ile alır.
+export const SESSION_ENDPOINTS = {
+  START: '/api/Sessions',
+  DETAIL: (id: string) => `/api/Sessions/${id}`,
+  MY: '/api/Sessions/my',
+} as const;
+
 // 401 dönseler bile token refresh denenmemesi gereken endpoint'ler:
 // bunlar zaten oturum açma yolları, refresh etmek anlamsız (ve yanlış hata
 // mesajı üretir — "şifre hatalı" yerine "oturum süresi doldu" gibi).
