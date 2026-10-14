@@ -27,6 +27,7 @@ CanSayNo/
 1. **Postgres**: `docker start postgres-db` (container `postgres-db`, port 5432)
 2. **Backend**: `cd Backend` → `dotnet run --project CanSayNo.API` → `http://localhost:5156`, Swagger `/swagger`
    - VS/IIS Express farklı portta açılıyor (:60545). Mobile `:5156`'ya bakıyor — mobile ile test ederken `dotnet run` kullan
+   - **Port çakışması**: Alperen'in Kickstart.API projesi de 5156'yı kullanıyor. Test öncesi `Get-NetTCPConnection -LocalPort 5156` ile kontrol et; `/api/Sessions/my` yetkisiz istekte 401 değil 404 dönüyorsa çalışan backend CanSayNo değildir
    - Otomatik migration + idempotent seed startup'ta çalışır
 3. **Mobile**: `cd Mobile` → `npm start` → `a` ile Android emulator
    - API URL: `Mobile/.env.development` (`EXPO_PUBLIC_API_URL`). Android'de `localhost` otomatik `10.0.2.2`'ye çevrilir (`lib/config/env.ts`)
