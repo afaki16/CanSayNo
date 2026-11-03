@@ -25,15 +25,20 @@ export function ErrorState({ message, onRetry, isRetrying }: ErrorStateProps) {
       </View>
       <Text style={styles.title}>Bir sorun çıktı</Text>
       <Text style={styles.message}>{message}</Text>
-      <Button variant="primary" onPress={onRetry} loading={isRetrying}>
-        Tekrar Dene
-      </Button>
+      {/* Button tam genişlik değilken alignSelf: 'flex-start' alır; sarmalayıcı onu ortalar. */}
+      <View>
+        <Button variant="primary" onPress={onRetry} loading={isRetrying}>
+          Tekrar Dene
+        </Button>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    // Yer varsa dikeyde ortalanır; ScrollView içinde içerik kadar kalır (flex: 1 orada çöker).
+    flexGrow: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.sm,
