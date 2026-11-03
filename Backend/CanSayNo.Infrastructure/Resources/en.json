@@ -17,7 +17,13 @@
     "userNotAuthenticated": "User not authenticated",
     "currentPasswordIncorrect": "Current password is incorrect",
     "invalidOrExpiredResetLink": "Invalid or expired reset link",
-    "invalidOrExpiredVerificationLink": "Invalid or expired verification link"
+    "invalidOrExpiredVerificationLink": "Invalid or expired verification link",
+    "emailChangeSameAddress": "The new email address is the same as your current one.",
+    "emailChangeSendFailed": "The confirmation email could not be sent. Please try again later.",
+    "otpInvalidOrExpired": "The verification code is wrong or has expired.",
+    "otpTooManyAttempts": "Too many wrong attempts. Please request a new code.",
+    "otpResendCooldown": "Please wait {0} seconds before requesting a new code.",
+    "otpSendFailed": "The verification code could not be sent. Please try again later."
   },
   "users": {
     "notFound": "User not found",

@@ -184,6 +184,21 @@ namespace CanSayNo.API.Extensions
                             QueueLimit = 0
                         }));
 
+                // Register-form availability checks: same rate as "sensitive" (so they add no extra
+                // email-enumeration capacity beyond register itself) but a separate bucket, so field
+                // checks never use up the quota of the register submit.
+                options.AddPolicy("availability", httpContext =>
+                    RateLimitPartition.GetSlidingWindowLimiter(
+                        partitionKey: GetClientIp(httpContext),
+                        factory: _ => new SlidingWindowRateLimiterOptions
+                        {
+                            PermitLimit = sensitiveLimit,
+                            Window = TimeSpan.FromMinutes(1),
+                            SegmentsPerWindow = 6,
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        }));
+
                 // Global default fallback applied to every request
                 options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(
                     httpContext => RateLimitPartition.GetSlidingWindowLimiter(

@@ -17,7 +17,13 @@
     "userNotAuthenticated": "Kullanıcı kimliği doğrulanmamış",
     "currentPasswordIncorrect": "Mevcut şifre hatalı",
     "invalidOrExpiredResetLink": "Geçersiz veya süresi dolmuş sıfırlama bağlantısı",
-    "invalidOrExpiredVerificationLink": "Geçersiz veya süresi dolmuş doğrulama bağlantısı"
+    "invalidOrExpiredVerificationLink": "Geçersiz veya süresi dolmuş doğrulama bağlantısı",
+    "emailChangeSameAddress": "Yeni e-posta adresi mevcut adresinizle aynı.",
+    "emailChangeSendFailed": "Onay e-postası gönderilemedi. Lütfen daha sonra tekrar deneyin.",
+    "otpInvalidOrExpired": "Doğrulama kodu hatalı veya süresi dolmuş.",
+    "otpTooManyAttempts": "Çok fazla hatalı deneme yapıldı. Lütfen yeni bir kod isteyin.",
+    "otpResendCooldown": "Yeni kod istemek için {0} saniye bekleyin.",
+    "otpSendFailed": "Doğrulama kodu gönderilemedi. Lütfen daha sonra tekrar deneyin."
   },
   "users": {
     "notFound": "Kullanıcı bulunamadı",

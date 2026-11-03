@@ -52,6 +52,7 @@ namespace CanSayNo.Infrastructure
         services.AddScoped<IAuthService, JwtService>();
         services.AddScoped<IRevokedSessionService, RevokedSessionService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IOtpService, OtpService>();
         services.AddScoped<IBruteForceProtectionService, BruteForceProtectionService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPermissionService, PermissionService>();

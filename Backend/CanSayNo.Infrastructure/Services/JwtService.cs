@@ -508,6 +508,7 @@ namespace CanSayNo.Infrastructure.Services
                 PhoneConfirmed = user.PhoneConfirmed,
                 ProfileImageUrl = user.ProfileImageUrl,
                 CreatedDate = user.CreatedDate,
+                LastLoginDate = user.LastLoginDate,
                 TenantId = user.TenantId,
                 Roles = user.UserRoles.Select(ur => new Application.Features.Roles.Dtos.RoleDto
                 {

@@ -30,6 +30,17 @@ namespace CanSayNo.Infrastructure.Repositories
                     t.ExpiresAt > DateTime.UtcNow);
         }
 
+        public async Task<UserVerificationToken?> GetLatestAsync(
+            int userId,
+            VerificationChannel channel,
+            VerificationPurpose purpose)
+        {
+            return await GetQueryable()
+                .Where(t => t.UserId == userId && t.Channel == channel && t.Purpose == purpose)
+                .OrderByDescending(t => t.CreatedDate)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task InvalidatePreviousTokensAsync(
             int userId,
             VerificationChannel channel,

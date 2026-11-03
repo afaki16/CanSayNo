@@ -11,6 +11,11 @@ using CanSayNo.Application.Features.Auth.Commands.ChangePassword;
 using CanSayNo.Application.Features.Auth.Commands.ForgotPassword;
 using CanSayNo.Application.Features.Auth.Commands.ResetPassword;
 using CanSayNo.Application.Features.Auth.Commands.VerifyEmail;
+using CanSayNo.Application.Features.Auth.Commands.UpdateProfile;
+using CanSayNo.Application.Features.Auth.Commands.RequestEmailChange;
+using CanSayNo.Application.Features.Auth.Commands.ConfirmEmailChange;
+using CanSayNo.Application.Features.Auth.Commands.PasswordCodes;
+using CanSayNo.Application.Features.Auth.Queries.CheckRegisterAvailability;
 using CanSayNo.Application.Features.Auth.Commands.ResendVerificationEmail;
 using CanSayNo.Application.Features.Auth.Queries.GetUserSessions;
 using CanSayNo.Application.Features.Users.Queries.GetCurrentUser;
@@ -67,6 +72,24 @@ namespace CanSayNo.API.Controllers
                 WriteRefreshTokenCookie(result.Value.RefreshToken, result.Value.ExpiresAt);
             }
 
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Live email/phone availability check for the public register form
+        /// </summary>
+        [HttpPost("check-availability")]
+        [AllowAnonymous]
+        [EnableRateLimiting("availability")]
+        [ProducesResponseType(typeof(CheckAvailabilityDto), 200)]
+        [ProducesResponseType(429)]
+        public async Task<IActionResult> CheckAvailability([FromBody] CheckRegisterAvailabilityQuery request)
+        {
+            var result = await _mediator.Send(new CheckRegisterAvailabilityQuery
+            {
+                Email = request?.Email,
+                PhoneNumber = request?.PhoneNumber
+            });
             return HandleResult(result);
         }
 
@@ -351,6 +374,144 @@ namespace CanSayNo.API.Controllers
                 NewPassword = request.NewPassword,
                 IpAddress = GetIpAddress(),
                 UserAgent = GetUserAgent()
+            };
+
+            var result = await _mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Forgot password with a 6-digit code (mobile-friendly alternative to the link). Always returns 200.
+        /// </summary>
+        [HttpPost("forgot-password/code")]
+        [AllowAnonymous]
+        [EnableRateLimiting("sensitive")]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> SendPasswordResetCode([FromBody] ForgotPasswordRequestDto request)
+        {
+            var result = await _mediator.Send(new SendPasswordResetCodeCommand
+            {
+                Email = request.Email,
+                TenantId = request.TenantId,
+                IpAddress = GetIpAddress()
+            });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Set a new password with the code from forgot-password/code
+        /// </summary>
+        [HttpPost("reset-password/code")]
+        [AllowAnonymous]
+        [EnableRateLimiting("sensitive")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ResetPasswordWithCode([FromBody] ResetPasswordWithCodeRequestDto request)
+        {
+            var result = await _mediator.Send(new ResetPasswordWithCodeCommand
+            {
+                Email = request.Email,
+                TenantId = request.TenantId,
+                Code = request.Code,
+                NewPassword = request.NewPassword,
+                IpAddress = GetIpAddress()
+            });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Signed in but forgot the current password: email a code for changing it
+        /// </summary>
+        [HttpPost("password-change/code")]
+        [Authorize]
+        [EnableRateLimiting("sensitive")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> SendPasswordChangeCode()
+        {
+            var result = await _mediator.Send(new SendPasswordChangeCodeCommand { IpAddress = GetIpAddress() });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Change the password with the emailed code instead of the current password. Signs out everywhere.
+        /// </summary>
+        [HttpPost("password-change/confirm")]
+        [Authorize]
+        [EnableRateLimiting("sensitive")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> ChangePasswordWithCode([FromBody] ChangePasswordWithCodeRequestDto request)
+        {
+            var result = await _mediator.Send(new ChangePasswordWithCodeCommand
+            {
+                Code = request.Code,
+                NewPassword = request.NewPassword
+            });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Update the signed-in user's own name and phone number
+        /// </summary>
+        [HttpPut("profile")]
+        [Authorize]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequestDto request)
+        {
+            var command = new UpdateProfileCommand
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                PhoneNumber = request.PhoneNumber
+            };
+
+            var result = await _mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Start an email change: verifies the current password and emails a confirmation link to the new
+        /// address. The account email does not change until that link is used.
+        /// </summary>
+        [HttpPut("profile/email")]
+        [Authorize]
+        [EnableRateLimiting("sensitive")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> RequestEmailChange([FromBody] RequestEmailChangeRequestDto request)
+        {
+            var command = new RequestEmailChangeCommand
+            {
+                NewEmail = request.NewEmail,
+                CurrentPassword = request.CurrentPassword,
+                IpAddress = GetIpAddress()
+            };
+
+            var result = await _mediator.Send(command);
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Apply a pending email change from the link sent to the new address. Signs the user out everywhere.
+        /// </summary>
+        [HttpPost("confirm-email-change")]
+        [AllowAnonymous]
+        [EnableRateLimiting("sensitive")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ConfirmEmailChange([FromBody] VerifyEmailRequestDto request)
+        {
+            var command = new ConfirmEmailChangeCommand
+            {
+                Email = request.Email,
+                Token = request.Token,
+                IpAddress = GetIpAddress()
             };
 
             var result = await _mediator.Send(command);
