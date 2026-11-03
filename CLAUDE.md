@@ -103,7 +103,9 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 
 **Bekleyen küçük işler**:
 1. Emulator'de görsel test — yeni tasarımın tüm ekranları + senaryo ekranlarının skeleton, error state, "Tekrar Dene" ve "0/6 tamamlandı" davranışları ekranda gözle görülmedi
-2. Tasarımda olup henüz eklenmeyenler: "Şifremi unuttum" (mobil ekran yok, backend endpoint var), profilde "Hesap bilgileri" / "Bildirimler" satırları (hedef ekran yok)
+2. Tasarımda olup henüz eklenmeyenler: profilde "Hesap bilgileri" / "Bildirimler" satırları (hedef ekran yok; "Hesap bilgileri" için backend `PUT /api/Auth/profile` hazır)
+
+(2026-11-03: "Şifremi unuttum" eklendi — `(auth)/forgot-password` → `(auth)/reset-password`, OTP kodlu, `hooks/usePasswordReset.ts`; emulator'de uçtan uca doğrulandı. Şifre kuralı `lib/validation/password.ts`'te, kayıtla ortak. Dev'de kodun e-postayla gelmesi için `NotificationService:Mail` ayarı gerekli — boşsa mail gitmez; test için mailpit `localhost:1025`)
 
 (2026-10-14: `is_005_maas_erteleme` tekrar `IsFree=true` yapıldı; test kullanıcıları (id 4, 8–17) silindi — DB'de sadece seed kullanıcıları 1–3 kaldı)
 
