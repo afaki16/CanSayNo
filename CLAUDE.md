@@ -78,8 +78,10 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 - `hooks/queries/useScenarios.ts`: hiyerarşik `scenarioKeys` — session yazdıktan sonra `invalidateQueries({ queryKey: scenarioKeys.all })`
 - `stores/authStore.ts`: secure storage; sadece `StoredUser` saklanır (roles/permissions değil)
 - **Gerçek veriden**: auth, senaryo listesi/detayı, bağlam kartı sayıları, pratik başlatma (`hooks/useStartPractice.ts` → POST /api/Sessions; premium → paywall, günlük limit → Alert), Anasayfa "Son Pratiklerin" ve Profil ortalama skoru (GET /api/Sessions/my)
-- **Hâlâ mock**: chat AI cevapları (`lib/mockData/aiResponses.ts`, gerçek senaryo ID'leriyle anahtarlı — mesajlar backend'e yazılmıyor, oturum CurrentRound=0'da kalıyor), `userStats` (seri/XP/rozetler), sonuç ekranı değerlendirmesi (`evaluation.ts`)
-- Pratik ekranı `sessionId` query param'ı alır ve Sonuç ekranına geçirir; Anthropic entegrasyonu (2. adım) sonraya bırakıldı
+- **Gerçek veriden (LLM)**: pratik chat'i (`useSession` + `useSendMessage` → POST /api/Sessions/{id}/messages; hata → bant + mesaj input'a geri) ve Sonuç ekranı (`useEvaluateSession` → POST /api/Sessions/{id}/evaluate). `aiResponses.ts` / `evaluation.ts` mock'ları silindi; eksen etiketleri `lib/constants/evaluation.ts`
+- **İstatistikler**: Anasayfa/Profil seri, haftalık gün çizelgesi, "Bu Hafta", seviye/XP, rozetler → `useMyStats` (GET /api/Stats/me). `userStats` mock'u silindi; `lib/mockData` artık sadece `contexts`. Haftanın günleri ve "bugün" backend'de TR saatine göre (`weekActivity`, `todayIndex`) — cihaz saatine güvenilmez. Profil "Usta" rozeti = `persistent` (50 pratik)
+- **Hâlâ sabit**: Anasayfa "Bugünkü görev" (`is_001`), profil satırları "Hesap bilgileri"/"Bildirimler" yok
+- Pratik ekranı `sessionId` query param'ı alır ve Sonuç ekranına geçirir. LLM uçları için axios timeout'u istek bazında uzatıldı (mesaj 45 sn, değerlendirme 90 sn)
 - `lib/mockData/contexts.ts` kalıcı UI metadata (isim, renk, ikon) — mock değil, ileride `lib/constants/`'a taşınabilir
 - Register'da phoneNumber `null` gönderiliyor (formda alan yok)
 
@@ -102,7 +104,8 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 **Kickstart template yükseltmeleri (2026-11-03)**: `../Kickstart/TEMPLATE_UPGRADES.md`'den 11, 14, 15, 16, 17, 18, 21 ve "refresh reuse detection" kontrol maddesi uygulandı, API ile doğrulandı. Yeni migration'lar: `DropPermissionResourceTypeUniqueIndex`, `AddFailedAttemptsToUserVerificationToken`. Yeni uçlar: `PUT /api/Auth/profile`, `PUT /api/Auth/profile/email`, `POST /api/Auth/confirm-email-change`, `POST /api/Auth/forgot-password/code`, `reset-password/code`, `password-change/code`, `password-change/confirm`, `check-availability`. Alınmayanlar: multi-tenant maddeleri (3, 12, 13, 22, 23), 20, Nuxt maddeleri, 2, 19, 24; 9 farklı biçimde zaten var (string hata kodları). Kickstart'tan madde alırken dikkat: CanSayNo'da `ErrorCode` 1014/1015 = DailyLimitReached/PremiumRequired (Kickstart'ta başka anlamda). Kapsam notu: seed kullanıcıları `tenantId=1`, mobil kullanıcılar `null`; `check-availability` ve e-posta değişikliği yalnızca aynı tenant kapsamında çakışma arar. E-posta değişikliği onay linki (`/auth/confirm-email-change`) için henüz web/mobil ekranı yok.
 
 **Bekleyen küçük işler**:
-1. Emulator'de görsel test — yeni tasarımın tüm ekranları + senaryo ekranlarının skeleton, error state, "Tekrar Dene" ve "0/6 tamamlandı" davranışları ekranda gözle görülmedi
+1. Emulator'de görsel test — "0/6 tamamlandı", chat açılışı/hata bandı, sonuç ekranı hata durumu görüldü (2026-11-03). `ErrorState` ortalama hatası düzeltildi. Skeleton'lar ve diğer ekranlar hâlâ gözle görülmedi
+3. Android'de klavye kapandıktan sonra input'un altında boşluk kalıyor (`KeyboardAvoidingView` + edge-to-edge; chat ve auth ekranları). `behavior="padding"` çözmedi; muhtemelen `react-native-keyboard-controller` gerekiyor
 2. Tasarımda olup henüz eklenmeyenler: profilde "Hesap bilgileri" / "Bildirimler" satırları (hedef ekran yok; "Hesap bilgileri" için backend `PUT /api/Auth/profile` hazır)
 
 (2026-11-03: "Şifremi unuttum" eklendi — `(auth)/forgot-password` → `(auth)/reset-password`, OTP kodlu, `hooks/usePasswordReset.ts`; emulator'de uçtan uca doğrulandı. Şifre kuralı `lib/validation/password.ts`'te, kayıtla ortak. Dev'de kodun e-postayla gelmesi için `NotificationService:Mail` ayarı gerekli — boşsa mail gitmez; test için mailpit `localhost:1025`)
@@ -129,6 +132,12 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
 - **Limitler**: cevap başına düşük `max_tokens`, kullanıcı mesajı ≤ 500 karakter (backend de doğrular), session başına token tavanı (`TokensUsed`)
 
 **Uygulama sırası**: (1) Sessions CRUD + günlük limit (LLM'siz) → (2) messages endpoint + Anthropic çağrısı → (3) evaluate + UserStats → (4) mobile chat/sonuç bağlama, mock'ları silme → (5) Anasayfa/Profil gerçek istatistik.
+
+**Durum (2026-11-04)**: 1–5 yazıldı. 5. adım (GET /api/Stats/me + Anasayfa/Profil) API ve emulator'de doğrulandı. 1–4: LLM'siz yollar API ve emulator'de doğrulandı (açılış mesajı, 500 karakter, 400/404/409/503, sayaçlar, hata UI'ı). **Gerçek LLM cevabı ve değerlendirme henüz hiç çalıştırılmadı** — `Anthropic:ApiKey` yok (`dotnet user-secrets set "Anthropic:ApiKey" "..." --project CanSayNo.API`). Anahtar gelince: 3 raunt uçtan uca + kapanış + değerlendirme + `cache_read` kontrolü.
+- Backend: `CharacterPromptBuilder` / `EvaluationPromptBuilder` (prompt'lar), `AnthropicClientProvider` + `AnthropicCharacterChatService` + `AnthropicSessionEvaluator` (Infrastructure/Services/Ai), `UserProgress` (seri/XP/seviye/rozet, saf fonksiyon). Ayarlar: `Anthropic` (Model, MaxTokens 1024, Effort low; değerlendirme medium/4096), `Hayirci` (MaxUserMessageLength 500, SessionTokenLimit 40000)
+- Açılış mesajı `Scene.OpeningMessage` (JSONB); seed açılışta boş olanları doldurur
+- Hayırcı'ya özel hata kodları 1100+: AiUnavailable 503, AiResponseRefused 422, SessionNotActive 409, SessionTokenLimitReached 429, SessionNotCompleted 409
+- Bilinen eksikler: aynı rauntta eşzamanlı iki istek ikisi de LLM'e gidebilir (token tavanı sınırlıyor); `WorkMaster` / `ContextExplorer` rozetleri yok; server-side refusal fallback eklenmedi (yalnızca cyber/frontier_llm'i kapsıyor)
 
 ## Diğer Bekleyenler
 
