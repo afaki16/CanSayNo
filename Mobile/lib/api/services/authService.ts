@@ -1,7 +1,7 @@
 // Auth endpoint'lerinin transport katmanı. Sadece istek atar ve zarfı açar —
 // hata mesajı çevirisi ./authErrors'da, state yönetimi hooks/useAuth'ta.
 
-import { apiGet, apiPost, apiPostVoid } from '../hooks';
+import { apiGet, apiPost, apiPostVoid, apiPutVoid } from '../hooks';
 import { AUTH_ENDPOINTS } from '../endpoints';
 
 import type {
@@ -13,6 +13,7 @@ import type {
   RegisterRequest,
   RegisterResponse,
   ResetPasswordCodeRequest,
+  UpdateProfileRequest,
 } from '@/types/api/auth';
 
 export const authService = {
@@ -27,6 +28,9 @@ export const authService = {
   // Oturum doğrulama (açılışta). Access token süresi dolmuşsa interceptor refresh
   // eder; refresh token da geçersizse oturum temizlenir.
   me: () => apiGet<ApiUser>(AUTH_ENDPOINTS.ME),
+
+  updateProfile: (body: UpdateProfileRequest) =>
+    apiPutVoid<UpdateProfileRequest>(AUTH_ENDPOINTS.PROFILE, body),
 
   // { success: true, message: "..." } döner, data yok → apiPostVoid.
   logout: (body: LogoutRequest) =>

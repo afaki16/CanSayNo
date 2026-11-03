@@ -67,6 +67,16 @@ export async function apiPostVoid<TBody = unknown>(
   return response.data.message;
 }
 
+// data DÖNMEYEN PUT uçları için (ör. /api/Auth/profile → { success, message }).
+export async function apiPutVoid<TBody = unknown>(
+  url: string,
+  body: TBody,
+): Promise<string | undefined> {
+  const response = await apiClient.put<ApiResponse<never>>(url, body);
+  assertSuccess(response);
+  return response.data.message;
+}
+
 // Hook tipleri: queryKey/queryFn (veya mutationFn) hariç tüm seçenekler.
 export type ApiQueryOptions<T> = Omit<
   UseQueryOptions<T, ApiError>,

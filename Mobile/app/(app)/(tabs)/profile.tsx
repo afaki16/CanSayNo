@@ -6,6 +6,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import {
   ArrowRight,
+  Bell,
+  CaretRight,
   Crown,
   Fire,
   HandPalm,
@@ -14,6 +16,7 @@ import {
   Medal,
   SignOut,
   Star,
+  UserCircle,
 } from 'phosphor-react-native';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -175,6 +178,32 @@ export default function ProfileScreen() {
 
         {/* Ayarlar */}
         <View style={styles.settings}>
+          <Pressable
+            onPress={() => router.push('/(app)/account')}
+            accessibilityRole="button"
+            style={({ pressed }) => [
+              styles.settingRow,
+              styles.settingRowDivider,
+              pressed && styles.pressed,
+            ]}
+          >
+            <UserCircle size={21} color={Colors.textSecondary} />
+            <Text style={styles.settingText}>Hesap bilgileri</Text>
+            <CaretRight size={16} color={Colors.textDisabled} />
+          </Pressable>
+
+          {/* Bildirim altyapısı (push) henüz yok — tasarımdaki yerinde, "Yakında" olarak. */}
+          <View
+            style={[styles.settingRow, styles.settingRowDivider]}
+            accessibilityState={{ disabled: true }}
+          >
+            <Bell size={21} color={Colors.textSecondary} />
+            <Text style={[styles.settingText, styles.settingTextMuted]}>Bildirimler</Text>
+            <View style={styles.soonPill}>
+              <Text style={styles.soonPillText}>YAKINDA</Text>
+            </View>
+          </View>
+
           <Pressable
             onPress={handleLogout}
             disabled={isLoggingOut}
@@ -376,10 +405,29 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: Spacing.md,
   },
+  settingRowDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.chip,
+  },
   settingText: {
     flex: 1,
     fontSize: 15,
     fontWeight: FontWeight.semibold,
+  },
+  settingTextMuted: {
+    color: Colors.textMuted,
+  },
+  soonPill: {
+    backgroundColor: Colors.chip,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.full,
+  },
+  soonPillText: {
+    fontSize: 10,
+    fontWeight: FontWeight.extrabold,
+    letterSpacing: 0.4,
+    color: Colors.textMuted,
   },
   pressed: {
     backgroundColor: Colors.chip,

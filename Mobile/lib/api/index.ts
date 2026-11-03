@@ -24,6 +24,7 @@ export {
   apiGet,
   apiPost,
   apiPostVoid,
+  apiPutVoid,
   type ApiQueryOptions,
   type ApiMutationOptions,
 } from './hooks';
@@ -42,6 +43,7 @@ export {
 export {
   toForgotPasswordErrorMessage,
   toLoginErrorMessage,
+  toProfileErrorMessage,
   toRegisterErrorMessage,
   toResetPasswordErrorMessage,
 } from './services/authErrors';

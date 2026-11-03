@@ -86,6 +86,22 @@ export function toResetPasswordErrorMessage(error: unknown): string {
   return GENERIC;
 }
 
+export function toProfileErrorMessage(error: unknown): string {
+  if (!isApiError(error)) {
+    return GENERIC;
+  }
+  if (error.isNetworkError) {
+    return NETWORK;
+  }
+  if (error.status === 400 && error.errors.length > 0) {
+    return error.errors.join('\n');
+  }
+  if (error.code && USER_FACING_CODES.includes(error.code)) {
+    return error.message;
+  }
+  return 'Bilgilerin kaydedilemedi, lütfen tekrar dene';
+}
+
 export function toRegisterErrorMessage(error: unknown): string {
   if (!isApiError(error)) {
     return GENERIC;

@@ -81,6 +81,14 @@ export interface LogoutRequest {
   reason: string;
 }
 
+// PUT /api/Auth/profile. Telefon gönderilen değerle DEĞİŞTİRİLİR (null = sil);
+// mevcut telefonu korumak için /me'den okunan değer geri gönderilmeli.
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string | null;
+}
+
 // Kodla şifre sıfırlama. tenantId: mobil kullanıcılar tenant'sız; backend
 // e-posta tek hesaba aitse tenantId'ye bakmıyor, 0 "belirtilmedi" demek.
 export interface ForgotPasswordCodeRequest {

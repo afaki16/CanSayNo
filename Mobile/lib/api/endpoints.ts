@@ -11,6 +11,8 @@ export const AUTH_ENDPOINTS = {
   REFRESH_TOKEN: '/api/Auth/refresh-token',
   LOGOUT: '/api/Auth/logout',
   ME: '/api/Auth/me',
+  // Ad, soyad, telefon. Telefon null gönderilirse kayıtlı telefon silinir.
+  PROFILE: '/api/Auth/profile',
   // Şifremi unuttum (kodla): e-postaya 6 haneli kod gider, kod + yeni şifre
   // ile sıfırlanır. İkisi de anonim.
   FORGOT_PASSWORD_CODE: '/api/Auth/forgot-password/code',
