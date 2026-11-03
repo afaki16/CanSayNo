@@ -80,6 +80,7 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 - **Gerçek veriden**: auth, senaryo listesi/detayı, bağlam kartı sayıları, pratik başlatma (`hooks/useStartPractice.ts` → POST /api/Sessions; premium → paywall, günlük limit → Alert), Anasayfa "Son Pratiklerin" ve Profil ortalama skoru (GET /api/Sessions/my)
 - **Gerçek veriden (LLM)**: pratik chat'i (`useSession` + `useSendMessage` → POST /api/Sessions/{id}/messages; hata → bant + mesaj input'a geri) ve Sonuç ekranı (`useEvaluateSession` → POST /api/Sessions/{id}/evaluate). `aiResponses.ts` / `evaluation.ts` mock'ları silindi; eksen etiketleri `lib/constants/evaluation.ts`
 - **İstatistikler**: Anasayfa/Profil seri, haftalık gün çizelgesi, "Bu Hafta", seviye/XP, rozetler → `useMyStats` (GET /api/Stats/me). `userStats` mock'u silindi; `lib/mockData` artık sadece `contexts`. Haftanın günleri ve "bugün" backend'de TR saatine göre (`weekActivity`, `todayIndex`) — cihaz saatine güvenilmez. Profil "Usta" rozeti = `persistent` (50 pratik)
+- **Auth guard (2026-11-04)**: kök layout'ta `Stack.Protected` — girişli kullanıcı `index`/`(auth)`'u, girişsiz kullanıcı `(app)`'i göremez; login/logout/refresh hatasında yönlendirmeyi router yapar. Açılışta saklı oturum arka planda `/api/Auth/me` ile doğrulanır (`hooks/useSessionValidation.ts`, açılışı bloklamaz). Refresh sırasında ağ hatası oturumu SİLMEZ (çevrimdışı açılış); yalnızca sunucu reddederse silinir. Emulator'de 4 senaryo doğrulandı
 - **Hâlâ sabit**: Anasayfa "Bugünkü görev" (`is_001`), profil satırları "Hesap bilgileri"/"Bildirimler" yok
 - Pratik ekranı `sessionId` query param'ı alır ve Sonuç ekranına geçirir. LLM uçları için axios timeout'u istek bazında uzatıldı (mesaj 45 sn, değerlendirme 90 sn)
 - `lib/mockData/contexts.ts` kalıcı UI metadata (isim, renk, ikon) — mock değil, ileride `lib/constants/`'a taşınabilir
@@ -144,8 +145,6 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
 - Premium gating (backend tarafında erişim kontrolü)
 - RevenueCat webhook handler (`RawWebhookData` yazarken JSON validasyonu)
 - Hesap silme + veri dışa aktarma (App Store / KVKK zorunlu)
-- Mobile auth guard (`app/(app)/_layout.tsx` isAuthenticated kontrolü yok)
-- Rehydrate'te token'ı `/api/Auth/me` ile doğrulama
 - Mobile için refresh token ömrü (şu an 7 gün, 30–90 gün olmalı)
 - Granular permission (`Scenarios.Read`)
 - Karakter illüstrasyonları — Leonardo.ai ile 2 örnek üretildi ama stilleri tutarsız; şimdilik Phosphor placeholder
