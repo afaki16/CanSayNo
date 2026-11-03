@@ -1,10 +1,11 @@
 // Auth endpoint'lerinin transport katmanı. Sadece istek atar ve zarfı açar —
 // hata mesajı çevirisi ./authErrors'da, state yönetimi hooks/useAuth'ta.
 
-import { apiPost, apiPostVoid } from '../hooks';
+import { apiGet, apiPost, apiPostVoid } from '../hooks';
 import { AUTH_ENDPOINTS } from '../endpoints';
 
 import type {
+  ApiUser,
   AuthResponse,
   ForgotPasswordCodeRequest,
   LoginRequest,
@@ -22,6 +23,10 @@ export const authService = {
   // login reddedilir.
   register: (body: RegisterRequest) =>
     apiPost<RegisterResponse, RegisterRequest>(AUTH_ENDPOINTS.REGISTER, body),
+
+  // Oturum doğrulama (açılışta). Access token süresi dolmuşsa interceptor refresh
+  // eder; refresh token da geçersizse oturum temizlenir.
+  me: () => apiGet<ApiUser>(AUTH_ENDPOINTS.ME),
 
   // { success: true, message: "..." } döner, data yok → apiPostVoid.
   logout: (body: LogoutRequest) =>

@@ -1,5 +1,6 @@
 // Protected route grubu layout. Tab navigator'ı saran Stack.
-// Paywall, tab bar'ın üstünde modal olarak açılır. Auth guard ileride eklenecek.
+// Paywall, tab bar'ın üstünde modal olarak açılır. Auth guard kök layout'ta
+// (Stack.Protected): giriş yapılmadan bu gruba erişilemez.
 
 import { Stack } from 'expo-router';
 

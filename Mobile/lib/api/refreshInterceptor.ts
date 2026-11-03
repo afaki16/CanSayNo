@@ -130,6 +130,15 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
+
+        // Sunucuya hiç ulaşılamadıysa (çevrimdışı açılış, timeout) refresh token
+        // geçersiz değildir — oturumu silme, bağlantı gelince tekrar denenir.
+        if (axios.isAxiosError(refreshError) && !refreshError.response) {
+          return Promise.reject(
+            new ApiError('Bağlantı kurulamadı', 0, [], undefined, refreshError),
+          );
+        }
+
         await useAuthStore.getState().clearAuth();
         return Promise.reject(
           new ApiError(
