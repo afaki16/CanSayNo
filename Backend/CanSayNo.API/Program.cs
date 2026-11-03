@@ -153,11 +153,15 @@ using (var scope = app.Services.CreateScope())
 // Seed data only if database is empty
 await SeedData.SeedAsyncIfEmpty(app.Services);
 
-// Her başlatmada eksik permission'ları ekle
+// Her başlatmada eksik permission'ları ekle ve sistem rollerine (SuperAdmin, Admin) ata
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<CanSayNo.Infrastructure.Persistence.ApplicationDbContext>();
     await CanSayNo.Infrastructure.Persistence.SeedData.SeedPermissionsAsync(context);
+    await CanSayNo.Infrastructure.Persistence.SeedData.EnsureSystemRolesHaveAllPermissionsAsync(context);
+
+    var permissionService = scope.ServiceProvider.GetRequiredService<CanSayNo.Application.Interfaces.IPermissionService>();
+    permissionService.ClearRolePermissionCache();
 }
 
 // Hayırcı test senaryolarını seed et (idempotent — varsa atlar)

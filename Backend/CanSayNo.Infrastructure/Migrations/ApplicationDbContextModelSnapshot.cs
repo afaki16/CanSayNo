@@ -487,9 +487,6 @@ namespace CanSayNo.Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.HasIndex("Resource", "Type")
-                        .IsUnique();
-
                     b.ToTable("Permissions", (string)null);
                 });
 

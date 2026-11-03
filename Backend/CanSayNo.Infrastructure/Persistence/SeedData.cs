@@ -160,6 +160,97 @@ namespace CanSayNo.Infrastructure.Persistence
             }
         }
 
+        /// <summary>
+        /// Permissions the Admin role must NEVER hold — reserved for SuperAdmin. Currently empty.
+        /// Add a permission here when only SuperAdmin should have it; otherwise
+        /// <see cref="EnsureSystemRolesHaveAllPermissionsAsync"/> re-grants it to Admin on every startup.
+        /// </summary>
+        private static readonly HashSet<string> AdminExcludedPermissions = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Ensures SuperAdmin has ALL permissions and Admin has all except those in
+        /// <see cref="AdminExcludedPermissions"/>. Safe to call on every startup —
+        /// idempotent (inserts missing assignments and strips excluded ones from Admin).
+        ///
+        /// Runs AFTER <see cref="SeedPermissionsAsync"/> so newly added permission constants are
+        /// picked up automatically without a database reset. Other roles are never touched.
+        /// Note: a permission removed from SuperAdmin/Admin in the UI comes back on the next startup.
+        /// </summary>
+        public static async Task EnsureSystemRolesHaveAllPermissionsAsync(ApplicationDbContext context)
+        {
+            var systemRoleNames = new[] { RoleNames.SuperAdmin, RoleNames.Admin };
+
+            var systemRoles = await context.Roles
+                .Where(r => systemRoleNames.Contains(r.Name))
+                .ToListAsync();
+
+            if (!systemRoles.Any())
+            {
+                // System roles not seeded yet (empty DB on first run); SeedRolesAsync handles initial assignment.
+                return;
+            }
+
+            var allPermissions = await context.Permissions.ToListAsync();
+
+            var excludedIds = allPermissions
+                .Where(p => AdminExcludedPermissions.Contains(p.Name))
+                .Select(p => p.Id)
+                .ToHashSet();
+
+            var systemRoleIds = systemRoles.Select(r => r.Id).ToList();
+            var existingAssignments = await context.RolePermissions
+                .Where(rp => systemRoleIds.Contains(rp.RoleId))
+                .ToListAsync();
+
+            var toAdd = new List<RolePermission>();
+            var toRemove = new List<RolePermission>();
+
+            foreach (var role in systemRoles)
+            {
+                var roleAssignments = existingAssignments.Where(x => x.RoleId == role.Id).ToList();
+                var assignedPermissionIds = roleAssignments.Select(x => x.PermissionId).ToHashSet();
+                var isAdmin = role.Name == RoleNames.Admin;
+
+                foreach (var permission in allPermissions)
+                {
+                    var shouldHave = !(isAdmin && excludedIds.Contains(permission.Id));
+
+                    if (shouldHave && !assignedPermissionIds.Contains(permission.Id))
+                    {
+                        toAdd.Add(new RolePermission
+                        {
+                            RoleId = role.Id,
+                            PermissionId = permission.Id
+                        });
+                    }
+                    else if (!shouldHave)
+                    {
+                        var assignmentToRemove = roleAssignments
+                            .FirstOrDefault(x => x.PermissionId == permission.Id);
+                        if (assignmentToRemove != null)
+                        {
+                            toRemove.Add(assignmentToRemove);
+                        }
+                    }
+                }
+            }
+
+            if (toRemove.Any())
+            {
+                context.RolePermissions.RemoveRange(toRemove);
+            }
+
+            if (toAdd.Any())
+            {
+                await context.RolePermissions.AddRangeAsync(toAdd);
+            }
+
+            if (toRemove.Any() || toAdd.Any())
+            {
+                await context.SaveChangesAsync();
+            }
+        }
+
         private static PermissionType MapActionToPermissionType(string action)
         {
             return action.ToLower() switch

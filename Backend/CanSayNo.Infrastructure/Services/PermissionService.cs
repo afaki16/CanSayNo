@@ -22,12 +22,22 @@ namespace CanSayNo.Infrastructure.Services
                 r => r.RolePermissions
                     .SelectMany(rp =>
                     {
-                        var perms = new List<string> { rp.Permission.FullPermission };
-                        foreach (var permType in rp.Permission.GetIndividualPermissions())
-                            perms.Add($"{rp.Permission.Resource}.{permType}");
+                        var permission = rp.Permission;
+                        // Name is the canonical policy string ("Invoices.Export"). FullPermission is
+                        // Resource.Type, and a non-CRUD action has no PermissionType (it is stored as
+                        // Read) — using it would grant "Invoices.Read" instead of "Invoices.Export".
+                        var perms = new List<string> { permission.Name };
+
+                        // Type-derived names only for permissions whose name IS the Resource.Type form
+                        // (CRUD and flag combinations such as ReadWrite → Read/Create/Update).
+                        if (string.Equals(permission.Name, permission.FullPermission, StringComparison.OrdinalIgnoreCase))
+                        {
+                            foreach (var permType in permission.GetIndividualPermissions())
+                                perms.Add($"{permission.Resource}.{permType}");
+                        }
                         return perms;
                     })
-                    .Distinct()
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList()
             );
 

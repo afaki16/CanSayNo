@@ -37,9 +37,9 @@ namespace CanSayNo.Infrastructure.Persistence.EntityConfigurations
                 .IsRequired()
                 .HasDefaultValue(false);
 
-            // Create composite unique index for Resource + Type
-            builder.HasIndex(x => new { x.Resource, x.Type })
-                .IsUnique();
+            // No unique index on Resource + Type: non-CRUD actions (e.g. "Invoices.Export") have no
+            // matching PermissionType and fall back to Read, which would collide with "Invoices.Read"
+            // and crash startup seeding. Name is the unique identifier (see IX_Permissions_Name).
 
             // Relationships
             builder.HasMany(x => x.RolePermissions)
