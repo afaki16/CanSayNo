@@ -559,6 +559,15 @@ namespace CanSayNo.Infrastructure.Services
             try
             {
                 await _unitOfWork.RefreshTokens.RevokeAllUserTokensAsync(userId, ipAddress, userAgent, reason);
+
+                // Also reject access tokens issued before now (other devices keep theirs otherwise)
+                var user = await _unitOfWork.Users.GetByIdAsync(userId);
+                if (user != null)
+                {
+                    user.LastSessionsRevokedAt = DateTime.UtcNow;
+                    _unitOfWork.Users.Update(user);
+                }
+
                 await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogWarning(
