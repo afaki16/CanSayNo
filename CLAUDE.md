@@ -27,7 +27,7 @@ CanSayNo/
 1. **Postgres**: `docker start postgres-db` (container `postgres-db`, port 5432)
 2. **Backend**: `cd Backend` → `dotnet run --project CanSayNo.API` → `http://localhost:5156`, Swagger `/swagger`
    - VS/IIS Express farklı portta açılıyor (:60545). Mobile `:5156`'ya bakıyor — mobile ile test ederken `dotnet run` kullan
-   - **Port çakışması**: Alperen'in Kickstart.API projesi de 5156'yı kullanıyor. Test öncesi `Get-NetTCPConnection -LocalPort 5156` ile kontrol et; `/api/Sessions/my` yetkisiz istekte 401 değil 404 dönüyorsa çalışan backend CanSayNo değildir
+   - **Port çakışması**: Alperen'in Kickstart.API projesi de 5156'yı kullanıyor; Sethumo.API 5157'yi de dinleyebiliyor (2026-11-04'te test istekleri bu yüzden Sethumo'ya gitti). Test için CanSayNo'yu başka bir portta aç, öncesinde VE test sırasında `Get-NetTCPConnection -LocalPort <port>` ile sahibini kontrol et; isteklerin CanSayNo log'una düştüğünü doğrula. `/api/Sessions/my` yetkisiz istekte 401 değil 404 dönüyorsa çalışan backend CanSayNo değildir. `.env.development` değişince Metro yeniden başlatılmalı (`EXPO_PUBLIC_*` bundle'a gömülür)
    - Otomatik migration + idempotent seed startup'ta çalışır
 3. **Mobile**: `cd Mobile` → `npm start` → `a` ile Android emulator
    - API URL: `Mobile/.env.development` (`EXPO_PUBLIC_API_URL`). Android'de `localhost` otomatik `10.0.2.2`'ye çevrilir (`lib/config/env.ts`)
@@ -107,7 +107,7 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 **Bekleyen küçük işler**:
 1. Emulator'de görsel test — "0/6 tamamlandı", chat açılışı/hata bandı, sonuç ekranı hata durumu görüldü (2026-11-03). `ErrorState` ortalama hatası düzeltildi. Skeleton'lar ve diğer ekranlar hâlâ gözle görülmedi
 3. Android'de klavye kapandıktan sonra input'un altında boşluk kalıyor (`KeyboardAvoidingView` + edge-to-edge; chat ve auth ekranları). `behavior="padding"` çözmedi; muhtemelen `react-native-keyboard-controller` gerekiyor
-2. Tasarımda olup henüz eklenmeyenler: profilde "Hesap bilgileri" / "Bildirimler" satırları (hedef ekran yok; "Hesap bilgileri" için backend `PUT /api/Auth/profile` hazır)
+2. Tasarım (Claude Design "CanSayNo Ekranlar") karşılaştırıldı (2026-11-04): tüm ekranlar uygulamada. Profil ayarlar kartı tasarımdaki gibi: "Hesap bilgileri" → `(app)/account` (ad/soyad, PUT /api/Auth/profile; telefon /me'den korunur; e-posta salt okunur — değişiklik onay linki için mobil ekran yok), "Bildirimler" → "Yakında" (push altyapısı yok)
 
 (2026-11-03: "Şifremi unuttum" eklendi — `(auth)/forgot-password` → `(auth)/reset-password`, OTP kodlu, `hooks/usePasswordReset.ts`; emulator'de uçtan uca doğrulandı. Şifre kuralı `lib/validation/password.ts`'te, kayıtla ortak. Dev'de kodun e-postayla gelmesi için `NotificationService:Mail` ayarı gerekli — boşsa mail gitmez; test için mailpit `localhost:1025`)
 
