@@ -93,7 +93,25 @@ public class StartSessionCommandHandler : IRequestHandler<StartSessionCommand, R
             StartedAt = utcNow
         };
 
+        // Karakter sohbeti sabit açılış mesajıyla başlatır; LLM ilk kullanıcı cevabından sonra devreye girer.
+        if (!string.IsNullOrWhiteSpace(scenario.Scene.OpeningMessage))
+        {
+            session.Messages.Add(new SessionMessage
+            {
+                Role = SessionMessageRoles.Ai,
+                Content = scenario.Scene.OpeningMessage,
+                Timestamp = utcNow
+            });
+        }
+
         await _unitOfWork.Sessions.AddAsync(session);
+
+        var stats = await _unitOfWork.UserStats.GetAsync(userId, cancellationToken);
+        if (stats is null)
+            await _unitOfWork.UserStats.AddAsync(new UserStats { UserId = userId, TotalSessions = 1 }, cancellationToken);
+        else
+            stats.TotalSessions++;
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // scenario AsNoTracking yüklendi; navigation'a bağlamak EF'in onu yeni kayıt sanmasına

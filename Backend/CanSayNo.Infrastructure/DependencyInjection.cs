@@ -8,6 +8,8 @@ using CanSayNo.Infrastructure.Persistence;
 using CanSayNo.Infrastructure.Identity;
 using CanSayNo.Infrastructure.Repositories;
 using CanSayNo.Infrastructure.Services;
+using CanSayNo.Infrastructure.Services.Ai;
+using CanSayNo.Infrastructure.Configuration;
 using CanSayNo.Infrastructure.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +41,13 @@ namespace CanSayNo.Infrastructure
         // Hayırcı ürün ayarları (günlük limit, abonelik AppId). Bölüm yoksa default'lar kullanılır.
         services.AddSingleton(
             configuration.GetSection(HayirciSettings.SectionName).Get<HayirciSettings>() ?? new HayirciSettings());
+
+        // Karakter cevapları (LLM). Anahtar yoksa servis kayıtlı kalır, cevaplar aiUnavailable döner.
+        services.AddSingleton(
+            configuration.GetSection(AnthropicSettings.SectionName).Get<AnthropicSettings>() ?? new AnthropicSettings());
+        services.AddSingleton<AnthropicClientProvider>();
+        services.AddSingleton<ICharacterChatService, AnthropicCharacterChatService>();
+        services.AddSingleton<ISessionEvaluator, AnthropicSessionEvaluator>();
 
         // Add Memory Cache
         services.AddMemoryCache();

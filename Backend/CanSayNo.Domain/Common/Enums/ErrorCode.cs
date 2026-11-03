@@ -18,4 +18,12 @@ public enum ErrorCode
     EmailNotConfirmed = 1013,
     DailyLimitReached = 1014,   // Ücretsiz günlük pratik limiti doldu (429)
     PremiumRequired = 1015,     // Premium içerik, aktif abonelik yok (403)
+
+    // Hayırcı'ya özel yeni kodlar 1100'den başlar: Kickstart template'i 1014+ aralığını
+    // kendi kodlarına (PasswordChangeRequired, TenantSelectionRequired, ModuleDisabled) veriyor.
+    AiUnavailable = 1100,       // Karakter (LLM) şu an cevap veremiyor (503)
+    AiResponseRefused = 1101,   // LLM bu mesaja cevap vermeyi reddetti (422); raunt ilerlemez
+    SessionNotActive = 1102,    // Oturum tamamlanmış/terk edilmiş, mesaj alınmaz (409)
+    SessionTokenLimitReached = 1103, // Oturum token tavanına ulaştı (429)
+    SessionNotCompleted = 1104, // Değerlendirme için oturum henüz tamamlanmadı (409)
 }

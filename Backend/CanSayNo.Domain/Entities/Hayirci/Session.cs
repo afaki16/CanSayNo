@@ -32,10 +32,16 @@ public class Session : BaseAuditableEntity
     public DateTime? CompletedAt { get; set; }
 }
 
+public static class SessionMessageRoles
+{
+    public const string Ai = "ai";
+    public const string User = "user";
+}
+
 public class SessionMessage
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string Role { get; set; } = string.Empty;  // "ai" or "user"
+    public string Role { get; set; } = string.Empty;  // SessionMessageRoles.Ai | SessionMessageRoles.User
     public string Content { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }
@@ -49,4 +55,8 @@ public class SessionEvaluation
     public string CoachNote { get; set; } = string.Empty;
     public string? IdealResponseExample { get; set; }
     public int TotalScore { get; set; }  // 0-100
+
+    // Değerlendirme anının kaydı: sonuç ekranı sonradan açıldığında da aynı değerler görünür.
+    public int XpEarned { get; set; }
+    public int StreakAfter { get; set; }
 }

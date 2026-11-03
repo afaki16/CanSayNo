@@ -43,7 +43,12 @@ public class Error
             ErrorCode.NotFound      => 404,
             ErrorCode.Forbidden
             or ErrorCode.PremiumRequired => 403,
-            ErrorCode.DailyLimitReached => 429,
+            ErrorCode.DailyLimitReached
+            or ErrorCode.SessionTokenLimitReached => 429,
+            ErrorCode.AiUnavailable => 503,
+            ErrorCode.AiResponseRefused => 422,
+            ErrorCode.SessionNotActive
+            or ErrorCode.SessionNotCompleted => 409,
             ErrorCode.Unauthorized  => 401,
             ErrorCode.AlreadyExists => 409,
             ErrorCode.InternalError

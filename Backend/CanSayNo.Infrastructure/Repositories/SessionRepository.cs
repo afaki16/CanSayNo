@@ -81,6 +81,21 @@ public class SessionRepository : RepositoryBase<Session, Guid>, ISessionReposito
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<DateTime>> GetEvaluatedCompletionTimesAsync(
+        int userId,
+        DateTime sinceUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Sessions
+            .AsNoTracking()
+            .Where(s => s.UserId == userId
+                        && s.TotalScore != null
+                        && s.CompletedAt != null
+                        && s.CompletedAt >= sinceUtc)
+            .Select(s => s.CompletedAt!.Value)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<(IReadOnlyList<Session> Items, int TotalCount)> GetUserSessionsPagedAsync(
         int userId,
         int pageNumber,

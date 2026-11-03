@@ -85,7 +85,8 @@
       "domain": "Domain",
       "contactEmail": "Contact email",
       "contactPhone": "Contact phone",
-      "scenarioId": "Scenario"
+      "scenarioId": "Scenario",
+      "message": "Message"
     },
     "required": "{0} field is required",
     "maxLength": "{0} cannot exceed {1} characters",
@@ -102,6 +103,12 @@
     "notFound": "Practice session not found",
     "scenarioNotFound": "Scenario not found",
     "premiumRequired": "This scenario is for premium members. Upgrade to unlock all contexts.",
-    "dailyLimitReached": "You've used today's free practice. Come back tomorrow or go premium for unlimited practice."
+    "dailyLimitReached": "You've used today's free practice. Come back tomorrow or go premium for unlimited practice.",
+    "notActive": "This practice has ended; no more messages can be sent.",
+    "tokenLimitReached": "This practice has reached its message limit. You can start a new one.",
+    "aiUnavailable": "The character can't reply right now. Try again in a few seconds.",
+    "aiRefused": "The character couldn't reply to this message. Try phrasing it differently.",
+    "notCompleted": "Finish the practice before requesting its evaluation.",
+    "evaluationUnavailable": "The evaluation couldn't be prepared right now. Try again in a few seconds."
   }
 }

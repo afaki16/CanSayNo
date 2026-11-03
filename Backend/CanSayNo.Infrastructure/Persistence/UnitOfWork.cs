@@ -28,6 +28,7 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
     private readonly Lazy<ISessionRepository> _sessions;
     private readonly Lazy<IDailyUsageRepository> _dailyUsage;
     private readonly Lazy<ISubscriptionRepository> _subscriptions;
+    private readonly Lazy<IUserStatsRepository> _userStats;
 
     public UnitOfWork(ApplicationDbContext context, IServiceProvider serviceProvider)
     {
@@ -47,6 +48,7 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
         _sessions = new Lazy<ISessionRepository>(() => _serviceProvider.GetRequiredService<ISessionRepository>());
         _dailyUsage = new Lazy<IDailyUsageRepository>(() => _serviceProvider.GetRequiredService<IDailyUsageRepository>());
         _subscriptions = new Lazy<ISubscriptionRepository>(() => _serviceProvider.GetRequiredService<ISubscriptionRepository>());
+        _userStats = new Lazy<IUserStatsRepository>(() => _serviceProvider.GetRequiredService<IUserStatsRepository>());
 
     }
 
@@ -63,6 +65,7 @@ public class UnitOfWork : IUnitOfWork, IAsyncDisposable
     public ISessionRepository Sessions => _sessions.Value;
     public IDailyUsageRepository DailyUsage => _dailyUsage.Value;
     public ISubscriptionRepository Subscriptions => _subscriptions.Value;
+    public IUserStatsRepository UserStats => _userStats.Value;
 
 
 

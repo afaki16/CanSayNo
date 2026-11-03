@@ -44,6 +44,10 @@ public record SessionEvaluationDto
     public string CoachNote { get; init; } = "";
     public string? IdealResponseExample { get; init; }
     public int TotalScore { get; init; }
+    /// <summary>Bu pratikten kazanılan XP.</summary>
+    public int XpEarned { get; init; }
+    /// <summary>Değerlendirme anındaki güncel seri (gün).</summary>
+    public int StreakAfter { get; init; }
 }
 
 /// <summary>"Son pratiklerin" listesi için hafif DTO (mesajlar ve değerlendirme detayı yok).</summary>

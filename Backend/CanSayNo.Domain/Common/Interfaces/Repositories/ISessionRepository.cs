@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,16 @@ public interface ISessionRepository : IRepository<Session, System.Guid>
     /// <summary>
     /// Kullanıcının oturumlarını en yeniden eskiye, senaryosuyla birlikte sayfalı döndürür.
     /// </summary>
+    /// <summary>
+    /// Kullanıcının verilen andan sonra tamamlanıp DEĞERLENDİRİLMİŞ (TotalScore dolu) oturumlarının
+    /// tamamlanma zamanları (UTC). Haftalık aktivite için; seri ve XP de değerlendirmede yazıldığı
+    /// için aynı ölçüt kullanılır.
+    /// </summary>
+    Task<IReadOnlyList<DateTime>> GetEvaluatedCompletionTimesAsync(
+        int userId,
+        DateTime sinceUtc,
+        CancellationToken cancellationToken = default);
+
     Task<(IReadOnlyList<Session> Items, int TotalCount)> GetUserSessionsPagedAsync(
         int userId,
         int pageNumber,

@@ -1,3 +1,5 @@
+using CanSayNo.Application.Features.Sessions.Commands.EvaluateSession;
+using CanSayNo.Application.Features.Sessions.Commands.SendMessage;
 using CanSayNo.Application.Features.Sessions.Commands.StartSession;
 using CanSayNo.Application.Features.Sessions.Common;
 using CanSayNo.Application.Features.Sessions.Queries.GetMySessions;
@@ -39,6 +41,47 @@ namespace CanSayNo.API.Controllers
         /// <summary>
         /// Kullanıcının kendi oturumunu mesajları ve (varsa) değerlendirmesiyle döndürür.
         /// </summary>
+        /// <summary>
+        /// Kullanıcı mesajı → karakterin cevabı. Güncellenmiş oturumu döner; son rauntta
+        /// status "completed" olur. Hatalar: 409 sessionNotActive, 422 aiResponseRefused,
+        /// 429 sessionTokenLimitReached, 503 aiUnavailable — bu üçünde raunt ilerlemez.
+        /// </summary>
+        [HttpPost("{id:guid}/messages")]
+        [ProducesResponseType(typeof(SessionDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(422)]
+        [ProducesResponseType(429)]
+        [ProducesResponseType(503)]
+        public async Task<IActionResult> SendMessage(Guid id, [FromBody] SendMessageRequest body)
+        {
+            var result = await _mediator.Send(new SendMessageCommand
+            {
+                SessionId = id,
+                Content = body.Content
+            });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Tamamlanmış pratiği değerlendirir (5 eksen 0-100, güçlü yönler, öneriler, koç notu)
+        /// ve kullanıcının seri/XP/rozetlerini günceller. İdempotent: ikinci çağrı aynı sonucu
+        /// LLM'e gitmeden döner. 409 sessionNotCompleted, 503 aiUnavailable.
+        /// </summary>
+        [HttpPost("{id:guid}/evaluate")]
+        [ProducesResponseType(typeof(SessionDto), 200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        [ProducesResponseType(503)]
+        public async Task<IActionResult> EvaluateSession(Guid id)
+        {
+            var result = await _mediator.Send(new EvaluateSessionCommand(id));
+            return HandleResult(result);
+        }
+
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(SessionDto), 200)]
         [ProducesResponseType(401)]

@@ -21,6 +21,18 @@ public class HayirciSettings
     /// </summary>
     public int UsageDayUtcOffsetHours { get; set; } = 3;
 
+    /// <summary>Pratikte kullanıcının tek mesajının azami uzunluğu (karakter).</summary>
+    public int MaxUserMessageLength { get; set; } = 500;
+
+    /// <summary>
+    /// Bir oturumda harcanabilecek toplam LLM token'ı (girdi + çıktı). Aşılırsa yeni mesaj
+    /// alınmaz — kötüye kullanıma ve beklenmedik maliyete karşı tavan.
+    /// </summary>
+    public int SessionTokenLimit { get; set; } = 40000;
+
+    /// <summary>Anasayfadaki "Bu Hafta" hedefi (değerlendirilmiş pratik sayısı).</summary>
+    public int WeeklyGoal { get; set; } = 5;
+
     /// <summary>Kullanım sayacının ait olduğu takvim günü.</summary>
     public DateOnly GetUsageDate(DateTime utcNow) =>
         DateOnly.FromDateTime(utcNow.AddHours(UsageDayUtcOffsetHours));

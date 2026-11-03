@@ -39,6 +39,10 @@ public class ScenarioScene
     public string Situation { get; set; } = string.Empty;
     public string UserGoal { get; set; } = string.Empty;
     public string? Hint { get; set; }
+
+    // Karakterin sohbeti açan ilk mesajı. Oturum başlarken sabit metin olarak yazılır
+    // (LLM çağrısı yok); sonraki cevaplar LLM'den gelir.
+    public string OpeningMessage { get; set; } = string.Empty;
 }
 
 public class ScenarioCharacter

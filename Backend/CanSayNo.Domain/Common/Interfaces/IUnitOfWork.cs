@@ -22,6 +22,7 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     ISessionRepository Sessions { get; }
     IDailyUsageRepository DailyUsage { get; }
     ISubscriptionRepository Subscriptions { get; }
+    IUserStatsRepository UserStats { get; }
     // Core operations
     /// <summary>
     /// Save all changes made in this unit of work

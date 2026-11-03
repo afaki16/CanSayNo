@@ -31,6 +31,8 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                     .Select(s => s.Id)
                     .ToListAsync();
 
+                await BackfillOpeningMessagesAsync(context, seedScenarios, existingIds, logger);
+
                 var toAdd = seedScenarios.Where(s => !existingIds.Contains(s.Id)).ToList();
 
                 if (toAdd.Count == 0)
@@ -50,6 +52,54 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                 logger.LogError(ex, "Hayırcı senaryoları seed edilirken hata oluştu.");
                 throw;
             }
+        }
+
+        /// <summary>
+        /// OpeningMessage alanı eklenmeden önce seed edilmiş senaryolarda alan boş kalır.
+        /// Yalnızca BOŞ olanlar seed metniyle doldurulur — elle düzenlenmiş açılış mesajına
+        /// dokunulmaz. İdempotent.
+        /// </summary>
+        private static async Task BackfillOpeningMessagesAsync(
+            ApplicationDbContext context,
+            List<Scenario> seedScenarios,
+            List<string> existingIds,
+            ILogger logger)
+        {
+            if (existingIds.Count == 0)
+                return;
+
+            var existing = await context.Scenarios
+                .Where(s => existingIds.Contains(s.Id))
+                .ToListAsync();
+
+            var updated = new List<string>();
+            foreach (var scenario in existing)
+            {
+                if (!string.IsNullOrWhiteSpace(scenario.Scene.OpeningMessage))
+                    continue;
+
+                var seedOpening = seedScenarios.First(s => s.Id == scenario.Id).Scene.OpeningMessage;
+                if (string.IsNullOrWhiteSpace(seedOpening))
+                    continue;
+
+                // JSONB alanı ValueComparer ile izleniyor; yeni örnek atamak değişikliği garanti eder.
+                scenario.Scene = new ScenarioScene
+                {
+                    Setting = scenario.Scene.Setting,
+                    Situation = scenario.Scene.Situation,
+                    UserGoal = scenario.Scene.UserGoal,
+                    Hint = scenario.Scene.Hint,
+                    OpeningMessage = seedOpening
+                };
+                updated.Add(scenario.Id);
+            }
+
+            if (updated.Count == 0)
+                return;
+
+            await context.SaveChangesAsync();
+            logger.LogInformation("{Count} senaryonun açılış mesajı dolduruldu: {Ids}",
+                updated.Count, string.Join(", ", updated));
         }
 
         private static List<Scenario> BuildScenarios() => new()
@@ -73,7 +123,8 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                                 "\"Müşteri toplantısı pazartesi sabah 9'a alındı, sunumu revize etmeliyiz. " +
                                 "Birkaç saatini ayırabilir misin?\"",
                     UserGoal = "Hafta sonu planını korumak — ama köprüleri yakmadan",
-                    Hint = "Övgüyle gelen taleplere karşı dikkatli ol; duygusal yatırım yaratır."
+                    Hint = "Övgüyle gelen taleplere karşı dikkatli ol; duygusal yatırım yaratır.",
+                    OpeningMessage = "Selam, müşteri toplantısı pazartesi sabah 9'a alındı, tahmin etmiyorduk biliyorum. Sunumun analiz kısmını revize etmemiz lazım, en geç pazar akşamı. Sana çok güveniyorum bu konuda — kimseyi senin kadar iyi tanımıyor bu işi. Bu hafta sonu birkaç saatini ayırabilir misin?"
                 },
                 Character = new ScenarioCharacter
                 {
@@ -110,7 +161,8 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                                 "işlerin bekliyor. Yönetici toplantıyı uzatmaya devam ediyor: " +
                                 "\"5 dakika daha lütfen, şu konuyu da çözelim.\"",
                     UserGoal = "Toplantıdan saygıyla ayrılmak",
-                    Hint = "Yapacağın işin önemini hatırlat, suçluluk hissetme."
+                    Hint = "Yapacağın işin önemini hatırlat, suçluluk hissetme.",
+                    OpeningMessage = "Sadece 5 dakika daha, son bir konuyu da çözelim. Yarın için bunu hazırlamamız gerek, ekipte sadece sen var bu kadar derinlemesine bilen."
                 },
                 Character = new ScenarioCharacter
                 {
@@ -146,7 +198,8 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                     Situation = "Müdürün ofisine çağırıldın. \"Önemli bir proje çıktı, izni 2 ay sonraya " +
                                 "erteleyebilir misin? Sana güveniyorum, sen olmadan olmaz.\"",
                     UserGoal = "Önceden planlanmış izninizi korumak",
-                    Hint = "İzin hakkındır, lütuf değil. Yine de profesyonel kal."
+                    Hint = "İzin hakkındır, lütuf değil. Yine de profesyonel kal.",
+                    OpeningMessage = "Önemli bir konuyu konuşmamız lazım. Şu ana kadar yaptığın işten çok memnunum, biliyorsun. Ama bu yeni proje çıktı, müşteri çok ısrar etti ve sadece sen bu detayı bilen kişisin. Yıllık iznini 2 ay erteleyebilir misin?"
                 },
                 Character = new ScenarioCharacter
                 {
@@ -183,7 +236,8 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                                 "sen bu konuyu benden iyi biliyorsun. Sadece 1-2 saatlik iş.\" Aslında 4-5 saatlik " +
                                 "iş ve onun sorumluluğu.",
                     UserGoal = "Kendi önceliklerini korumak, görev devrini kabul etmemek",
-                    Hint = "Övgüyü kabul et, ama görevi reddet."
+                    Hint = "Övgüyü kabul et, ama görevi reddet.",
+                    OpeningMessage = "Selam! Çok zor durumdayım, şu raporu sen yapsan çok iyi olur. Sen bu konuyu benden iyi biliyorsun ya, 1-2 saatlik iş aslında. Yardım eder misin?"
                 },
                 Character = new ScenarioCharacter
                 {
@@ -220,7 +274,8 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                                 "\"Şirket şu an zor durumda, 6 ay daha sabret. Sana söz veriyorum, sonra her şeyi " +
                                 "telafi edeceğiz.\" Halbuki son 2 yıldır benzer sözler veriliyor.",
                     UserGoal = "Zammı kararlı bir şekilde talep etmek, ertelemeyi kabul etmemek",
-                    Hint = "Geçmiş vaatleri hatırlat, somut tarih iste."
+                    Hint = "Geçmiş vaatleri hatırlat, somut tarih iste.",
+                    OpeningMessage = "Performans değerlendirmesi konusunda çok memnunum senin işinden. Gerçekten harika bir yıldı. Ama şirket şu an zor durumda, biliyorsun. Zam konusunu 6 ay daha erteleyebilir miyiz? Söz veriyorum, sonra her şeyi telafi edeceğim."
                 },
                 Character = new ScenarioCharacter
                 {
@@ -257,7 +312,8 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                                 "önemli!\" Senin başka planın var ve \"zorunlu\" denilen şey aslında resmi olarak " +
                                 "zorunlu değil.",
                     UserGoal = "Profesyonel kalarak katılmadığını bildirmek",
-                    Hint = "Mazerete gerek yok; basit ve net olabilirsin."
+                    Hint = "Mazerete gerek yok; basit ve net olabilirsin.",
+                    OpeningMessage = "Merhaba, bu akşam 18:00'da ekip happy hour'u olacak. Tüm ekibin katılımı zorunlu, takım ruhu için önemli. Görüşürüz!"
                 },
                 Character = new ScenarioCharacter
                 {
@@ -294,7 +350,8 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                                 "\"Ee, sen ne zaman evleneceksin? Yaşın geçiyor, biz torun göreceğiz bir ara. " +
                                 "Bak filanca da senden küçüktü, çoluk çocuğa karıştı bile.\"",
                     UserGoal = "Özel hayatına dair sınır koymak — sofrayı germeden",
-                    Hint = "Hesap verme tuzağına düşme; kısa, net ve sıcak bir sınır yeter."
+                    Hint = "Hesap verme tuzağına düşme; kısa, net ve sıcak bir sınır yeter.",
+                    OpeningMessage = "Ee, sen ne zaman evleneceksin bakalım? Yaşın geçiyor ama, biz de torun görmek istiyoruz bir ara. Bak bizim Selin senden küçüktü, çoluk çocuğa karıştı bile!"
                 },
                 Character = new ScenarioCharacter
                 {
