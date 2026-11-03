@@ -27,6 +27,8 @@ export interface ApiSessionEvaluation {
   coachNote: string;
   idealResponseExample: string | null;
   totalScore: number; // 0-100
+  xpEarned: number; // bu pratikten kazanılan XP
+  streakAfter: number; // değerlendirme anındaki seri (gün)
 }
 
 // POST /api/Sessions ve GET /api/Sessions/{id}
@@ -67,4 +69,9 @@ export interface ApiPagedData<T> {
 
 export interface ApiStartSessionBody {
   scenarioId: string;
+}
+
+// POST /api/Sessions/{id}/messages — yanıt güncellenmiş ApiSession.
+export interface ApiSendMessageBody {
+  content: string;
 }

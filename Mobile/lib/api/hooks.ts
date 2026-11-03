@@ -36,11 +36,17 @@ export async function apiGet<T>(
   return response.data.data;
 }
 
+// options.timeoutMs: varsayılan 15 sn yetmeyen istekler için (LLM çağrıları).
 export async function apiPost<TResponse, TBody = unknown>(
   url: string,
   body: TBody,
+  options?: { timeoutMs?: number },
 ): Promise<TResponse> {
-  const response = await apiClient.post<ApiResponse<TResponse>>(url, body);
+  const response = await apiClient.post<ApiResponse<TResponse>>(
+    url,
+    body,
+    options?.timeoutMs ? { timeout: options.timeoutMs } : undefined,
+  );
   assertSuccess(response);
   if (response.data.data === undefined) {
     throw new ApiError('Sunucu beklenen veriyi döndürmedi', response.status);

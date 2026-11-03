@@ -1,17 +1,5 @@
-// Ekranların tek import noktası. Senaryo verisi ARTIK BURADA DEĞİL — API'den
-// geliyor (hooks/queries/useScenarios). Burada kalanlar:
-//   contexts        → bağlam UI metadata'sı (backend'de karşılığı yok)
-//   aiResponses     → pratik sahnesinin mock AI script'i (LLM entegrasyonuna kadar)
-//   userStats       → hâlâ mock; UserStats endpoint'i gelince gerçekleşecek
-//   evaluation      → sonuç ekranının mock değerlendirmesi (evaluate endpoint'ine kadar)
+// Bağlam UI metadata'sının (isim, renk, ikon) import noktası. Backend'de karşılığı
+// yok, kalıcı — mock değil; ileride lib/constants/'a taşınabilir. Senaryolar,
+// oturumlar, chat, değerlendirme ve istatistikler API'den geliyor.
 
-export { mockUserStats } from './userStats';
-export type { UserStats } from './userStats';
 export { contexts } from './contexts';
-export { getAIResponseScript, mockAIResponses } from './aiResponses';
-export type { AIResponseScript } from './aiResponses';
-export {
-  EVALUATION_AXIS_LABELS,
-  mockEvaluation,
-} from './evaluation';
-export type { EvaluationAxis, SessionEvaluation } from './evaluation';

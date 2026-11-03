@@ -1,32 +1,31 @@
 // Pratik sonu — skor halkası, kazanılan XP/seri, 5 eksenli beceri kırılımı,
-// iyi yapılanlar, gelişim önerileri ve koç notu.
+// iyi yapılanlar, gelişim önerileri, koç notu ve "şöyle de diyebilirdin" örneği.
 //
-// Değerlendirme şimdilik mock (lib/mockData/evaluation.ts). POST
-// /api/sessions/{id}/evaluate gelince sessionId param'ıyla gerçek veriye bağlanacak.
+// Değerlendirme POST /api/Sessions/{id}/evaluate'ten gelir (sessionId param'ı).
+// Backend idempotent: ekran yeniden açıldığında LLM'e gitmeden aynı sonuç döner.
 // "Tekrar dene" yeni bir oturum açar (günlük limit burada da geçerli).
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   ArrowUpRight,
+  ChatCircleText,
   CheckCircle,
   Fire,
   Lightbulb,
   Star,
   ThumbsUp,
 } from 'phosphor-react-native';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 
-import { BrandMark, Button, Text } from '@/components/ui';
+import { BrandMark, Button, ErrorState, Text } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
+import { useEvaluateSession } from '@/hooks/queries/useSessions';
 import { useStartPractice } from '@/hooks/useStartPractice';
-import {
-  EVALUATION_AXIS_LABELS,
-  mockEvaluation,
-  type EvaluationAxis,
-} from '@/lib/mockData';
+import { toEvaluateErrorMessage } from '@/lib/api';
+import { EVALUATION_AXES, EVALUATION_AXIS_LABELS } from '@/lib/constants/evaluation';
 
 const RING_SIZE = 140;
 const RING_STROKE = 11;
@@ -46,15 +45,62 @@ function axisColor(value: number): string {
 }
 
 export default function ResultScreen() {
-  const { scenarioId } = useLocalSearchParams<{ scenarioId: string }>();
+  const { scenarioId, sessionId } = useLocalSearchParams<{
+    scenarioId: string;
+    sessionId?: string;
+  }>();
   const insets = useSafeAreaInsets();
-  const evaluation = mockEvaluation;
   const { startPractice, isStarting } = useStartPractice();
-
-  const axes = Object.entries(evaluation.axes) as [EvaluationAxis, number][];
-  const dashOffset = RING_CIRCUMFERENCE * (1 - evaluation.totalScore / 100);
+  const { data: session, isPending, isError, error, refetch, isFetching } =
+    useEvaluateSession(sessionId);
 
   const retry = () => startPractice(scenarioId, { replace: true });
+  const backToScenarios = () => router.replace('/(app)/(tabs)/scenarios');
+
+  if (!sessionId) {
+    return (
+      <View style={[styles.root, styles.centered, { paddingTop: insets.top }]}>
+        <Text style={styles.loadingTitle}>Pratik bulunamadı</Text>
+        <Button variant="primary" onPress={backToScenarios}>
+          Senaryolara dön
+        </Button>
+      </View>
+    );
+  }
+
+  if (isPending) {
+    return (
+      <View style={[styles.root, styles.centered, { paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={styles.loadingTitle}>Değerlendirmen hazırlanıyor</Text>
+        <Text style={styles.loadingText}>
+          Cevaplarını beş açıdan inceliyoruz, birkaç saniye sürebilir.
+        </Text>
+      </View>
+    );
+  }
+
+  const evaluation = session?.evaluation;
+  if (isError || !evaluation) {
+    return (
+      <View style={[styles.root, { paddingTop: insets.top }]}>
+        <View style={styles.errorBody}>
+          <ErrorState
+            message={toEvaluateErrorMessage(error)}
+            onRetry={() => refetch()}
+            isRetrying={isFetching}
+          />
+        </View>
+        <View style={[styles.errorFooter, { paddingBottom: insets.bottom + Spacing.md }]}>
+          <Button variant="outline" size="lg" fullWidth onPress={backToScenarios}>
+            Senaryolara dön
+          </Button>
+        </View>
+      </View>
+    );
+  }
+
+  const dashOffset = RING_CIRCUMFERENCE * (1 - evaluation.totalScore / 100);
 
   return (
     <View style={styles.root}>
@@ -123,58 +169,65 @@ export default function ResultScreen() {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Beceri kırılımı</Text>
             <View style={styles.axisList}>
-              {axes.map(([axis, value]) => (
-                <View key={axis}>
-                  <View style={styles.axisHeader}>
-                    <Text style={styles.axisLabel}>
-                      {EVALUATION_AXIS_LABELS[axis]}
-                    </Text>
-                    <Text style={styles.axisValue}>{value}</Text>
+              {EVALUATION_AXES.map((axis) => {
+                const value = evaluation.scores[axis] ?? 0;
+                return (
+                  <View key={axis}>
+                    <View style={styles.axisHeader}>
+                      <Text style={styles.axisLabel}>
+                        {EVALUATION_AXIS_LABELS[axis]}
+                      </Text>
+                      <Text style={styles.axisValue}>{value}</Text>
+                    </View>
+                    <View style={styles.axisTrack}>
+                      <View
+                        style={[
+                          styles.axisFill,
+                          { width: `${value}%`, backgroundColor: axisColor(value) },
+                        ]}
+                      />
+                    </View>
                   </View>
-                  <View style={styles.axisTrack}>
-                    <View
-                      style={[
-                        styles.axisFill,
-                        { width: `${value}%`, backgroundColor: axisColor(value) },
-                      ]}
-                    />
-                  </View>
-                </View>
-              ))}
+                );
+              })}
             </View>
           </View>
 
           {/* İyi yaptıkların */}
-          <View style={[styles.listCard, { backgroundColor: Colors.successSoft }]}>
-            <View style={styles.listHeader}>
-              <ThumbsUp size={17} color={Colors.success} weight="fill" />
-              <Text style={[styles.listTitle, { color: '#0E7A52' }]}>
-                İyi yaptıkların
-              </Text>
-            </View>
-            {evaluation.strengths.map((item) => (
-              <View key={item} style={styles.listItem}>
-                <CheckCircle size={18} color={Colors.success} weight="fill" />
-                <Text style={styles.listItemText}>{item}</Text>
+          {evaluation.strengths.length > 0 ? (
+            <View style={[styles.listCard, { backgroundColor: Colors.successSoft }]}>
+              <View style={styles.listHeader}>
+                <ThumbsUp size={17} color={Colors.success} weight="fill" />
+                <Text style={[styles.listTitle, { color: '#0E7A52' }]}>
+                  İyi yaptıkların
+                </Text>
               </View>
-            ))}
-          </View>
+              {evaluation.strengths.map((item) => (
+                <View key={item} style={styles.listItem}>
+                  <CheckCircle size={18} color={Colors.success} weight="fill" />
+                  <Text style={styles.listItemText}>{item}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
 
           {/* Bir dahakine dene */}
-          <View style={[styles.listCard, { backgroundColor: Colors.tipSoft }]}>
-            <View style={styles.listHeader}>
-              <ArrowUpRight size={17} color={Colors.secondary} weight="fill" />
-              <Text style={[styles.listTitle, { color: '#B85427' }]}>
-                Bir dahakine dene
-              </Text>
-            </View>
-            {evaluation.improvements.map((item) => (
-              <View key={item} style={styles.listItem}>
-                <Lightbulb size={18} color={Colors.secondary} weight="fill" />
-                <Text style={styles.listItemText}>{item}</Text>
+          {evaluation.improvements.length > 0 ? (
+            <View style={[styles.listCard, { backgroundColor: Colors.tipSoft }]}>
+              <View style={styles.listHeader}>
+                <ArrowUpRight size={17} color={Colors.secondary} weight="fill" />
+                <Text style={[styles.listTitle, { color: '#B85427' }]}>
+                  Bir dahakine dene
+                </Text>
               </View>
-            ))}
-          </View>
+              {evaluation.improvements.map((item) => (
+                <View key={item} style={styles.listItem}>
+                  <Lightbulb size={18} color={Colors.secondary} weight="fill" />
+                  <Text style={styles.listItemText}>{item}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
 
           {/* Koç notu */}
           <View style={styles.coachCard}>
@@ -184,6 +237,17 @@ export default function ResultScreen() {
             </View>
             <Text style={styles.coachText}>{evaluation.coachNote}</Text>
           </View>
+
+          {/* Şöyle de diyebilirdin */}
+          {evaluation.idealResponseExample ? (
+            <View style={styles.coachCard}>
+              <View style={styles.coachHeader}>
+                <ChatCircleText size={22} color={Colors.primary} weight="fill" />
+                <Text style={styles.coachTitle}>Şöyle de diyebilirdin</Text>
+              </View>
+              <Text style={styles.coachText}>“{evaluation.idealResponseExample}”</Text>
+            </View>
+          ) : null}
 
           {/* Aksiyonlar */}
           <View style={styles.ctaRow}>
@@ -199,12 +263,7 @@ export default function ResultScreen() {
               </Button>
             </View>
             <View style={styles.ctaPrimary}>
-              <Button
-                variant="primary"
-                size="md"
-                fullWidth
-                onPress={() => router.replace('/(app)/(tabs)/scenarios')}
-              >
+              <Button variant="primary" size="md" fullWidth onPress={backToScenarios}>
                 Senaryolara dön
               </Button>
             </View>
@@ -219,6 +278,30 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.md,
+  },
+  errorBody: {
+    flex: 1,
+  },
+  errorFooter: {
+    paddingHorizontal: Spacing.lg,
+  },
+  loadingTitle: {
+    marginTop: Spacing.sm,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+    textAlign: 'center',
+  },
+  loadingText: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
   },
 
   // Header

@@ -39,6 +39,57 @@ export function toStartSessionError(error: unknown): StartSessionError {
   return { kind: 'other', message: GENERIC };
 }
 
+// Pratikte mesaj gönderme hataları. Hepsinde raunt ilerlemez; kullanıcı mesajı
+// input'a geri konur. Backend mesajları Türkçe ve kullanıcıya yönelik — güvendiğimiz
+// kodlarda olduğu gibi gösterilir.
+export function toSendMessageErrorMessage(error: unknown): string {
+  if (!(error instanceof ApiError)) {
+    return 'Mesaj gönderilemedi, lütfen tekrar dene';
+  }
+  if (error.isNetworkError) {
+    return NETWORK;
+  }
+  if (error.status === 401) {
+    return SESSION;
+  }
+  const userFacing: readonly string[] = [
+    API_ERROR_CODE.AI_UNAVAILABLE,
+    API_ERROR_CODE.AI_RESPONSE_REFUSED,
+    API_ERROR_CODE.SESSION_NOT_ACTIVE,
+    API_ERROR_CODE.SESSION_TOKEN_LIMIT_REACHED,
+  ];
+  if (error.code && userFacing.includes(error.code)) {
+    return error.message;
+  }
+  if (error.status === 400 && error.errors.length > 0) {
+    return error.errors.join('\n');
+  }
+  return 'Mesaj gönderilemedi, lütfen tekrar dene';
+}
+
+// Sonuç ekranının değerlendirme hataları.
+export function toEvaluateErrorMessage(error: unknown): string {
+  if (!(error instanceof ApiError)) {
+    return 'Değerlendirme yüklenemedi';
+  }
+  if (error.isNetworkError) {
+    return NETWORK;
+  }
+  if (error.status === 401) {
+    return SESSION;
+  }
+  if (error.status === 404) {
+    return 'Pratik bulunamadı';
+  }
+  if (
+    error.code === API_ERROR_CODE.AI_UNAVAILABLE ||
+    error.code === API_ERROR_CODE.SESSION_NOT_COMPLETED
+  ) {
+    return error.message;
+  }
+  return 'Değerlendirme yüklenemedi';
+}
+
 // Liste/detay okuma hataları (Son pratikler, oturum detayı).
 export function toSessionErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) {

@@ -16,6 +16,7 @@ export {
   AUTH_ENDPOINTS,
   SCENARIO_ENDPOINTS,
   SESSION_ENDPOINTS,
+  STATS_ENDPOINTS,
   isPath,
 } from './endpoints';
 export { queryClient } from './queryClient';
@@ -29,9 +30,12 @@ export {
 export { authService } from './services/authService';
 export { scenarioService } from './services/scenarioService';
 export { sessionService } from './services/sessionService';
+export { statsService } from './services/statsService';
 export {
   toStartSessionError,
   toSessionErrorMessage,
+  toSendMessageErrorMessage,
+  toEvaluateErrorMessage,
   type StartSessionError,
   type StartSessionErrorKind,
 } from './services/sessionErrors';

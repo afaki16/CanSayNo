@@ -47,6 +47,11 @@ export const API_ERROR_CODE = {
   EMAIL_NOT_CONFIRMED: 'emailNotConfirmed',
   DAILY_LIMIT_REACHED: 'dailyLimitReached',
   PREMIUM_REQUIRED: 'premiumRequired',
+  AI_UNAVAILABLE: 'aiUnavailable',
+  AI_RESPONSE_REFUSED: 'aiResponseRefused',
+  SESSION_NOT_ACTIVE: 'sessionNotActive',
+  SESSION_TOKEN_LIMIT_REACHED: 'sessionTokenLimitReached',
+  SESSION_NOT_COMPLETED: 'sessionNotCompleted',
 } as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODE)[keyof typeof API_ERROR_CODE];
@@ -59,6 +64,11 @@ const NUMERIC_ERROR_CODES: Record<number, string> = {
   1013: API_ERROR_CODE.EMAIL_NOT_CONFIRMED,
   1014: API_ERROR_CODE.DAILY_LIMIT_REACHED,
   1015: API_ERROR_CODE.PREMIUM_REQUIRED,
+  1100: API_ERROR_CODE.AI_UNAVAILABLE,
+  1101: API_ERROR_CODE.AI_RESPONSE_REFUSED,
+  1102: API_ERROR_CODE.SESSION_NOT_ACTIVE,
+  1103: API_ERROR_CODE.SESSION_TOKEN_LIMIT_REACHED,
+  1104: API_ERROR_CODE.SESSION_NOT_COMPLETED,
 };
 
 // Uygulama içi standart hata tipi. Tüm interceptor/hook hataları buna dönüşür.

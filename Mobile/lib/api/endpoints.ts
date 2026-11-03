@@ -31,6 +31,15 @@ export const SESSION_ENDPOINTS = {
   START: '/api/Sessions',
   DETAIL: (id: string) => `/api/Sessions/${id}`,
   MY: '/api/Sessions/my',
+  // Kullanıcı mesajı → karakter cevabı (LLM). Yanıt güncellenmiş oturum.
+  MESSAGES: (id: string) => `/api/Sessions/${id}/messages`,
+  // Tamamlanmış pratiğin değerlendirmesi (LLM). İdempotent.
+  EVALUATE: (id: string) => `/api/Sessions/${id}/evaluate`,
+} as const;
+
+// Kullanıcı istatistikleri (seri, haftalık aktivite, XP/seviye, rozetler).
+export const STATS_ENDPOINTS = {
+  ME: '/api/Stats/me',
 } as const;
 
 // 401 dönseler bile token refresh denenmemesi gereken endpoint'ler:

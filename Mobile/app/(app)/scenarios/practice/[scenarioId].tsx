@@ -1,16 +1,16 @@
 // Pratik (chat) sahnesi. Senaryonun karakteriyle text-based roleplay.
 //
-// Senaryo başlığı/karakteri API'den (useScenarioDetail) gelir; AI cevapları HÂLÂ
-// mock script'ten (getAIResponseScript) sırayla geliyor — gerçek LLM entegrasyonu
-// sonraki sprint. Script'ler senaryo id'siyle anahtarlı, backend'in uzun id'leriyle
-// eşleşmeleri şart (ör. is_001_cuma_mesaji).
+// Oturum detay ekranında açılır (POST /api/Sessions) ve sessionId param'ıyla gelir.
+// Mesajlar oturumdan okunur (useSession — start mutation cache'i doldurur); ilk
+// mesaj senaryonun sabit açılış mesajıdır. Her kullanıcı mesajı POST
+// /api/Sessions/{id}/messages ile gider, karakterin cevabı (LLM) güncellenmiş oturumla
+// döner. Son rauntta oturum "completed" olur ve Sonuç ekranına geçilir.
 //
-// Oturum detay ekranında açılır (POST /api/Sessions) ve sessionId param'ıyla gelir;
-// mesajlar henüz backend'e yazılmıyor, sessionId Sonuç ekranına taşınır.
+// Senaryo başlığı/karakteri/bağlam rengi useScenarioDetail'den gelir.
 
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { PaperPlaneTilt, User, X } from 'phosphor-react-native';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -27,6 +27,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Button,
   ErrorState,
+  FormError,
   IconButton,
   MessageBubble,
   Skeleton,
@@ -42,126 +43,105 @@ import {
   Spacing,
 } from '@/constants/theme';
 import { useScenarioDetail } from '@/hooks/queries/useScenarios';
-import { toScenarioErrorMessage } from '@/lib/api';
-import { contexts, getAIResponseScript } from '@/lib/mockData';
+import { useSendMessage, useSession } from '@/hooks/queries/useSessions';
+import {
+  toScenarioErrorMessage,
+  toSendMessageErrorMessage,
+  toSessionErrorMessage,
+} from '@/lib/api';
+import { contexts } from '@/lib/mockData';
 import { getInitials } from '@/lib/utils/initials';
+import type { ApiSessionMessage } from '@/types/api/session';
 
-// Zamanlama sabitleri — gerçekçi "yazıyor" hissi için.
-const OPENING_DELAY_MS = 500; // mount sonrası ilk typing'in başlama gecikmesi
-const AI_TYPING_DELAY_MS = 1500; // AI cevabı vermeden önce typing süresi
+// Yeni başlamış pratikte açılış mesajı, kısa bir "yazıyor" animasyonundan sonra görünür.
+const OPENING_TYPING_MS = 1200;
 const ENTER_ANIM_MS = 300; // yeni balon giriş animasyonu
+// Backend de doğrular; buradaki sınır kullanıcıyı erken durdurmak için.
+const MAX_MESSAGE_LENGTH = 500;
 
-interface Message {
-  id: string;
-  role: 'ai' | 'user';
-  content: string;
-  timestamp: number;
-}
-
-let messageCounter = 0;
-function nextMessageId(): string {
-  messageCounter += 1;
-  return `m_${messageCounter}`;
-}
+// Gönderilmekte olan mesajın geçici id'si (sunucu cevabı gelince gerçek liste gelir).
+const PENDING_MESSAGE_ID = 'pending-user-message';
 
 export default function PracticeScreen() {
   const { scenarioId, sessionId } = useLocalSearchParams<{
     scenarioId: string;
     sessionId?: string;
   }>();
-  const {
-    data: scenario,
-    isPending,
-    isError,
-    error,
-    refetch,
-    isFetching,
-  } = useScenarioDetail(scenarioId);
 
-  const script = getAIResponseScript(scenarioId);
+  const scenarioQuery = useScenarioDetail(scenarioId);
+  const sessionQuery = useSession(sessionId);
+  const sendMessage = useSendMessage(sessionId);
+
+  const scenario = scenarioQuery.data;
+  const session = sessionQuery.data;
+
   const context = scenario
     ? contexts.find((c) => c.id === scenario.contextId)
     : undefined;
-
   const contextColor = context?.color ?? Colors.primary;
   const contextSoftColor = context?.softColor ?? Colors.primarySoft;
-  const totalRounds = script?.responses.length ?? 0;
 
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [currentRound, setCurrentRound] = useState(0);
   const [inputText, setInputText] = useState('');
-  const [isAITyping, setIsAITyping] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [pendingText, setPendingText] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
+  // Hiç mesaj atılmamış oturumda açılış balonu animasyonla gelir; devam edilen oturumda hemen.
+  const [openingRevealed, setOpeningRevealed] = useState(false);
 
-  const listRef = useRef<FlatList<Message>>(null);
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const listRef = useRef<FlatList<ApiSessionMessage>>(null);
 
-  const schedule = useCallback((fn: () => void, ms: number) => {
-    const id = setTimeout(fn, ms);
-    timersRef.current.push(id);
-  }, []);
+  const isFreshSession = !!session && session.currentRound === 0;
+  useEffect(() => {
+    if (!session || openingRevealed) return;
+    if (!isFreshSession) {
+      setOpeningRevealed(true);
+      return;
+    }
+    const timer = setTimeout(() => setOpeningRevealed(true), OPENING_TYPING_MS);
+    return () => clearTimeout(timer);
+  }, [session, isFreshSession, openingRevealed]);
 
-  const clearTimers = useCallback(() => {
-    timersRef.current.forEach(clearTimeout);
-    timersRef.current = [];
-  }, []);
+  const messages = useMemo<ApiSessionMessage[]>(() => {
+    if (!session || !openingRevealed) return [];
+    if (pendingText === null) return session.messages;
+    return [
+      ...session.messages,
+      {
+        id: PENDING_MESSAGE_ID,
+        role: 'user',
+        content: pendingText,
+        timestamp: new Date().toISOString(),
+      },
+    ];
+  }, [session, openingRevealed, pendingText]);
 
-  const addMessage = useCallback((role: 'ai' | 'user', content: string) => {
-    setMessages((prev) => [
-      ...prev,
-      { id: nextMessageId(), role, content, timestamp: Date.now() },
-    ]);
-  }, []);
-
-  // Ekran her odaklandığında state'i sıfırla ve açılış mesajını planla.
-  // (Tamamlanmış pratiğe geri dönülürse temiz başlasın.)
-  useFocusEffect(
-    useCallback(() => {
-      if (!script) return;
-
-      setMessages([]);
-      setCurrentRound(0);
-      setInputText('');
-      setIsCompleted(false);
-      setIsAITyping(true);
-
-      schedule(() => {
-        addMessage('ai', script.openingMessage);
-        setIsAITyping(false);
-      }, OPENING_DELAY_MS + AI_TYPING_DELAY_MS);
-
-      return () => {
-        clearTimers();
-        setIsAITyping(false);
-      };
-      // script referansı senaryoya göre sabit; scenarioId değişimini yakalamak yeterli.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [scenarioId]),
-  );
+  const isAITyping = sendMessage.isPending || (!!session && !openingRevealed);
+  const isCompleted = session?.status === 'completed';
 
   const handleSend = useCallback(() => {
     const text = inputText.trim();
     // Boşken, AI yazarken veya pratik bittiğinde gönderme.
-    if (!text || isAITyping || isCompleted || !script) return;
+    if (!text || isAITyping || isCompleted || !sessionId) return;
 
-    addMessage('user', text);
+    setSendError(null);
+    setPendingText(text);
     setInputText('');
-    setIsAITyping(true);
 
-    const roundAtSend = currentRound;
-    schedule(() => {
-      if (roundAtSend < script.responses.length) {
-        addMessage('ai', script.responses[roundAtSend]);
-        setCurrentRound(roundAtSend + 1);
-      } else {
-        addMessage('ai', script.closingMessage);
-        setIsCompleted(true);
-      }
-      setIsAITyping(false);
-    }, AI_TYPING_DELAY_MS);
-  }, [inputText, isAITyping, isCompleted, script, currentRound, addMessage, schedule]);
+    sendMessage.mutate(text, {
+      onSuccess: () => setPendingText(null),
+      onError: (error) => {
+        // Raunt ilerlemedi: mesajı geri ver, kullanıcı düzeltip tekrar gönderebilsin.
+        setPendingText(null);
+        setInputText(text);
+        setSendError(toSendMessageErrorMessage(error));
+      },
+    });
+  }, [inputText, isAITyping, isCompleted, sessionId, sendMessage]);
 
   const confirmExit = useCallback(() => {
+    if (isCompleted) {
+      router.back();
+      return;
+    }
     Alert.alert(
       'Pratiği bırak',
       'Pratiği bırakmak istediğine emin misin? İlerlemen kaybolacak.',
@@ -174,7 +154,7 @@ export default function PracticeScreen() {
         },
       ],
     );
-  }, []);
+  }, [isCompleted]);
 
   const goToResult = useCallback(() => {
     router.replace({
@@ -183,7 +163,27 @@ export default function PracticeScreen() {
     });
   }, [scenarioId, sessionId]);
 
-  if (isPending) {
+  // sessionId olmadan bu ekrana gelinmemeli (pratik her zaman oturumla başlar).
+  if (!sessionId) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <View style={styles.fallback}>
+          <View style={[styles.fallbackIcon, { backgroundColor: contextSoftColor }]}>
+            <User size={48} color={contextColor} weight="fill" />
+          </View>
+          <Text style={styles.fallbackTitle}>Pratik başlatılamadı</Text>
+          <Text style={styles.fallbackText}>
+            Senaryo sayfasına dönüp pratiği yeniden başlat.
+          </Text>
+          <Button variant="primary" onPress={() => router.back()}>
+            Geri dön
+          </Button>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (scenarioQuery.isPending || sessionQuery.isPending) {
     return (
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <View style={[styles.header, { backgroundColor: contextSoftColor }]}>
@@ -203,44 +203,31 @@ export default function PracticeScreen() {
     );
   }
 
-  if (isError) {
+  if (scenarioQuery.isError || sessionQuery.isError || !scenario || !session) {
+    const message = scenarioQuery.isError
+      ? toScenarioErrorMessage(scenarioQuery.error)
+      : toSessionErrorMessage(sessionQuery.error);
     return (
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <View style={styles.flex}>
           <ErrorState
-            message={toScenarioErrorMessage(error)}
-            onRetry={() => refetch()}
-            isRetrying={isFetching}
+            message={message}
+            onRetry={() => {
+              scenarioQuery.refetch();
+              sessionQuery.refetch();
+            }}
+            isRetrying={scenarioQuery.isFetching || sessionQuery.isFetching}
           />
         </View>
       </SafeAreaView>
     );
   }
 
-  // Fallback: senaryo/script yoksa pratik hazır değil.
-  if (!scenario || !script) {
-    return (
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <View style={styles.fallback}>
-          <View style={[styles.fallbackIcon, { backgroundColor: contextSoftColor }]}>
-            <User size={48} color={contextColor} weight="fill" />
-          </View>
-          <Text style={styles.fallbackTitle}>Pratik henüz hazır değil</Text>
-          <Text style={styles.fallbackText}>
-            Bu senaryo için pratik henüz hazırlanmadı.
-          </Text>
-          <Button variant="primary" onPress={() => router.back()}>
-            Geri dön
-          </Button>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  const displayRound = Math.min(currentRound + 1, totalRounds);
+  const totalRounds = session.maxRounds;
+  const displayRound = Math.min(session.currentRound + 1, totalRounds);
   const initials = getInitials(scenario.character.name);
 
-  const renderItem = ({ item, index }: { item: Message; index: number }) => {
+  const renderItem = ({ item, index }: { item: ApiSessionMessage; index: number }) => {
     const isAI = item.role === 'ai';
     const prev = index > 0 ? messages[index - 1] : undefined;
     // Avatar: ilk AI mesajında veya önceki mesaj AI değilse göster (gruplama).
@@ -342,30 +329,40 @@ export default function PracticeScreen() {
             </Button>
           </View>
         ) : (
-          <View style={styles.inputBar}>
-            <TextInput
-              style={styles.input}
-              value={inputText}
-              onChangeText={setInputText}
-              placeholder="Cevabını yaz..."
-              placeholderTextColor={Colors.textMuted}
-              multiline
-              editable={!isAITyping}
-              maxLength={500}
-            />
-            <Pressable
-              onPress={handleSend}
-              disabled={sendDisabled}
-              accessibilityRole="button"
-              accessibilityLabel="Gönder"
-              accessibilityState={{ disabled: sendDisabled }}
-              style={[
-                styles.sendButton,
-                sendDisabled ? styles.sendButtonDisabled : Shadow.primary,
-              ]}
-            >
-              <PaperPlaneTilt size={20} color={Colors.surface} weight="fill" />
-            </Pressable>
+          <View>
+            {sendError ? (
+              <View style={styles.errorBar}>
+                <FormError message={sendError} />
+              </View>
+            ) : null}
+            <View style={styles.inputBar}>
+              <TextInput
+                style={styles.input}
+                value={inputText}
+                onChangeText={(text) => {
+                  setInputText(text);
+                  if (sendError) setSendError(null);
+                }}
+                placeholder="Cevabını yaz..."
+                placeholderTextColor={Colors.textMuted}
+                multiline
+                editable={!isAITyping}
+                maxLength={MAX_MESSAGE_LENGTH}
+              />
+              <Pressable
+                onPress={handleSend}
+                disabled={sendDisabled}
+                accessibilityRole="button"
+                accessibilityLabel="Gönder"
+                accessibilityState={{ disabled: sendDisabled }}
+                style={[
+                  styles.sendButton,
+                  sendDisabled ? styles.sendButtonDisabled : Shadow.primary,
+                ]}
+              >
+                <PaperPlaneTilt size={20} color={Colors.surface} weight="fill" />
+              </Pressable>
+            </View>
           </View>
         )}
       </KeyboardAvoidingView>
@@ -455,6 +452,15 @@ const styles = StyleSheet.create({
   messageWrapper: {
     // gap (listContent) balonlar arası boşluğu yönetir; wrapper tam genişlik.
     width: '100%',
+  },
+
+  // Gönderim hatası (raunt ilerlemedi)
+  errorBar: {
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.sm,
+    backgroundColor: Colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
   },
 
   // Input bar

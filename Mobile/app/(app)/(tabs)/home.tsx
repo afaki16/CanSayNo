@@ -1,7 +1,6 @@
 // Anasayfa: oyunlaştırma ekranı. Seri (haftalık gün çizelgesiyle), bugünkü görev,
-// istatistikler, XP ilerlemesi ve son pratikler. Son pratikler gerçek veriden
-// (GET /api/Sessions/my); seri/XP/istatistikler hâlâ mock userStats — UserStats
-// endpoint'i gelince bağlanacak.
+// istatistikler, XP ilerlemesi ve son pratikler. Seri/haftalık aktivite/XP
+// GET /api/Stats/me'den, son pratikler GET /api/Sessions/my'den.
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -28,10 +27,11 @@ import {
   Spacing,
 } from '@/constants/theme';
 import { useMySessions } from '@/hooks/queries/useSessions';
+import { EMPTY_STATS, useMyStats } from '@/hooks/queries/useStats';
 import { useAuth } from '@/hooks/useAuth';
 import { toSessionErrorMessage } from '@/lib/api';
 import { getContextIcon } from '@/lib/icons';
-import { contexts, mockUserStats } from '@/lib/mockData';
+import { contexts } from '@/lib/mockData';
 import { formatRelativeTime } from '@/lib/utils/datetime';
 
 const WEEK_DAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
@@ -48,26 +48,35 @@ function scoreColors(score: number) {
 
 type DayState = 'done' | 'today' | 'future' | 'missed';
 
-// Seri sayısından bu haftanın gün durumlarını türetir: bugünden geriye
-// `streak` gün tamamlanmış sayılır. Bugün pratik yapıldıysa bugün de dahil.
-function buildWeek(streak: number, practicedToday: boolean): DayState[] {
-  const todayIndex = (new Date().getDay() + 6) % 7; // Pazartesi = 0
-  const doneBeforeToday = practicedToday ? streak - 1 : streak;
+// Backend'in haftalık aktivitesinden (Pzt..Paz, o gün değerlendirilmiş pratik var mı)
+// gün durumlarını türetir. Hafta ve "bugün" backend'de TR saatine göre hesaplanır
+// (cihaz saat dilimi farklı olabilir).
+function buildWeek(weekActivity: boolean[], todayIndex: number): DayState[] {
   return WEEK_DAYS.map((_, i) => {
+    const practiced = weekActivity[i] ?? false;
     if (i > todayIndex) return 'future';
-    if (i === todayIndex) return practicedToday ? 'done' : 'today';
-    return todayIndex - i <= doneBeforeToday ? 'done' : 'missed';
+    if (i === todayIndex) return practiced ? 'done' : 'today';
+    return practiced ? 'done' : 'missed';
   });
 }
 
 export default function HomeScreen() {
   const { user } = useAuth();
-  const stats = mockUserStats;
+  // Yüklenirken/hata durumunda sıfırlarla çizilir; kartlar kaybolmaz.
+  const { data } = useMyStats();
+  const stats = data ?? EMPTY_STATS;
 
   const firstName = user?.firstName ?? 'dostum';
-  const xpRatio = Math.min(stats.xp / stats.xpToNextLevel, 1);
-  const xpRemaining = Math.max(stats.xpToNextLevel - stats.xp, 0);
-  const week = buildWeek(stats.currentStreak, stats.todaySessionsCount > 0);
+  const xpRatio = Math.min(stats.xpInLevel / stats.xpPerLevel, 1);
+  const xpRemaining = Math.max(stats.xpPerLevel - stats.xpInLevel, 0);
+  const week = buildWeek(stats.weekActivity, stats.todayIndex);
+  const streakTitle =
+    stats.currentStreak > 0 ? `${stats.currentStreak} günlük seri 🔥` : 'Serini başlat 🔥';
+  const streakSub = stats.practicedToday
+    ? 'Bugünü tamamladın, harika!'
+    : stats.currentStreak > 0
+      ? 'Bugün de pratik yap, kaybetme!'
+      : 'İlk pratiğini yap, serin başlasın.';
 
   const goScenarios = () => router.push('/(app)/(tabs)/scenarios');
   const goProfile = () => router.push('/(app)/(tabs)/profile');
@@ -114,12 +123,8 @@ export default function HomeScreen() {
                 <Fire size={30} color="#FFFFFF" weight="fill" />
               </View>
               <View style={styles.flex}>
-                <Text style={styles.streakTitle}>
-                  {stats.currentStreak} günlük seri 🔥
-                </Text>
-                <Text style={styles.streakSub}>
-                  Bugün de pratik yap, kaybetme!
-                </Text>
+                <Text style={styles.streakTitle}>{streakTitle}</Text>
+                <Text style={styles.streakSub}>{streakSub}</Text>
               </View>
             </View>
             <View style={styles.weekRow}>
@@ -165,7 +170,7 @@ export default function HomeScreen() {
         <View style={styles.statsGrid}>
           <StatCard
             icon={<Trophy size={24} color={Colors.primary} weight="fill" />}
-            value={`${stats.totalSessions}`}
+            value={`${stats.totalCompletedSessions}`}
             label="Toplam Pratik"
           />
           <StatCard
@@ -190,7 +195,7 @@ export default function HomeScreen() {
           <View style={styles.xpHeader}>
             <Text style={styles.xpLevel}>Seviye {stats.level}</Text>
             <Text style={styles.xpValue}>
-              {stats.xp} / {stats.xpToNextLevel} XP
+              {stats.xpInLevel} / {stats.xpPerLevel} XP
             </Text>
           </View>
           <View style={styles.xpTrack}>

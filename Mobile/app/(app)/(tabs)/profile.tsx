@@ -1,6 +1,6 @@
 // Profil tab — kimlik + seviye rozeti, istatistik üçlüsü, rozetler, premium
-// banner'ı ve çıkış. Ortalama skor gerçek oturumlardan (GET /api/Sessions/my);
-// seri/pratik sayısı/rozetler hâlâ mock userStats — UserStats endpoint'i gelince bağlanacak.
+// banner'ı ve çıkış. Seri/pratik sayısı/seviye/rozetler GET /api/Stats/me'den,
+// ortalama skor son oturumlardan (GET /api/Sessions/my).
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -28,11 +28,12 @@ import {
   Spacing,
 } from '@/constants/theme';
 import { useMySessions } from '@/hooks/queries/useSessions';
+import { EMPTY_STATS, useMyStats } from '@/hooks/queries/useStats';
 import { useAuth } from '@/hooks/useAuth';
-import { mockUserStats } from '@/lib/mockData';
 import { getInitials } from '@/lib/utils/initials';
+import type { ApiBadge } from '@/types/api/stats';
 
-// Seviye unvanları — XP sistemi backend'e taşınınca oradan gelecek.
+// Seviye unvanları (UI metadata; seviye backend'den gelir, 500 XP'de bir artar).
 const LEVEL_TITLES: Record<number, string> = {
   1: 'Başlangıç',
   2: 'Kararlı',
@@ -43,24 +44,26 @@ const LEVEL_TITLES: Record<number, string> = {
 const AVERAGE_SAMPLE_SIZE = 50;
 
 interface BadgeDef {
-  id: string;
+  id: ApiBadge;
   label: string;
   icon: Icon;
   color: string;
   softColor: string;
 }
 
-// Rozet kataloğu; kazanılanlar userStats.badges'teki id'lerle eşleşir.
+// Profilde gösterilen rozetler; id'ler backend'in Badge enum'unun camelCase hali.
+// "Usta" = 50 pratik tamamlama (persistent).
 const BADGES: BadgeDef[] = [
-  { id: 'first_no', label: 'İlk Hayır', icon: HandPalm, color: Colors.primary, softColor: Colors.primarySoft },
-  { id: 'three_day_streak', label: '3 Gün Seri', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
-  { id: 'seven_day_streak', label: '7 Gün Seri', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
-  { id: 'master', label: 'Usta', icon: Medal, color: Colors.amber, softColor: Colors.amberSoft },
+  { id: 'firstNo', label: 'İlk Hayır', icon: HandPalm, color: Colors.primary, softColor: Colors.primarySoft },
+  { id: 'threeDayStreak', label: '3 Gün Seri', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
+  { id: 'sevenDayStreak', label: '7 Gün Seri', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
+  { id: 'persistent', label: 'Usta', icon: Medal, color: Colors.amber, softColor: Colors.amberSoft },
 ];
 
 export default function ProfileScreen() {
   const { user, logout, isLoggingOut } = useAuth();
-  const stats = mockUserStats;
+  const { data } = useMyStats();
+  const stats = data ?? EMPTY_STATS;
 
   // logout() bilerek throw etmiyor: backend'e ulaşılamasa veya token süresi
   // dolmuş olsa bile local oturum kapanır ve kullanıcı Welcome'a döner.
@@ -112,7 +115,7 @@ export default function ProfileScreen() {
         {/* İstatistik üçlüsü */}
         <View style={styles.statsRow}>
           <StatBox value={stats.currentStreak} label="Güncel seri" color={Colors.secondary} />
-          <StatBox value={stats.totalSessions} label="Pratik" color={Colors.primary} />
+          <StatBox value={stats.totalCompletedSessions} label="Pratik" color={Colors.primary} />
           <StatBox value={averageScore} label="Ort. skor" color={Colors.success} />
         </View>
 
@@ -120,7 +123,7 @@ export default function ProfileScreen() {
         <Text style={styles.sectionTitle}>Rozetlerin</Text>
         <View style={styles.badgeRow}>
           {BADGES.map((badge) => {
-            const earned = stats.badges.includes(badge.id);
+            const earned = stats.unlockedBadges.includes(badge.id);
             const BadgeIcon = earned ? badge.icon : LockSimple;
             return (
               <View key={badge.id} style={styles.badge}>
