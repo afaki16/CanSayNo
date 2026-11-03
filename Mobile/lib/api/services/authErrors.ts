@@ -47,6 +47,45 @@ export function toLoginErrorMessage(error: unknown): string {
   return GENERIC;
 }
 
+// Kod isteme ucu kayıtlı/kayıtsız ayrımı yapmadan 200 döner; burada sadece
+// ağ, rate limit ve beklenmeyen hatalar kalır.
+export function toForgotPasswordErrorMessage(error: unknown): string {
+  if (!isApiError(error)) {
+    return GENERIC;
+  }
+  if (error.isNetworkError) {
+    return NETWORK;
+  }
+  if (error.status === 429) {
+    return 'Çok fazla deneme yaptın, biraz bekleyip tekrar dene';
+  }
+  if (error.status === 400 && error.errors.length > 0) {
+    return error.errors.join('\n');
+  }
+  return GENERIC;
+}
+
+// 400'ler kullanıcıya yönelik, backend'de Türkçe yerelleştirilmiş: kod
+// hatalı/süresi dolmuş, çok fazla deneme (yeni kod iste), şifre kuralları.
+export function toResetPasswordErrorMessage(error: unknown): string {
+  if (!isApiError(error)) {
+    return GENERIC;
+  }
+  if (error.isNetworkError) {
+    return NETWORK;
+  }
+  if (error.status === 429) {
+    return 'Çok fazla deneme yaptın, biraz bekleyip tekrar dene';
+  }
+  if (error.status === 400 && error.errors.length > 0) {
+    return error.errors.join('\n');
+  }
+  if (error.code && USER_FACING_CODES.includes(error.code)) {
+    return error.message;
+  }
+  return GENERIC;
+}
+
 export function toRegisterErrorMessage(error: unknown): string {
   if (!isApiError(error)) {
     return GENERIC;

@@ -36,8 +36,10 @@ export {
   type StartSessionErrorKind,
 } from './services/sessionErrors';
 export {
+  toForgotPasswordErrorMessage,
   toLoginErrorMessage,
   toRegisterErrorMessage,
+  toResetPasswordErrorMessage,
 } from './services/authErrors';
 export {
   toScenarioErrorMessage,

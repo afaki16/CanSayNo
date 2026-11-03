@@ -81,6 +81,20 @@ export interface LogoutRequest {
   reason: string;
 }
 
+// Kodla şifre sıfırlama. tenantId: mobil kullanıcılar tenant'sız; backend
+// e-posta tek hesaba aitse tenantId'ye bakmıyor, 0 "belirtilmedi" demek.
+export interface ForgotPasswordCodeRequest {
+  email: string;
+  tenantId: number;
+}
+
+export interface ResetPasswordCodeRequest {
+  email: string;
+  tenantId: number;
+  code: string;
+  newPassword: string;
+}
+
 // /api/Auth/register 201 ile oluşturulan kullanıcıyı döner (token YOK —
 // e-posta doğrulanana kadar login reddedilir).
 export type RegisterResponse = ApiUser;

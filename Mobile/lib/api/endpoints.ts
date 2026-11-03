@@ -11,6 +11,10 @@ export const AUTH_ENDPOINTS = {
   REFRESH_TOKEN: '/api/Auth/refresh-token',
   LOGOUT: '/api/Auth/logout',
   ME: '/api/Auth/me',
+  // Şifremi unuttum (kodla): e-postaya 6 haneli kod gider, kod + yeni şifre
+  // ile sıfırlanır. İkisi de anonim.
+  FORGOT_PASSWORD_CODE: '/api/Auth/forgot-password/code',
+  RESET_PASSWORD_CODE: '/api/Auth/reset-password/code',
 } as const;
 
 
@@ -35,6 +39,8 @@ export const SESSION_ENDPOINTS = {
 export const NO_REFRESH_ENDPOINTS: readonly string[] = [
   AUTH_ENDPOINTS.LOGIN,
   AUTH_ENDPOINTS.REGISTER,
+  AUTH_ENDPOINTS.FORGOT_PASSWORD_CODE,
+  AUTH_ENDPOINTS.RESET_PASSWORD_CODE,
 ];
 
 // Bir istek URL'inin verilen endpoint'e ait olup olmadığını case-insensitive

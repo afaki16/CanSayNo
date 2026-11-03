@@ -47,6 +47,7 @@ export default function LoginScreen() {
   const {
     control,
     handleSubmit,
+    getValues,
     formState: { isValid },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -128,6 +129,20 @@ export default function LoginScreen() {
                 </Pressable>
               }
             />
+
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: '/(auth)/forgot-password',
+                  params: { email: getValues('email').trim() },
+                })
+              }
+              hitSlop={8}
+              style={styles.forgotLink}
+              accessibilityRole="link"
+            >
+              <Text style={styles.forgotLinkText}>Şifremi unuttum</Text>
+            </Pressable>
           </View>
 
           {/* Aksiyon */}
@@ -197,6 +212,14 @@ const styles = StyleSheet.create({
   form: {
     gap: 18,
     marginBottom: Spacing.lg,
+  },
+  forgotLink: {
+    alignSelf: 'flex-end',
+  },
+  forgotLinkText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.semibold,
+    color: Colors.primary,
   },
   bottomLink: {
     marginTop: Spacing.lg,
