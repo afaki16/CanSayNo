@@ -25,6 +25,8 @@ namespace CanSayNo.Infrastructure.Services
 {
     public class JwtService : IAuthService
     {
+        private static readonly TimeSpan ReuseDetectionGracePeriod = TimeSpan.FromSeconds(30);
+
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordService _passwordService;
@@ -388,9 +390,13 @@ namespace CanSayNo.Infrastructure.Services
                 }
             }
 
-            // Reuse detection: a revoked token being presented indicates the previous holder
-            // already rotated past it — the real owner is likely an attacker. Revoke everything.
-            if (storedRefreshToken.IsRevoked)
+            // Reuse detection: a token that was rotated away more than the grace period ago being
+            // presented again indicates the previous holder already moved past it — the real owner
+            // is likely an attacker. Revoke everything.
+            if (storedRefreshToken.IsRevoked &&
+                storedRefreshToken.Reason == RefreshTokenReasons.Rotated &&
+                storedRefreshToken.RevokedDate.HasValue &&
+                DateTime.UtcNow - storedRefreshToken.RevokedDate.Value > ReuseDetectionGracePeriod)
             {
                 _logger.LogWarning(
                     "Refresh token reuse detected for user {UserId}. All sessions revoked. Source IP: {IpAddress}, UserAgent: {UserAgent}",
@@ -412,6 +418,19 @@ namespace CanSayNo.Infrastructure.Services
                     _localizer["auth.invalidRefreshToken"]));
             }
 
+            // Revoked for another reason (logout, session revoke, new login on device...) or rotated
+            // within the grace period: reject without touching other sessions.
+            if (storedRefreshToken.IsRevoked)
+            {
+                _logger.LogInformation(
+                    "Revoked refresh token presented. UserId: {UserId}, Reason: {Reason}, RevokedDate: {RevokedDate}, IP: {IpAddress}",
+                    storedRefreshToken.UserId, storedRefreshToken.Reason, storedRefreshToken.RevokedDate, ipAddress);
+
+                return Result<LoginResponseDto>.Failure(Error.Failure(
+                    ErrorCode.InvalidRequest,
+                    _localizer["auth.invalidRefreshToken"]));
+            }
+
             if (storedRefreshToken.IsExpired)
                 return Result<LoginResponseDto>.Failure(Error.Failure(
                     ErrorCode.InvalidRequest,
@@ -423,7 +442,15 @@ namespace CanSayNo.Infrastructure.Services
                     ErrorCode.NotFound,
                     _localizer["auth.userNotFound"]));
 
-            storedRefreshToken.Revoke(ipAddress, userAgent, "Token rotated");
+            // Inactive user or inactive/deleted tenant: refuse without revoking, so the session
+            // can continue if the account or tenant is re-activated.
+            if (user.Status != UserStatus.Active ||
+                (user.TenantId != null && (user.Tenant == null || !user.Tenant.IsActive)))
+                return Result<LoginResponseDto>.Failure(Error.Failure(
+                    ErrorCode.InvalidRequest,
+                    _localizer["auth.invalidRefreshToken"]));
+
+            storedRefreshToken.Revoke(ipAddress, userAgent, RefreshTokenReasons.Rotated);
             _unitOfWork.RefreshTokens.Update(storedRefreshToken);
             await _unitOfWork.SaveChangesAsync();
 

@@ -68,5 +68,24 @@ namespace CanSayNo.Infrastructure.Repositories
                 failure.ClearedAt = now;
             }
         }
+
+        public async Task ClearFailuresForEmailAsync(
+            string email,
+            DateTime since,
+            CancellationToken cancellationToken = default)
+        {
+            var failures = await _context.Set<LoginAttempt>()
+                .Where(la => la.Email == email
+                          && la.Success == false
+                          && la.AttemptedAt >= since
+                          && la.ClearedAt == null)
+                .ToListAsync(cancellationToken);
+
+            var now = DateTime.UtcNow;
+            foreach (var failure in failures)
+            {
+                failure.ClearedAt = now;
+            }
+        }
     }
 }

@@ -25,6 +25,14 @@ namespace CanSayNo.Application.Interfaces
             CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Clears recent failed attempts for an email across all IPs (e.g. after a password reset,
+        /// which proves mailbox ownership).
+        /// </summary>
+        Task ClearFailuresForEmailAsync(
+            string email,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Returns true if reaching this failure count crosses a lockout tier threshold.
         /// Used to decide whether to notify the user about the lockout escalation.
         /// </summary>

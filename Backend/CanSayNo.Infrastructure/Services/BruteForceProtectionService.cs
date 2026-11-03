@@ -141,6 +141,18 @@ namespace CanSayNo.Infrastructure.Services
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task ClearFailuresForEmailAsync(
+            string email,
+            CancellationToken cancellationToken = default)
+        {
+            var since = DateTime.UtcNow - FailureWindow;
+
+            await _unitOfWork.LoginAttempts
+                .ClearFailuresForEmailAsync(email, since, cancellationToken);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
         private static int GetLockoutMinutesForFailures(int failureCount)
         {
             var matchingTier = Tiers

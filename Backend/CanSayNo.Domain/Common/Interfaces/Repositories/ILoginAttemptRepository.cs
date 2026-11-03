@@ -24,5 +24,10 @@ namespace CanSayNo.Domain.Common.Interfaces.Repositories
             string ipAddress,
             DateTime since,
             CancellationToken cancellationToken = default);
+
+        Task ClearFailuresForEmailAsync(
+            string email,
+            DateTime since,
+            CancellationToken cancellationToken = default);
     }
 }

@@ -16,17 +16,20 @@ namespace CanSayNo.Application.Features.Auth.Commands.ResetPassword
         private readonly IPasswordService _passwordService;
         private readonly ILogger<ResetPasswordCommandHandler> _logger;
         private readonly IJsonStringLocalizer _localizer;
+        private readonly IBruteForceProtectionService _bruteForceService;
 
         public ResetPasswordCommandHandler(
             IUnitOfWork unitOfWork,
             IPasswordService passwordService,
             ILogger<ResetPasswordCommandHandler> logger,
-            IJsonStringLocalizer localizer)
+            IJsonStringLocalizer localizer,
+            IBruteForceProtectionService bruteForceService)
         {
             _unitOfWork = unitOfWork;
             _passwordService = passwordService;
             _logger = logger;
             _localizer = localizer;
+            _bruteForceService = bruteForceService;
         }
 
         public async Task<Result> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
@@ -62,6 +65,9 @@ namespace CanSayNo.Application.Features.Auth.Commands.ResetPassword
                 resetToken.User.Id, reason: "Password reset");
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            // The account owner proved control of the email; lift any lockout from every IP.
+            await _bruteForceService.ClearFailuresForEmailAsync(normalizedEmail!, cancellationToken);
 
             _logger.LogInformation(
                 "Password reset completed. UserId: {UserId}, Email: {Email}",
