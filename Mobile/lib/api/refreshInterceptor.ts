@@ -4,7 +4,7 @@
 // Bu dosya yan etki (side effect) olarak çalışır: import edildiğinde
 // apiClient'a response interceptor'ı kayıt eder. Barrel (./index) import eder.
 
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import type {
   AxiosError,
   AxiosResponse,
@@ -133,7 +133,7 @@ apiClient.interceptors.response.use(
 
         // Sunucuya hiç ulaşılamadıysa (çevrimdışı açılış, timeout) refresh token
         // geçersiz değildir — oturumu silme, bağlantı gelince tekrar denenir.
-        if (axios.isAxiosError(refreshError) && !refreshError.response) {
+        if (isAxiosError(refreshError) && !refreshError.response) {
           return Promise.reject(
             new ApiError('Bağlantı kurulamadı', 0, [], undefined, refreshError),
           );
