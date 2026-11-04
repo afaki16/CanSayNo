@@ -109,6 +109,7 @@
     "aiUnavailable": "The character can't reply right now. Try again in a few seconds.",
     "aiRefused": "The character couldn't reply to this message. Try phrasing it differently.",
     "notCompleted": "Finish the practice before requesting its evaluation.",
+    "busy": "Your previous message is still being answered. Wait for the reply.",
     "evaluationUnavailable": "The evaluation couldn't be prepared right now. Try again in a few seconds."
   }
 }

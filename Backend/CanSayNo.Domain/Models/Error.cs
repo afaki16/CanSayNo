@@ -48,7 +48,8 @@ public class Error
             ErrorCode.AiUnavailable => 503,
             ErrorCode.AiResponseRefused => 422,
             ErrorCode.SessionNotActive
-            or ErrorCode.SessionNotCompleted => 409,
+            or ErrorCode.SessionNotCompleted
+            or ErrorCode.SessionBusy => 409,
             ErrorCode.Unauthorized  => 401,
             ErrorCode.AlreadyExists => 409,
             ErrorCode.InternalError

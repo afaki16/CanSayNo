@@ -26,4 +26,5 @@ public enum ErrorCode
     SessionNotActive = 1102,    // Oturum tamamlanmış/terk edilmiş, mesaj alınmaz (409)
     SessionTokenLimitReached = 1103, // Oturum token tavanına ulaştı (429)
     SessionNotCompleted = 1104, // Değerlendirme için oturum henüz tamamlanmadı (409)
+    SessionBusy = 1105,         // Aynı oturumda başka bir istek işleniyor (409); raunt ilerlemez
 }

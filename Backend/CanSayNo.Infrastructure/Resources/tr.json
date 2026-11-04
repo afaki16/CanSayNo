@@ -109,6 +109,7 @@
     "aiUnavailable": "Karakter şu an cevap veremiyor. Birkaç saniye sonra tekrar dene.",
     "aiRefused": "Karakter bu mesaja cevap veremedi. Mesajını farklı bir şekilde yazmayı dene.",
     "notCompleted": "Değerlendirme için önce pratiği tamamlaman gerekiyor.",
+    "busy": "Önceki mesajın hâlâ cevaplanıyor. Cevabı bekle.",
     "evaluationUnavailable": "Değerlendirme şu an hazırlanamadı. Birkaç saniye sonra tekrar dene."
   }
 }

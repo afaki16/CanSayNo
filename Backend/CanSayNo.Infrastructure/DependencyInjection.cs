@@ -9,6 +9,7 @@ using CanSayNo.Infrastructure.Identity;
 using CanSayNo.Infrastructure.Repositories;
 using CanSayNo.Infrastructure.Services;
 using CanSayNo.Infrastructure.Services.Ai;
+using CanSayNo.Infrastructure.Services.Hayirci;
 using CanSayNo.Infrastructure.Configuration;
 using CanSayNo.Infrastructure.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,6 +52,9 @@ namespace CanSayNo.Infrastructure
         services.AddSingleton<AnthropicClientProvider>();
         services.AddSingleton<ICharacterChatService, AnthropicCharacterChatService>();
         services.AddSingleton<ISessionEvaluator, AnthropicSessionEvaluator>();
+
+        // Aynı oturuma eşzamanlı mesaj/değerlendirme isteklerini sıraya sokar (tek örnek).
+        services.AddSingleton<ISessionLock, InMemorySessionLock>();
 
         // Add Memory Cache
         services.AddMemoryCache();

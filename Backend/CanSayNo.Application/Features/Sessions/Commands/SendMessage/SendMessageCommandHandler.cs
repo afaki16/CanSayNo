@@ -26,6 +26,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
     private readonly IJsonStringLocalizer _localizer;
     private readonly HayirciSettings _settings;
     private readonly ICharacterChatService _characterChat;
+    private readonly ISessionLock _sessionLock;
     private readonly ILogger<SendMessageCommandHandler> _logger;
 
     public SendMessageCommandHandler(
@@ -35,6 +36,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
         IJsonStringLocalizer localizer,
         HayirciSettings settings,
         ICharacterChatService characterChat,
+        ISessionLock sessionLock,
         ILogger<SendMessageCommandHandler> logger)
     {
         _unitOfWork = unitOfWork;
@@ -43,6 +45,7 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
         _localizer = localizer;
         _settings = settings;
         _characterChat = characterChat;
+        _sessionLock = sessionLock;
         _logger = logger;
     }
 
@@ -50,6 +53,12 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
     {
         if (_currentUserService.UserId is not int userId)
             return Fail(ErrorCode.Unauthorized, "auth.userNotAuthenticated");
+
+        // Oturum yüklenmeden ÖNCE kilitlenir: aynı rauntta ikinci istek beklemez, LLM'e de gitmez.
+        // (Bekleseydi bir sonraki raunda kayardı; kullanıcı aynı mesajı iki kez göndermiş olurdu.)
+        using var sessionLock = await _sessionLock.TryAcquireAsync(request.SessionId, TimeSpan.Zero, cancellationToken);
+        if (sessionLock is null)
+            return Fail(ErrorCode.SessionBusy, "sessions.busy");
 
         var session = await _unitOfWork.Sessions.GetUserSessionAsync(
             request.SessionId, userId, asNoTracking: false, cancellationToken);

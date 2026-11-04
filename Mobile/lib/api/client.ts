@@ -52,6 +52,7 @@ export const API_ERROR_CODE = {
   SESSION_NOT_ACTIVE: 'sessionNotActive',
   SESSION_TOKEN_LIMIT_REACHED: 'sessionTokenLimitReached',
   SESSION_NOT_COMPLETED: 'sessionNotCompleted',
+  SESSION_BUSY: 'sessionBusy',
 } as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODE)[keyof typeof API_ERROR_CODE];
@@ -69,6 +70,7 @@ const NUMERIC_ERROR_CODES: Record<number, string> = {
   1102: API_ERROR_CODE.SESSION_NOT_ACTIVE,
   1103: API_ERROR_CODE.SESSION_TOKEN_LIMIT_REACHED,
   1104: API_ERROR_CODE.SESSION_NOT_COMPLETED,
+  1105: API_ERROR_CODE.SESSION_BUSY,
 };
 
 // Uygulama içi standart hata tipi. Tüm interceptor/hook hataları buna dönüşür.

@@ -27,6 +27,7 @@ public class EvaluateSessionCommandHandler : IRequestHandler<EvaluateSessionComm
     private readonly IJsonStringLocalizer _localizer;
     private readonly HayirciSettings _settings;
     private readonly ISessionEvaluator _evaluator;
+    private readonly ISessionLock _sessionLock;
     private readonly ILogger<EvaluateSessionCommandHandler> _logger;
 
     public EvaluateSessionCommandHandler(
@@ -36,6 +37,7 @@ public class EvaluateSessionCommandHandler : IRequestHandler<EvaluateSessionComm
         IJsonStringLocalizer localizer,
         HayirciSettings settings,
         ISessionEvaluator evaluator,
+        ISessionLock sessionLock,
         ILogger<EvaluateSessionCommandHandler> logger)
     {
         _unitOfWork = unitOfWork;
@@ -44,13 +46,24 @@ public class EvaluateSessionCommandHandler : IRequestHandler<EvaluateSessionComm
         _localizer = localizer;
         _settings = settings;
         _evaluator = evaluator;
+        _sessionLock = sessionLock;
         _logger = logger;
     }
+
+    private static readonly TimeSpan EvaluationLockWait = TimeSpan.FromSeconds(85);
 
     public async Task<Result<SessionDto>> Handle(EvaluateSessionCommand request, CancellationToken cancellationToken)
     {
         if (_currentUserService.UserId is not int userId)
             return Fail(ErrorCode.Unauthorized, "auth.userNotAuthenticated");
+
+        // Sonuç ekranı aynı anda iki kez isterse ikincisi birincinin bitmesini bekler, sonra
+        // kayıtlı değerlendirmeyi döner: LLM bir kez çağrılır, XP bir kez yazılır.
+        // Bekleme mobilin 90 sn'lik istek zaman aşımının altında tutulur.
+        using var sessionLock = await _sessionLock.TryAcquireAsync(
+            request.SessionId, EvaluationLockWait, cancellationToken);
+        if (sessionLock is null)
+            return Fail(ErrorCode.SessionBusy, "sessions.busy");
 
         var session = await _unitOfWork.Sessions.GetUserSessionAsync(
             request.SessionId, userId, asNoTracking: false, cancellationToken);

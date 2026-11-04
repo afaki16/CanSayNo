@@ -57,6 +57,7 @@ export function toSendMessageErrorMessage(error: unknown): string {
     API_ERROR_CODE.AI_RESPONSE_REFUSED,
     API_ERROR_CODE.SESSION_NOT_ACTIVE,
     API_ERROR_CODE.SESSION_TOKEN_LIMIT_REACHED,
+    API_ERROR_CODE.SESSION_BUSY,
   ];
   if (error.code && userFacing.includes(error.code)) {
     return error.message;
@@ -83,7 +84,8 @@ export function toEvaluateErrorMessage(error: unknown): string {
   }
   if (
     error.code === API_ERROR_CODE.AI_UNAVAILABLE ||
-    error.code === API_ERROR_CODE.SESSION_NOT_COMPLETED
+    error.code === API_ERROR_CODE.SESSION_NOT_COMPLETED ||
+    error.code === API_ERROR_CODE.SESSION_BUSY
   ) {
     return error.message;
   }
