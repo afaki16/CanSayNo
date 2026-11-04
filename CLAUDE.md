@@ -144,8 +144,12 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
 
 ## Diğer Bekleyenler
 
-- Premium gating (backend tarafında erişim kontrolü)
-- RevenueCat webhook handler (`RawWebhookData` yazarken JSON validasyonu)
+- ~~Premium gating + RevenueCat webhook~~ — backend yapıldı (2026-11-04), sahte olaylarla 31 test geçti:
+  - `POST /api/Webhooks/revenuecat` (anonim, Swagger'da gizli). `Authorization` başlığı `RevenueCat:WebhookAuthorization` ile sabit-zamanlı karşılaştırılır (ham değer ya da `Bearer <değer>` kabul); ayar boşsa 503. Ayarla: `dotnet user-secrets set "RevenueCat:WebhookAuthorization" "..." --project CanSayNo.API`. Webhook başlık/yeniden deneme belgesi okunamadı — gerçek panelde doğrula
+  - Olay → durum: `RevenueCatEventApplier` (saf). Satın alma/yenileme/uncancel → Active; CANCELLATION → Cancelled (süre bitene kadar erişim sürer), `cancel_reason=CUSTOMER_SUPPORT` (iade) → hemen Expired; BILLING_ISSUE → GracePeriod; EXPIRATION → Expired. TEST/PRODUCT_CHANGE/PAUSED/TRANSFER durum değiştirmez. Satır `original_transaction_id` ile anahtarlanır; aynı/daha eski olay (`id`, `event_timestamp_ms`) yok sayılır; ham gövde `RawWebhookData`'ya. Kullanıcı `original_app_user_id` → `app_user_id` → `aliases` içindeki ilk sayısal ve var olan id; anonim kullanıcı yok sayılır. SANDBOX olaylar `RevenueCat:AcceptSandboxEvents=false` iken yok sayılır
+  - Premium = Active/Cancelled/GracePeriod ve `ExpiresAt` gelecekte/null. StartSession premium kontrolünü boş oturumu yeniden kullanmadan ÖNCE yapar
+  - `GET /api/Subscriptions/me` → `{isPremium, productId, status, expiresAt, willRenew}`. Mobil: `useMySubscription` — Profil premium bandı ("Premium aktif" + yenileme/bitiş tarihi), Bugünkü görev premium'da tüm senaryolardan seçer
+  - Eksik: mobilde gerçek satın alma (`react-native-purchases`, Expo Go'da çalışmaz → development build gerekli), RevenueCat `appUserID` = backend `User.Id` olmalı; ürün ID'leri ve webhook secret henüz yok; satın alma sonrası `subscriptionKeys` + `scenarioKeys` invalidate edilmeli
 - ~~Hesap silme + veri dışa aktarma~~ — yapıldı (2026-11-04): `GET /api/Account/export` (JSON; şifre hash'i/token/ham webhook yok), `DELETE /api/Account` (gövde `{password}`, KALICI silme — FK'ler CASCADE, LoginAttempts e-postayla; son SuperAdmin 403). Mobil: Hesap bilgileri ekranında "Verilerimi indir" (expo-file-system + expo-sharing, paylaşım menüsü) ve iki adımlı "Hesabımı sil". Silme mağaza aboneliğini iptal etmez — kullanıcıya söyleniyor
 - Mobile için refresh token ömrü (şu an 7 gün, 30–90 gün olmalı)
 - Granular permission (`Scenarios.Read`)
