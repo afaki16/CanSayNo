@@ -35,7 +35,12 @@ public sealed class AnthropicClientProvider
         }
         else
         {
-            Client = new AnthropicClient { ApiKey = settings.ApiKey };
+            Client = string.IsNullOrWhiteSpace(settings.BaseUrl)
+                ? new AnthropicClient { ApiKey = settings.ApiKey }
+                : new AnthropicClient { ApiKey = settings.ApiKey, BaseUrl = settings.BaseUrl };
+
+            if (Client.BaseUrl is not null && !string.IsNullOrWhiteSpace(settings.BaseUrl))
+                _logger.LogWarning("Anthropic:BaseUrl overridden to {BaseUrl}", settings.BaseUrl);
         }
     }
 

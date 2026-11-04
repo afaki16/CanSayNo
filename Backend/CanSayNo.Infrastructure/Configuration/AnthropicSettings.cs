@@ -12,6 +12,12 @@ public class AnthropicSettings
 
     public string ApiKey { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Boşsa resmi API. Yalnızca yerel testte (sahte Anthropic sunucusu) ya da bir proxy
+    /// arkasında doldurulur; üretimde boş kalmalı.
+    /// </summary>
+    public string BaseUrl { get; set; } = string.Empty;
+
     public string Model { get; set; } = "claude-sonnet-5-5";
 
     /// <summary>
