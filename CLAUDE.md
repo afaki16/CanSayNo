@@ -81,7 +81,9 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 - **Gerçek veriden (LLM)**: pratik chat'i (`useSession` + `useSendMessage` → POST /api/Sessions/{id}/messages; hata → bant + mesaj input'a geri) ve Sonuç ekranı (`useEvaluateSession` → POST /api/Sessions/{id}/evaluate). `aiResponses.ts` / `evaluation.ts` mock'ları silindi; eksen etiketleri `lib/constants/evaluation.ts`
 - **İstatistikler**: Anasayfa/Profil seri, haftalık gün çizelgesi, "Bu Hafta", seviye/XP, rozetler → `useMyStats` (GET /api/Stats/me). `userStats` mock'u silindi; `lib/mockData` artık sadece `contexts`. Haftanın günleri ve "bugün" backend'de TR saatine göre (`weekActivity`, `todayIndex`) — cihaz saatine güvenilmez. Profil "Usta" rozeti = `persistent` (50 pratik)
 - **Auth guard (2026-11-04)**: kök layout'ta `Stack.Protected` — girişli kullanıcı `index`/`(auth)`'u, girişsiz kullanıcı `(app)`'i göremez; login/logout/refresh hatasında yönlendirmeyi router yapar. Açılışta saklı oturum arka planda `/api/Auth/me` ile doğrulanır (`hooks/useSessionValidation.ts`, açılışı bloklamaz). Refresh sırasında ağ hatası oturumu SİLMEZ (çevrimdışı açılış); yalnızca sunucu reddederse silinir. Emulator'de 4 senaryo doğrulandı
-- **Hâlâ sabit**: Anasayfa "Bugünkü görev" (`is_001`), profil satırları "Hesap bilgileri"/"Bildirimler" yok
+- **Bugünkü görev**: `lib/utils/dailyTask.ts` (saf fonksiyon) senaryo listesinden seçer — hiç denenmemiş → yarım kalmış → en düşük skorlu; yalnızca ücretsiz senaryolar (mobil abonelik durumunu bilmiyor)
+- **Oturum değişimi**: giriş/çıkış/refresh başarısız → `queryClient.resetQueries()` (kök layout); önceki hesabın verisi yeni hesaba görünmez
+- **Klavye**: `react-native-keyboard-controller` (Expo Go'da var) — kök layout'ta `KeyboardProvider`, ekranlarda kütüphanenin `KeyboardAvoidingView`'i (`behavior="padding"`). RN'ninkini KULLANMA: Android edge-to-edge'de klavye kapanınca boşluk bırakıyor
 - Pratik ekranı `sessionId` query param'ı alır ve Sonuç ekranına geçirir. LLM uçları için axios timeout'u istek bazında uzatıldı (mesaj 45 sn, değerlendirme 90 sn)
 - `lib/mockData/contexts.ts` kalıcı UI metadata (isim, renk, ikon) — mock değil, ileride `lib/constants/`'a taşınabilir
 - Register'da phoneNumber `null` gönderiliyor (formda alan yok)
@@ -106,7 +108,7 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 
 **Bekleyen küçük işler**:
 1. Emulator'de görsel test — "0/6 tamamlandı", chat açılışı/hata bandı, sonuç ekranı hata durumu görüldü (2026-11-03). `ErrorState` ortalama hatası düzeltildi. Skeleton'lar ve diğer ekranlar hâlâ gözle görülmedi
-3. Android'de klavye kapandıktan sonra input'un altında boşluk kalıyor (`KeyboardAvoidingView` + edge-to-edge; chat ve auth ekranları). `behavior="padding"` çözmedi; muhtemelen `react-native-keyboard-controller` gerekiyor
+3. ~~Android klavye boşluğu~~ — çözüldü (2026-11-04, react-native-keyboard-controller)
 2. Tasarım (Claude Design "CanSayNo Ekranlar") karşılaştırıldı (2026-11-04): tüm ekranlar uygulamada. Profil ayarlar kartı tasarımdaki gibi: "Hesap bilgileri" → `(app)/account` (ad/soyad, PUT /api/Auth/profile; telefon /me'den korunur; e-posta salt okunur — değişiklik onay linki için mobil ekran yok), "Bildirimler" → "Yakında" (push altyapısı yok)
 
 (2026-11-03: "Şifremi unuttum" eklendi — `(auth)/forgot-password` → `(auth)/reset-password`, OTP kodlu, `hooks/usePasswordReset.ts`; emulator'de uçtan uca doğrulandı. Şifre kuralı `lib/validation/password.ts`'te, kayıtla ortak. Dev'de kodun e-postayla gelmesi için `NotificationService:Mail` ayarı gerekli — boşsa mail gitmez; test için mailpit `localhost:1025`)
