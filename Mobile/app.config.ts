@@ -53,6 +53,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // RevenueCat: Android'de varsayılan singleTask, kullanıcı ödemeyi doğrulamak için
     // uygulamadan çıkıp dönünce satın almayı iptal edebiliyor.
     './plugins/withAndroidLaunchMode',
+    // Windows'ta uzun C++ yolları için yeni CMake/ninja (LongPathsEnabled=1 gerekir).
+    './plugins/withAndroidCmakeVersion',
   ],
   experiments: {
     typedRoutes: true,
