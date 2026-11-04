@@ -15,6 +15,7 @@ using CanSayNo.Application.Features.Auth.Commands.UpdateProfile;
 using CanSayNo.Application.Features.Auth.Commands.RequestEmailChange;
 using CanSayNo.Application.Features.Auth.Commands.ConfirmEmailChange;
 using CanSayNo.Application.Features.Auth.Commands.PasswordCodes;
+using CanSayNo.Application.Features.Auth.Commands.EmailChangeCodes;
 using CanSayNo.Application.Features.Auth.Queries.CheckRegisterAvailability;
 using CanSayNo.Application.Features.Auth.Commands.ResendVerificationEmail;
 using CanSayNo.Application.Features.Auth.Queries.GetUserSessions;
@@ -500,6 +501,47 @@ namespace CanSayNo.API.Controllers
         /// <summary>
         /// Apply a pending email change from the link sent to the new address. Signs the user out everywhere.
         /// </summary>
+        /// <summary>
+        /// Mobile email change, step 1: verify the current password and send a 6-digit code to the new address.
+        /// </summary>
+        [HttpPost("profile/email/code")]
+        [Authorize]
+        [EnableRateLimiting("sensitive")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(409)]
+        public async Task<IActionResult> SendEmailChangeCode([FromBody] RequestEmailChangeRequestDto request)
+        {
+            var result = await _mediator.Send(new SendEmailChangeCodeCommand
+            {
+                NewEmail = request.NewEmail,
+                CurrentPassword = request.CurrentPassword,
+                IpAddress = GetIpAddress()
+            });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Mobile email change, step 2: confirm with the code. Signs out everywhere; sign in again with the new address.
+        /// </summary>
+        [HttpPost("profile/email/confirm")]
+        [Authorize]
+        [EnableRateLimiting("sensitive")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(409)]
+        public async Task<IActionResult> ConfirmEmailChangeWithCode([FromBody] ConfirmEmailChangeWithCodeRequestDto request)
+        {
+            var result = await _mediator.Send(new ConfirmEmailChangeWithCodeCommand
+            {
+                Code = request.Code,
+                IpAddress = GetIpAddress()
+            });
+            return HandleResult(result);
+        }
+
         [HttpPost("confirm-email-change")]
         [AllowAnonymous]
         [EnableRateLimiting("sensitive")]

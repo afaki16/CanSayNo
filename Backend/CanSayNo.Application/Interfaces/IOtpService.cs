@@ -18,12 +18,16 @@ namespace CanSayNo.Application.Interfaces
         /// Creates a new code (invalidating the previous one) and returns the plain code for the caller to send.
         /// Fails with a cooldown error if a code for the same purpose was issued moments ago.
         /// </summary>
-        Task<Result<OtpIssueResult>> IssueAsync(User user, VerificationPurpose purpose, string? ipAddress, CancellationToken cancellationToken = default);
+        /// <param name="destination">Address the code is sent to and bound to; defaults to the user's current email.</param>
+        Task<Result<OtpIssueResult>> IssueAsync(User user, VerificationPurpose purpose, string? ipAddress, CancellationToken cancellationToken = default, string? destination = null);
 
         /// <summary>
         /// Checks the code against the user's active code for the purpose and consumes it on success.
         /// A wrong code counts as a failed attempt; too many failures burn the code.
         /// </summary>
         Task<Result> VerifyAsync(User user, VerificationPurpose purpose, string code, CancellationToken cancellationToken = default);
+
+        /// <summary>Same as <see cref="VerifyAsync"/>, and returns the destination the code was issued for.</summary>
+        Task<Result<string>> VerifyForDestinationAsync(User user, VerificationPurpose purpose, string code, CancellationToken cancellationToken = default);
     }
 }

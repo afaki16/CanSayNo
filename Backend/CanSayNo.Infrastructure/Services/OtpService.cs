@@ -46,7 +46,7 @@ namespace CanSayNo.Infrastructure.Services
                     Encoding.UTF8.GetBytes("kickstart-otp-hash-key"));
         }
 
-        public async Task<Result<OtpIssueResult>> IssueAsync(User user, VerificationPurpose purpose, string? ipAddress, CancellationToken cancellationToken = default)
+        public async Task<Result<OtpIssueResult>> IssueAsync(User user, VerificationPurpose purpose, string? ipAddress, CancellationToken cancellationToken = default, string? destination = null)
         {
             var latest = await _unitOfWork.UserVerificationTokens.GetLatestAsync(user.Id, VerificationChannel.Email, purpose);
             if (latest != null)
@@ -70,7 +70,7 @@ namespace CanSayNo.Infrastructure.Services
                 Token = HashCode(user.Id, purpose, code),
                 Channel = VerificationChannel.Email,
                 Purpose = purpose,
-                Destination = user.Email,
+                Destination = destination ?? user.Email,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(ValidMinutes),
                 RequestIpAddress = ipAddress
             });
@@ -81,9 +81,15 @@ namespace CanSayNo.Infrastructure.Services
 
         public async Task<Result> VerifyAsync(User user, VerificationPurpose purpose, string code, CancellationToken cancellationToken = default)
         {
+            var result = await VerifyForDestinationAsync(user, purpose, code, cancellationToken);
+            return result; // Result<string> is a Result; callers of VerifyAsync only need success/failure
+        }
+
+        public async Task<Result<string>> VerifyForDestinationAsync(User user, VerificationPurpose purpose, string code, CancellationToken cancellationToken = default)
+        {
             var token = await _unitOfWork.UserVerificationTokens.GetLatestAsync(user.Id, VerificationChannel.Email, purpose);
             if (token is null || !token.IsValid)
-                return Result.Failure(Error.Failure(ErrorCode.ValidationFailed, _localizer["auth.otpInvalidOrExpired"]));
+                return Result<string>.Failure(Error.Failure(ErrorCode.ValidationFailed, _localizer["auth.otpInvalidOrExpired"]));
 
             var expected = Convert.FromBase64String(token.Token);
             var actual = Convert.FromBase64String(HashCode(user.Id, purpose, (code ?? string.Empty).Trim()));
@@ -101,7 +107,7 @@ namespace CanSayNo.Infrastructure.Services
                     "Wrong OTP code. UserId: {UserId}, Purpose: {Purpose}, Attempts: {Attempts}, Burned: {Burned}",
                     user.Id, purpose, token.FailedAttempts, burned);
 
-                return Result.Failure(Error.Failure(
+                return Result<string>.Failure(Error.Failure(
                     ErrorCode.ValidationFailed,
                     burned ? _localizer["auth.otpTooManyAttempts"] : _localizer["auth.otpInvalidOrExpired"]));
             }
@@ -109,7 +115,7 @@ namespace CanSayNo.Infrastructure.Services
             token.MarkAsUsed();
             _unitOfWork.UserVerificationTokens.Update(token);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return Result.Success();
+            return Result<string>.Success(token.Destination ?? user.Email);
         }
 
         // Binding user and purpose into the MAC keeps a code from being valid for another account or flow

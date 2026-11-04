@@ -11,6 +11,7 @@ namespace CanSayNo.Application.Interfaces
         Task<Result> SendEmailChangedNoticeAsync(string oldEmail, string firstName, string newEmail);
         /// <summary>Sends a short one-time code for resetting or changing the password.</summary>
         Task<Result> SendPasswordCodeAsync(string email, string firstName, string code, int validMinutes);
+        Task<Result> SendEmailChangeCodeAsync(string newEmail, string firstName, string code, int validMinutes);
         Task<Result> SendWelcomeEmailAsync(string email, string userName);
         Task<Result> SendBruteForceAlertAsync(
             string email,

@@ -132,6 +132,21 @@ namespace CanSayNo.Infrastructure.Services
             return await SendEmailAsync(email, subject, EmailTemplates.Wrap(subject, content));
         }
 
+        public async Task<Result> SendEmailChangeCodeAsync(string newEmail, string firstName, string code, int validMinutes)
+        {
+            const string subject = "E-posta Degisikligi Dogrulama Kodu";
+
+            var content = $@"
+<h2 style=""color:#333;"">E-posta Degisikligi</h2>
+<p>Merhaba <strong>{Esc(firstName)}</strong>,</p>
+<p>Hesabinizin e-posta adresini bu adresle degistirmek icin uygulamaya asagidaki kodu girin:</p>
+<p style=""font-size:32px;font-weight:700;letter-spacing:8px;color:#111;margin:24px 0;"">{Esc(code)}</p>
+<p style=""color:#666;"">Bu kod <strong>{validMinutes} dakika</strong> gecerlidir ve yalnizca bir kez kullanilabilir.</p>
+<p style=""color:#666;"">Bu istegi siz yapmadiysaniz dikkate almayin; e-posta adresi degismez.</p>";
+
+            return await SendEmailAsync(newEmail, subject, EmailTemplates.Wrap(subject, content));
+        }
+
         public async Task<Result> SendBruteForceAlertAsync(
             string email,
             string firstName,
