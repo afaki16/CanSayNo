@@ -140,7 +140,9 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
 - Backend: `CharacterPromptBuilder` / `EvaluationPromptBuilder` (prompt'lar), `AnthropicClientProvider` + `AnthropicCharacterChatService` + `AnthropicSessionEvaluator` (Infrastructure/Services/Ai), `UserProgress` (seri/XP/seviye/rozet, saf fonksiyon). Ayarlar: `Anthropic` (Model, MaxTokens 1024, Effort low; değerlendirme medium/4096), `Hayirci` (MaxUserMessageLength 500, SessionTokenLimit 40000)
 - Açılış mesajı `Scene.OpeningMessage` (JSONB); seed açılışta boş olanları doldurur
 - Hayırcı'ya özel hata kodları 1100+: AiUnavailable 503, AiResponseRefused 422, SessionNotActive 409, SessionTokenLimitReached 429, SessionNotCompleted 409
-- Bilinen eksikler: aynı rauntta eşzamanlı iki istek ikisi de LLM'e gidebilir (token tavanı sınırlıyor); `WorkMaster` / `ContextExplorer` rozetleri yok; server-side refusal fallback eklenmedi (yalnızca cyber/frontier_llm'i kapsıyor)
+- **Eşzamanlılık (2026-11-04)**: `ISessionLock` (bellek içi, oturum başına; tek API örneğinde geçerli). Mesaj: kilit doluysa beklemeden 409 `sessionBusy` (1105), LLM'e gitmez. Değerlendirme: ikinci istek 85 sn'ye kadar bekler, sonra kayıtlı sonucu döner (LLM ve XP bir kez). Yatay ölçeklenirse DB kilidine geçilmeli
+- **Sahte Anthropic ile test**: `Anthropic:BaseUrl` (boş = gerçek API) yerel bir sahte sunucuya yönlendirilebilir; anahtarsız uçtan uca akış böyle doğrulandı (3 raunt + kapanış + değerlendirme, istek şekli: model, effort, `cache_control`, json_schema). Sonnet 5.5'te `thinking` gönderilmez — varsayılan adaptive. Gerçek modelin cevap kalitesi ve gerçek `cache_read` hâlâ doğrulanmadı
+- Bilinen eksikler: `WorkMaster` / `ContextExplorer` rozetleri yok; server-side refusal fallback eklenmedi (yalnızca cyber/frontier_llm'i kapsıyor)
 
 ## Diğer Bekleyenler
 
@@ -151,6 +153,6 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
   - `GET /api/Subscriptions/me` → `{isPremium, productId, status, expiresAt, willRenew}`. Mobil: `useMySubscription` — Profil premium bandı ("Premium aktif" + yenileme/bitiş tarihi), Bugünkü görev premium'da tüm senaryolardan seçer
   - Eksik: mobilde gerçek satın alma (`react-native-purchases`, Expo Go'da çalışmaz → development build gerekli), RevenueCat `appUserID` = backend `User.Id` olmalı; ürün ID'leri ve webhook secret henüz yok; satın alma sonrası `subscriptionKeys` + `scenarioKeys` invalidate edilmeli
 - ~~Hesap silme + veri dışa aktarma~~ — yapıldı (2026-11-04): `GET /api/Account/export` (JSON; şifre hash'i/token/ham webhook yok), `DELETE /api/Account` (gövde `{password}`, KALICI silme — FK'ler CASCADE, LoginAttempts e-postayla; son SuperAdmin 403). Mobil: Hesap bilgileri ekranında "Verilerimi indir" (expo-file-system + expo-sharing, paylaşım menüsü) ve iki adımlı "Hesabımı sil". Silme mağaza aboneliğini iptal etmez — kullanıcıya söyleniyor
-- Mobile için refresh token ömrü (şu an 7 gün, 30–90 gün olmalı)
+- ~~Mobile için refresh token ömrü~~ — mobil login her zaman `rememberMe: true` gönderiyor → 60 gün (`RefreshTokenExpiryInDaysRememberMe`). Yenileme bitiş tarihini korur (kayan süre yok): 60 gün sonra yeniden giriş
 - Granular permission (`Scenarios.Read`)
 - Karakter illüstrasyonları — Leonardo.ai ile 2 örnek üretildi ama stilleri tutarsız; şimdilik Phosphor placeholder
