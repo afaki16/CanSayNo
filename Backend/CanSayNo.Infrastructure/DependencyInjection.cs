@@ -42,6 +42,9 @@ namespace CanSayNo.Infrastructure
         services.AddSingleton(
             configuration.GetSection(HayirciSettings.SectionName).Get<HayirciSettings>() ?? new HayirciSettings());
 
+        services.AddSingleton(
+            configuration.GetSection(RevenueCatSettings.SectionName).Get<RevenueCatSettings>() ?? new RevenueCatSettings());
+
         // Karakter cevapları (LLM). Anahtar yoksa servis kayıtlı kalır, cevaplar aiUnavailable döner.
         services.AddSingleton(
             configuration.GetSection(AnthropicSettings.SectionName).Get<AnthropicSettings>() ?? new AnthropicSettings());

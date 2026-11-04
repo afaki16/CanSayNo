@@ -50,13 +50,8 @@ public class StartSessionCommandHandler : IRequestHandler<StartSessionCommand, R
             return Result<SessionDto>.Failure(
                 Error.Failure(ErrorCode.NotFound, _localizer["sessions.scenarioNotFound"]));
 
-        // Pratik ekranı yeniden açıldıysa ve henüz mesaj atılmadıysa aynı oturuma devam:
-        // yeni oturum açıp günlük hakkı ikinci kez yakmayız.
-        var unstarted = await _unitOfWork.Sessions.GetUnstartedActiveSessionAsync(
-            userId, scenario.Id, cancellationToken);
-        if (unstarted is not null)
-            return Result<SessionDto>.Success(_mapper.Map<SessionDto>(unstarted));
-
+        // Premium kontrolü yeniden kullanımdan ÖNCE: aboneliği biten kullanıcı, daha önce
+        // başlatıp boş bıraktığı premium oturuma da giremesin.
         var utcNow = DateTime.UtcNow;
         var isPremium = await _unitOfWork.Subscriptions.HasActiveSubscriptionAsync(
             userId, _settings.AppId, utcNow, cancellationToken);
@@ -64,6 +59,13 @@ public class StartSessionCommandHandler : IRequestHandler<StartSessionCommand, R
         if (!scenario.IsFree && !isPremium)
             return Result<SessionDto>.Failure(
                 Error.Failure(ErrorCode.PremiumRequired, _localizer["sessions.premiumRequired"]));
+
+        // Pratik ekranı yeniden açıldıysa ve henüz mesaj atılmadıysa aynı oturuma devam:
+        // yeni oturum açıp günlük hakkı ikinci kez yakmayız.
+        var unstarted = await _unitOfWork.Sessions.GetUnstartedActiveSessionAsync(
+            userId, scenario.Id, cancellationToken);
+        if (unstarted is not null)
+            return Result<SessionDto>.Success(_mapper.Map<SessionDto>(unstarted));
 
         // Kullanım herkes için sayılır (analitik); limit yalnızca premium olmayana uygulanır.
         var usageDate = _settings.GetUsageDate(utcNow);
