@@ -8,7 +8,8 @@
 //
 // Senaryo başlığı/karakteri/bağlam rengi useScenarioDetail'den gelir.
 
-import { router, useLocalSearchParams } from 'expo-router';
+import { usePreventRemove } from '@react-navigation/native';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { PaperPlaneTilt, User, X } from 'phosphor-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -136,11 +137,10 @@ export default function PracticeScreen() {
     });
   }, [inputText, isAITyping, isCompleted, sessionId, sendMessage]);
 
-  const confirmExit = useCallback(() => {
-    if (isCompleted) {
-      router.back();
-      return;
-    }
+  // Bitmemiş pratikten her çıkış — X butonu, Android geri tuşu, iOS kaydırma — aynı
+  // onaydan geçer. Tamamlanınca (Sonuç ekranına replace dahil) engel kalkar.
+  const navigation = useNavigation();
+  usePreventRemove(!!session && !isCompleted, ({ data }) => {
     Alert.alert(
       'Pratiği bırak',
       'Pratiği bırakmak istediğine emin misin? İlerlemen kaybolacak.',
@@ -149,11 +149,13 @@ export default function PracticeScreen() {
         {
           text: 'Çık',
           style: 'destructive',
-          onPress: () => router.back(),
+          onPress: () => navigation.dispatch(data.action),
         },
       ],
     );
-  }, [isCompleted]);
+  });
+
+  const confirmExit = useCallback(() => router.back(), []);
 
   const goToResult = useCallback(() => {
     router.replace({
