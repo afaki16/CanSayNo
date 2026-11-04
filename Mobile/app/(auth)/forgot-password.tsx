@@ -8,12 +8,11 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, EnvelopeSimple } from 'phosphor-react-native';
 import { useForm } from 'react-hook-form';
 import {
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
@@ -61,7 +60,7 @@ export default function ForgotPasswordScreen() {
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior="padding"
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
