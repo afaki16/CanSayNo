@@ -21,7 +21,7 @@ import {
   Spacing,
 } from '@/constants/theme';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps {
@@ -73,6 +73,14 @@ const VARIANT_STYLES: Record<ButtonVariant, VariantStyle> = {
     borderColor: 'transparent',
     borderWidth: 0,
     textColor: Colors.textSecondary,
+    hasShadow: false,
+  },
+  // Geri alınamaz işlemler (örn. hesap silme)
+  danger: {
+    backgroundColor: Colors.error,
+    borderColor: Colors.error,
+    borderWidth: 0,
+    textColor: Colors.surface,
     hasShadow: false,
   },
 };

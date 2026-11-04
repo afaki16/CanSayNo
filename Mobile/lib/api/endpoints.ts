@@ -39,6 +39,12 @@ export const SESSION_ENDPOINTS = {
   EVALUATE: (id: string) => `/api/Sessions/${id}/evaluate`,
 } as const;
 
+// Kullanıcının kendi hesabı: KVKK veri dışa aktarma ve kalıcı silme.
+export const ACCOUNT_ENDPOINTS = {
+  EXPORT: '/api/Account/export',
+  DELETE: '/api/Account', // DELETE, gövde { password }
+} as const;
+
 // Kullanıcı istatistikleri (seri, haftalık aktivite, XP/seviye, rozetler).
 export const STATS_ENDPOINTS = {
   ME: '/api/Stats/me',

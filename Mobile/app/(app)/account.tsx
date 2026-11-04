@@ -2,11 +2,21 @@
 // Ad/soyad düzenlenir (PUT /api/Auth/profile). E-posta salt okunur: değişiklik
 // akışı backend'de var ama onay linkini açacak mobil ekran henüz yok.
 // Telefon formda yok; /me'den okunan değer olduğu gibi geri gönderilir (silinmesin).
+//
+// Altında KVKK / App Store bölümleri: "Verilerimi indir" (JSON, paylaşım menüsü) ve
+// "Hesabımı sil" (iki adımlı: önce uyarı, sonra mevcut şifre; kalıcı).
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import { ArrowLeft, EnvelopeSimple, User } from 'phosphor-react-native';
-import { useEffect } from 'react';
+import {
+  ArrowLeft,
+  DownloadSimple,
+  EnvelopeSimple,
+  LockSimple,
+  Trash,
+  User,
+} from 'phosphor-react-native';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   Alert,
@@ -30,7 +40,12 @@ import {
 } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
 import { useMe, useUpdateProfile } from '@/hooks/queries/useProfile';
-import { toProfileErrorMessage } from '@/lib/api';
+import {
+  SharingUnavailableError,
+  useDeleteAccount,
+  useExportData,
+} from '@/hooks/useAccountData';
+import { toAccountErrorMessage, toProfileErrorMessage } from '@/lib/api';
 
 // Backend: ad/soyad zorunlu, en fazla 50 karakter. Kayıttaki 2 karakter alt sınırıyla aynı.
 const accountSchema = z.object({
@@ -51,6 +66,10 @@ type AccountForm = z.infer<typeof accountSchema>;
 export default function AccountScreen() {
   const { data: me, isPending, isError, error, refetch, isFetching } = useMe();
   const updateProfile = useUpdateProfile();
+  const exportData = useExportData();
+  const deleteAccount = useDeleteAccount();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
 
   const {
     control,
@@ -81,6 +100,29 @@ export default function AccountScreen() {
       ]);
     } catch {
       // Hata mesajı formun altında gösteriliyor.
+    }
+  };
+
+  const onExport = async () => {
+    try {
+      await exportData.mutateAsync();
+    } catch (e) {
+      Alert.alert(
+        'Veriler indirilemedi',
+        e instanceof SharingUnavailableError
+          ? 'Bu cihazda dosya paylaşımı kullanılamıyor.'
+          : toAccountErrorMessage(e),
+      );
+    }
+  };
+
+  const onDelete = async () => {
+    try {
+      await deleteAccount.mutateAsync(deletePassword);
+      // Oturum temizlendi; route guard karşılama ekranına götürüyor.
+      Alert.alert('Hesabın silindi', 'Hesabın ve tüm verilerin kalıcı olarak silindi.');
+    } catch {
+      // Hata mesajı şifre alanının altında gösteriliyor.
     }
   };
 
@@ -180,6 +222,89 @@ export default function AccountScreen() {
           >
             Kaydet
           </Button>
+
+          {/* Verilerin (KVKK) */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Verilerin</Text>
+            <Text style={styles.sectionText}>
+              Pratiklerin, değerlendirmelerin, istatistiklerin ve profil bilgilerin tek bir
+              JSON dosyası olarak.
+            </Text>
+            <Button
+              variant="outline"
+              size="md"
+              fullWidth
+              loading={exportData.isPending}
+              onPress={onExport}
+              leftIcon={<DownloadSimple size={18} color={Colors.text} />}
+            >
+              Verilerimi indir
+            </Button>
+          </View>
+
+          {/* Hesabı sil — iki adımlı */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, styles.dangerTitle]}>Hesabı sil</Text>
+            {!deleteOpen ? (
+              <Button
+                variant="ghost"
+                size="md"
+                fullWidth
+                onPress={() => setDeleteOpen(true)}
+                leftIcon={<Trash size={18} color={Colors.error} />}
+              >
+                <Text style={styles.dangerLink}>Hesabımı sil</Text>
+              </Button>
+            ) : (
+              <View style={styles.dangerBox}>
+                <Text style={styles.dangerText}>
+                  Hesabın ve tüm verilerin (pratikler, değerlendirmeler, istatistikler)
+                  kalıcı olarak silinir. Bu işlem geri alınamaz.
+                </Text>
+                <Text style={styles.dangerText}>
+                  Aktif bir aboneliğin varsa App Store ya da Google Play üzerinden ayrıca
+                  iptal etmelisin; hesabı silmek aboneliği iptal etmez.
+                </Text>
+                <Input
+                  label="Onaylamak için şifreni gir"
+                  value={deletePassword}
+                  onChangeText={(text) => {
+                    setDeletePassword(text);
+                    if (deleteAccount.isError) deleteAccount.reset();
+                  }}
+                  placeholder="Şifren"
+                  secureTextEntry
+                  autoCapitalize="none"
+                  leftIcon={<LockSimple size={19} color={Colors.textMuted} />}
+                />
+                <FormError
+                  message={deleteAccount.error ? toAccountErrorMessage(deleteAccount.error) : null}
+                />
+                <Button
+                  variant="danger"
+                  size="md"
+                  fullWidth
+                  disabled={deletePassword.length === 0}
+                  loading={deleteAccount.isPending}
+                  onPress={onDelete}
+                >
+                  Hesabımı kalıcı olarak sil
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="md"
+                  fullWidth
+                  onPress={() => {
+                    setDeleteOpen(false);
+                    setDeletePassword('');
+                    deleteAccount.reset();
+                  }}
+                >
+                  Vazgeç
+                </Button>
+              </View>
+            )}
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -226,6 +351,39 @@ const styles = StyleSheet.create({
   form: {
     gap: 18,
     marginBottom: Spacing.lg,
+  },
+  section: {
+    marginTop: Spacing.xl,
+    gap: Spacing.sm,
+  },
+  sectionTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+  },
+  sectionText: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xs,
+  },
+  dangerTitle: {
+    color: Colors.error,
+  },
+  dangerLink: {
+    color: Colors.error,
+    fontWeight: FontWeight.bold,
+  },
+  dangerBox: {
+    gap: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+    borderColor: Colors.errorSoft,
+    backgroundColor: Colors.surface,
+  },
+  dangerText: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
   },
   hint: {
     marginTop: 6,

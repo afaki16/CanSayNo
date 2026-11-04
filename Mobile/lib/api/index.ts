@@ -17,6 +17,7 @@ export {
   SCENARIO_ENDPOINTS,
   SESSION_ENDPOINTS,
   STATS_ENDPOINTS,
+  ACCOUNT_ENDPOINTS,
   isPath,
 } from './endpoints';
 export { queryClient } from './queryClient';
@@ -25,6 +26,7 @@ export {
   apiPost,
   apiPostVoid,
   apiPutVoid,
+  apiDeleteVoid,
   type ApiQueryOptions,
   type ApiMutationOptions,
 } from './hooks';
@@ -32,6 +34,7 @@ export { authService } from './services/authService';
 export { scenarioService } from './services/scenarioService';
 export { sessionService } from './services/sessionService';
 export { statsService } from './services/statsService';
+export { accountService } from './services/accountService';
 export {
   toStartSessionError,
   toSessionErrorMessage,
@@ -44,6 +47,7 @@ export {
   toForgotPasswordErrorMessage,
   toLoginErrorMessage,
   toProfileErrorMessage,
+  toAccountErrorMessage,
   toRegisterErrorMessage,
   toResetPasswordErrorMessage,
 } from './services/authErrors';

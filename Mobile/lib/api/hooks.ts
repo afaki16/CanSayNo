@@ -77,6 +77,16 @@ export async function apiPutVoid<TBody = unknown>(
   return response.data.message;
 }
 
+// Gövdeli DELETE (ör. /api/Account → { password }); data dönmez.
+export async function apiDeleteVoid<TBody = unknown>(
+  url: string,
+  body?: TBody,
+): Promise<string | undefined> {
+  const response = await apiClient.delete<ApiResponse<never>>(url, { data: body });
+  assertSuccess(response);
+  return response.data.message;
+}
+
 // Hook tipleri: queryKey/queryFn (veya mutationFn) hariç tüm seçenekler.
 export type ApiQueryOptions<T> = Omit<
   UseQueryOptions<T, ApiError>,

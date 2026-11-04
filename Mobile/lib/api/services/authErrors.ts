@@ -102,6 +102,27 @@ export function toProfileErrorMessage(error: unknown): string {
   return 'Bilgilerin kaydedilemedi, lütfen tekrar dene';
 }
 
+// Hesap silme / veri dışa aktarma. Yanlış şifre (400) ve son SuperAdmin (403)
+// mesajları backend'de Türkçe ve kullanıcıya yönelik.
+export function toAccountErrorMessage(error: unknown): string {
+  if (!isApiError(error)) {
+    return GENERIC;
+  }
+  if (error.isNetworkError) {
+    return NETWORK;
+  }
+  if (error.status === 429) {
+    return 'Çok fazla deneme yaptın, biraz bekleyip tekrar dene';
+  }
+  if ((error.status === 400 || error.status === 403) && error.errors.length > 0) {
+    return error.errors.join('\n');
+  }
+  if (error.code && USER_FACING_CODES.includes(error.code)) {
+    return error.message;
+  }
+  return GENERIC;
+}
+
 export function toRegisterErrorMessage(error: unknown): string {
   if (!isApiError(error)) {
     return GENERIC;
