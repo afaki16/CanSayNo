@@ -32,9 +32,11 @@ import {
 } from '@/constants/theme';
 import { useMySessions } from '@/hooks/queries/useSessions';
 import { EMPTY_STATS, useMyStats } from '@/hooks/queries/useStats';
+import { useMySubscription } from '@/hooks/queries/useSubscription';
 import { useAuth } from '@/hooks/useAuth';
 import { getInitials } from '@/lib/utils/initials';
 import type { ApiBadge } from '@/types/api/stats';
+import type { ApiMySubscription } from '@/types/api/subscription';
 
 // Seviye unvanları (UI metadata; seviye backend'den gelir, 500 XP'de bir artar).
 const LEVEL_TITLES: Record<number, string> = {
@@ -63,10 +65,23 @@ const BADGES: BadgeDef[] = [
   { id: 'persistent', label: 'Usta', icon: Medal, color: Colors.amber, softColor: Colors.amberSoft },
 ];
 
+// Premium bandının alt satırı: yenilenecekse/bitecekse tarih.
+function premiumSubtitle(sub: ApiMySubscription | undefined): string {
+  if (!sub?.expiresAt) return 'Tüm bağlamlar açık';
+  const date = new Date(sub.expiresAt).toLocaleDateString('tr-TR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+  return sub.willRenew ? `Yenileme: ${date}` : `Bitiş: ${date}`;
+}
+
 export default function ProfileScreen() {
   const { user, logout, isLoggingOut } = useAuth();
   const { data } = useMyStats();
   const stats = data ?? EMPTY_STATS;
+  const { data: subscription } = useMySubscription();
+  const isPremium = subscription?.isPremium ?? false;
 
   // logout() bilerek throw etmiyor: backend'e ulaşılamasa veya token süresi
   // dolmuş olsa bile local oturum kapanır ve kullanıcı Welcome'a döner.
@@ -155,9 +170,10 @@ export default function ProfileScreen() {
 
         {/* Premium banner */}
         <Pressable
-          onPress={() => router.push('/(app)/paywall')}
-          accessibilityRole="button"
-          accessibilityLabel="Premium'a geç"
+          onPress={isPremium ? undefined : () => router.push('/(app)/paywall')}
+          disabled={isPremium}
+          accessibilityRole={isPremium ? 'summary' : 'button'}
+          accessibilityLabel={isPremium ? 'Premium aktif' : "Premium'a geç"}
         >
           <LinearGradient
             colors={[Colors.ink, '#2B2F3A']}
@@ -169,10 +185,14 @@ export default function ProfileScreen() {
               <Crown size={23} color={Colors.ink} weight="fill" />
             </View>
             <View style={styles.flex}>
-              <Text style={styles.premiumTitle}>Premium&apos;a geç</Text>
-              <Text style={styles.premiumSub}>Tüm bağlamların kilidini aç</Text>
+              <Text style={styles.premiumTitle}>
+                {isPremium ? 'Premium aktif' : "Premium'a geç"}
+              </Text>
+              <Text style={styles.premiumSub}>
+                {isPremium ? premiumSubtitle(subscription) : 'Tüm bağlamların kilidini aç'}
+              </Text>
             </View>
-            <ArrowRight size={18} color="#FFFFFF" weight="bold" />
+            {!isPremium && <ArrowRight size={18} color="#FFFFFF" weight="bold" />}
           </LinearGradient>
         </Pressable>
 

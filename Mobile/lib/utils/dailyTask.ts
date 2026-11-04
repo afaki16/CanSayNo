@@ -2,8 +2,8 @@
 // sırası korunur) kullanıcının ilerlemesine göre bir senaryo seçer.
 //
 // Öncelik: hiç denenmemiş → başlanıp tamamlanmamış → en düşük skorlu tamamlanmış.
-// Mobil abonelik durumunu bilmediği için yalnızca ücretsiz senaryolar aday olur
-// (premium olmayan kullanıcıyı paywall'a göndermemek için).
+// Premium olmayan kullanıcıya yalnızca ücretsiz senaryolar önerilir (paywall'a
+// göndermemek için); premium kullanıcıya hepsi.
 
 import type { ApiContextId, ApiScenarioListItem } from '@/types/api/scenario';
 
@@ -25,11 +25,11 @@ const CONTEXT_TASK_TITLES: Record<ApiContextId, string> = {
   satici: 'Satıcı ısrarıyla pratik yap',
 };
 
-function pick(scenarios: ApiScenarioListItem[]): {
+function pick(scenarios: ApiScenarioListItem[], isPremium: boolean): {
   scenario: ApiScenarioListItem;
   reason: DailyTaskReason;
 } | null {
-  const candidates = scenarios.filter((s) => s.isFree);
+  const candidates = isPremium ? scenarios : scenarios.filter((s) => s.isFree);
   if (candidates.length === 0) return null;
 
   const fresh = candidates.find((s) => s.attemptsCount === 0);
@@ -45,8 +45,11 @@ function pick(scenarios: ApiScenarioListItem[]): {
   return { scenario: weakest, reason: 'improve' };
 }
 
-export function getDailyTask(scenarios: ApiScenarioListItem[]): DailyTask | null {
-  const choice = pick(scenarios);
+export function getDailyTask(
+  scenarios: ApiScenarioListItem[],
+  isPremium = false,
+): DailyTask | null {
+  const choice = pick(scenarios, isPremium);
   if (!choice) return null;
 
   const { scenario, reason } = choice;

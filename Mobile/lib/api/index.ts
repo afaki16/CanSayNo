@@ -18,6 +18,7 @@ export {
   SESSION_ENDPOINTS,
   STATS_ENDPOINTS,
   ACCOUNT_ENDPOINTS,
+  SUBSCRIPTION_ENDPOINTS,
   isPath,
 } from './endpoints';
 export { queryClient } from './queryClient';
@@ -35,6 +36,7 @@ export { scenarioService } from './services/scenarioService';
 export { sessionService } from './services/sessionService';
 export { statsService } from './services/statsService';
 export { accountService } from './services/accountService';
+export { subscriptionService } from './services/subscriptionService';
 export {
   toStartSessionError,
   toSessionErrorMessage,

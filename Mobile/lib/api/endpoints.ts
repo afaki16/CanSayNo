@@ -45,6 +45,11 @@ export const ACCOUNT_ENDPOINTS = {
   DELETE: '/api/Account', // DELETE, gövde { password }
 } as const;
 
+// Premium durumu.
+export const SUBSCRIPTION_ENDPOINTS = {
+  ME: '/api/Subscriptions/me',
+} as const;
+
 // Kullanıcı istatistikleri (seri, haftalık aktivite, XP/seviye, rozetler).
 export const STATS_ENDPOINTS = {
   ME: '/api/Stats/me',

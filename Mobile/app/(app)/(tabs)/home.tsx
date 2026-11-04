@@ -28,6 +28,7 @@ import {
 } from '@/constants/theme';
 import { useScenarios } from '@/hooks/queries/useScenarios';
 import { useMySessions } from '@/hooks/queries/useSessions';
+import { useMySubscription } from '@/hooks/queries/useSubscription';
 import { EMPTY_STATS, useMyStats } from '@/hooks/queries/useStats';
 import { useAuth } from '@/hooks/useAuth';
 import { toSessionErrorMessage } from '@/lib/api';
@@ -67,7 +68,8 @@ export default function HomeScreen() {
   const stats = data ?? EMPTY_STATS;
   // Bugünkü görev: senaryo listesindeki ilerlemeye göre önerilir (lib/utils/dailyTask).
   const { data: scenarios } = useScenarios();
-  const dailyTask = scenarios ? getDailyTask(scenarios) : null;
+  const { data: subscription } = useMySubscription();
+  const dailyTask = scenarios ? getDailyTask(scenarios, subscription?.isPremium ?? false) : null;
 
   const firstName = user?.firstName ?? 'dostum';
   const xpRatio = Math.min(stats.xpInLevel / stats.xpPerLevel, 1);
