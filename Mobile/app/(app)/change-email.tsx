@@ -12,7 +12,7 @@ import {
   LockSimple,
   ShieldCheck,
 } from 'phosphor-react-native';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -119,7 +119,9 @@ export default function ChangeEmailScreen() {
           </View>
 
           {!pending ? (
-            <>
+            // Ayrı key: iki adımın FormField'ları aynı konumda; key olmadan React ilk adımın
+            // Controller'ını yeniden kullanır ve kod alanı eski forma bağlı kalır (yazılamaz).
+            <Fragment key="request">
               <View style={styles.header}>
                 <Text style={styles.title}>E-postanı değiştir</Text>
                 <Text style={styles.subtitle}>
@@ -186,9 +188,9 @@ export default function ChangeEmailScreen() {
               >
                 Kod gönder
               </Button>
-            </>
+            </Fragment>
           ) : (
-            <>
+            <Fragment key="code">
               <View style={styles.header}>
                 <Text style={styles.title}>Kodu gir</Text>
                 <Text style={styles.subtitle}>
@@ -248,7 +250,7 @@ export default function ChangeEmailScreen() {
                   </Text>
                 </Text>
               </Pressable>
-            </>
+            </Fragment>
           )}
         </ScrollView>
       </KeyboardAvoidingView>
