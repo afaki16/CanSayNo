@@ -17,8 +17,13 @@ import type {
 } from '@/types/api/auth';
 
 export const authService = {
+  // Mobilde her zaman "beni hatırla": refresh token yenilenirken bitiş tarihi
+  // korunur (kayan süre yok), yani bu süre dolunca kullanıcı tekrar giriş yapar.
   login: (body: LoginRequest) =>
-    apiPost<AuthResponse, LoginRequest>(AUTH_ENDPOINTS.LOGIN, body),
+    apiPost<AuthResponse, LoginRequest & { rememberMe: boolean }>(AUTH_ENDPOINTS.LOGIN, {
+      ...body,
+      rememberMe: true,
+    }),
 
   // 201 + oluşturulan kullanıcı döner; token YOK — e-posta doğrulanmadan
   // login reddedilir.
