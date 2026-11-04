@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CanSayNo.Domain.Entities.Hayirci;
 using CanSayNo.Domain.Enums;
 
@@ -21,11 +22,20 @@ public static class UserProgress
     /// <summary>Puan katkısı: toplam puanın %40'ı → pratik başına 10-50 XP.</summary>
     public const double ScoreXpFactor = 0.4;
 
+    /// <summary>WorkMaster: İş bağlamında bu kadar değerlendirilmiş pratik.</summary>
+    public const int WorkMasterSessions = 10;
+
     public sealed record Result(int XpEarned, IReadOnlyList<Badge> NewBadges);
 
     /// <param name="practiceDate">Pratiğin yerel (TR) takvim günü.</param>
     /// <param name="localHour">Pratiğin yerel (TR) saati, 0-23.</param>
-    public static Result ApplyCompletedSession(UserStats stats, int totalScore, DateOnly practiceDate, int localHour)
+    /// <param name="evaluatedByContext">Bağlam başına değerlendirilmiş pratik sayısı, BU pratik dahil.</param>
+    public static Result ApplyCompletedSession(
+        UserStats stats,
+        int totalScore,
+        DateOnly practiceDate,
+        int localHour,
+        IReadOnlyDictionary<ContextId, int> evaluatedByContext)
     {
         stats.TotalCompletedSessions++;
 
@@ -58,6 +68,10 @@ public static class UserProgress
         Unlock(Badge.NightOwl, localHour >= 22 || localHour < 4);
         Unlock(Badge.EarlyBird, localHour >= 5 && localHour < 8);
         Unlock(Badge.Persistent, stats.TotalCompletedSessions >= 50);
+        Unlock(Badge.WorkMaster,
+            evaluatedByContext.TryGetValue(ContextId.Is, out var workCount) && workCount >= WorkMasterSessions);
+        Unlock(Badge.ContextExplorer,
+            Enum.GetValues<ContextId>().All(c => evaluatedByContext.TryGetValue(c, out var n) && n > 0));
 
         if (newBadges.Count > 0)
         {

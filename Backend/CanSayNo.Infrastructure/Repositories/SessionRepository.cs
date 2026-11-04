@@ -96,6 +96,18 @@ public class SessionRepository : RepositoryBase<Session, Guid>, ISessionReposito
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyDictionary<ContextId, int>> GetEvaluatedCountsByContextAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Sessions
+            .AsNoTracking()
+            .Where(s => s.UserId == userId && s.TotalScore != null)
+            .GroupBy(s => s.Scenario.ContextId)
+            .Select(g => new { ContextId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.ContextId, x => x.Count, cancellationToken);
+    }
+
     public async Task<(IReadOnlyList<Session> Items, int TotalCount)> GetUserSessionsPagedAsync(
         int userId,
         int pageNumber,

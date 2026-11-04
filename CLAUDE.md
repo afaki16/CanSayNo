@@ -142,7 +142,8 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
 - Hayırcı'ya özel hata kodları 1100+: AiUnavailable 503, AiResponseRefused 422, SessionNotActive 409, SessionTokenLimitReached 429, SessionNotCompleted 409
 - **Eşzamanlılık (2026-11-04)**: `ISessionLock` (bellek içi, oturum başına; tek API örneğinde geçerli). Mesaj: kilit doluysa beklemeden 409 `sessionBusy` (1105), LLM'e gitmez. Değerlendirme: ikinci istek 85 sn'ye kadar bekler, sonra kayıtlı sonucu döner (LLM ve XP bir kez). Yatay ölçeklenirse DB kilidine geçilmeli
 - **Sahte Anthropic ile test**: `Anthropic:BaseUrl` (boş = gerçek API) yerel bir sahte sunucuya yönlendirilebilir; anahtarsız uçtan uca akış böyle doğrulandı (3 raunt + kapanış + değerlendirme, istek şekli: model, effort, `cache_control`, json_schema). Sonnet 5.5'te `thinking` gönderilmez — varsayılan adaptive. Gerçek modelin cevap kalitesi ve gerçek `cache_read` hâlâ doğrulanmadı
-- Bilinen eksikler: `WorkMaster` / `ContextExplorer` rozetleri yok; server-side refusal fallback eklenmedi (yalnızca cyber/frontier_llm'i kapsıyor)
+- Rozetler: `WorkMaster` (İş bağlamında 10 değerlendirilmiş pratik) ve `ContextExplorer` (5 bağlamın hepsinde ≥1) backend'de kazanılıyor; Profil tasarım gereği yalnızca 4 rozet gösteriyor
+- Bilinen eksikler: server-side refusal fallback eklenmedi (yalnızca cyber/frontier_llm'i kapsıyor)
 
 ## Diğer Bekleyenler
 

@@ -102,11 +102,18 @@ public class EvaluateSessionCommandHandler : IRequestHandler<EvaluateSessionComm
             await _unitOfWork.UserStats.AddAsync(stats, cancellationToken);
         }
 
+        // Bu oturum henüz kaydedilmediği için DB sayımına elle eklenir.
+        var evaluatedByContext = new Dictionary<ContextId, int>(
+            await _unitOfWork.Sessions.GetEvaluatedCountsByContextAsync(userId, cancellationToken));
+        var contextId = session.Scenario.ContextId;
+        evaluatedByContext[contextId] = evaluatedByContext.GetValueOrDefault(contextId) + 1;
+
         var progress = UserProgress.ApplyCompletedSession(
             stats,
             evaluation.TotalScore,
             _settings.GetUsageDate(utcNow),
-            utcNow.AddHours(_settings.UsageDayUtcOffsetHours).Hour);
+            utcNow.AddHours(_settings.UsageDayUtcOffsetHours).Hour,
+            evaluatedByContext);
 
         evaluation.XpEarned = progress.XpEarned;
         evaluation.StreakAfter = stats.CurrentStreak;

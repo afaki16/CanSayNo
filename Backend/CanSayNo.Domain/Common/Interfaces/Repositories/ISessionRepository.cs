@@ -56,6 +56,14 @@ public interface ISessionRepository : IRepository<Session, System.Guid>
         DateTime sinceUtc,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Kullanıcının bağlam başına DEĞERLENDİRİLMİŞ (TotalScore dolu) oturum sayısı. Bağlam rozetleri
+    /// (WorkMaster, ContextExplorer) için; hiç oturumu olmayan bağlam sözlükte yer almaz.
+    /// </summary>
+    Task<IReadOnlyDictionary<CanSayNo.Domain.Enums.ContextId, int>> GetEvaluatedCountsByContextAsync(
+        int userId,
+        CancellationToken cancellationToken = default);
+
     Task<(IReadOnlyList<Session> Items, int TotalCount)> GetUserSessionsPagedAsync(
         int userId,
         int pageNumber,
