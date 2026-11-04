@@ -146,7 +146,7 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
 
 - Premium gating (backend tarafında erişim kontrolü)
 - RevenueCat webhook handler (`RawWebhookData` yazarken JSON validasyonu)
-- Hesap silme + veri dışa aktarma (App Store / KVKK zorunlu)
+- ~~Hesap silme + veri dışa aktarma~~ — yapıldı (2026-11-04): `GET /api/Account/export` (JSON; şifre hash'i/token/ham webhook yok), `DELETE /api/Account` (gövde `{password}`, KALICI silme — FK'ler CASCADE, LoginAttempts e-postayla; son SuperAdmin 403). Mobil: Hesap bilgileri ekranında "Verilerimi indir" (expo-file-system + expo-sharing, paylaşım menüsü) ve iki adımlı "Hesabımı sil". Silme mağaza aboneliğini iptal etmez — kullanıcıya söyleniyor
 - Mobile için refresh token ömrü (şu an 7 gün, 30–90 gün olmalı)
 - Granular permission (`Scenarios.Read`)
 - Karakter illüstrasyonları — Leonardo.ai ile 2 örnek üretildi ama stilleri tutarsız; şimdilik Phosphor placeholder
