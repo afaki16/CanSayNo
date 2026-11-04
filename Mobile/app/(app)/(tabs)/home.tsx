@@ -26,18 +26,18 @@ import {
   Shadow,
   Spacing,
 } from '@/constants/theme';
+import { useScenarios } from '@/hooks/queries/useScenarios';
 import { useMySessions } from '@/hooks/queries/useSessions';
 import { EMPTY_STATS, useMyStats } from '@/hooks/queries/useStats';
 import { useAuth } from '@/hooks/useAuth';
 import { toSessionErrorMessage } from '@/lib/api';
 import { getContextIcon } from '@/lib/icons';
 import { contexts } from '@/lib/mockData';
+import { getDailyTask } from '@/lib/utils/dailyTask';
 import { formatRelativeTime } from '@/lib/utils/datetime';
 
 const WEEK_DAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 
-// Bugünkü görev şimdilik sabit; öneri endpoint'i gelince API'den seçilecek.
-const TODAYS_TASK_SCENARIO_ID = 'is_001_cuma_mesaji';
 
 // Skora göre badge renk eşlemesi (soft bg + text).
 function scoreColors(score: number) {
@@ -65,6 +65,9 @@ export default function HomeScreen() {
   // Yüklenirken/hata durumunda sıfırlarla çizilir; kartlar kaybolmaz.
   const { data } = useMyStats();
   const stats = data ?? EMPTY_STATS;
+  // Bugünkü görev: senaryo listesindeki ilerlemeye göre önerilir (lib/utils/dailyTask).
+  const { data: scenarios } = useScenarios();
+  const dailyTask = scenarios ? getDailyTask(scenarios) : null;
 
   const firstName = user?.firstName ?? 'dostum';
   const xpRatio = Math.min(stats.xpInLevel / stats.xpPerLevel, 1);
@@ -150,21 +153,25 @@ export default function HomeScreen() {
           </LinearGradient>
         </Pressable>
 
-        {/* Bugünkü görev */}
-        <Pressable
-          onPress={() => goScenarioDetail(TODAYS_TASK_SCENARIO_ID)}
-          style={styles.taskCard}
-          accessibilityRole="button"
-        >
-          <View style={styles.flex}>
-            <Text style={styles.taskLabel}>BUGÜNKÜ GÖREV</Text>
-            <Text style={styles.taskTitle}>İş baskısıyla pratik yap</Text>
-            <Text style={styles.taskSub}>Cuma 18:00 mesajını ele al · 5 dk</Text>
-          </View>
-          <View style={styles.playButton}>
-            <Play size={24} color={Colors.primary} weight="fill" />
-          </View>
-        </Pressable>
+        {/* Bugünkü görev — senaryolar yüklenene kadar kart gösterilmez */}
+        {dailyTask ? (
+          <Pressable
+            onPress={() => goScenarioDetail(dailyTask.scenarioId)}
+            style={styles.taskCard}
+            accessibilityRole="button"
+          >
+            <View style={styles.flex}>
+              <Text style={styles.taskLabel}>BUGÜNKÜ GÖREV</Text>
+              <Text style={styles.taskTitle}>{dailyTask.title}</Text>
+              <Text style={styles.taskSub} numberOfLines={1}>
+                {dailyTask.subtitle}
+              </Text>
+            </View>
+            <View style={styles.playButton}>
+              <Play size={24} color={Colors.primary} weight="fill" />
+            </View>
+          </Pressable>
+        ) : null}
 
         {/* İstatistikler — 2x2 grid */}
         <View style={styles.statsGrid}>
