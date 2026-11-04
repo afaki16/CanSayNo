@@ -13,6 +13,8 @@ import type {
   RegisterRequest,
   RegisterResponse,
   ResetPasswordCodeRequest,
+  EmailChangeCodeRequest,
+  EmailChangeConfirmRequest,
   UpdateProfileRequest,
 } from '@/types/api/auth';
 
@@ -56,4 +58,12 @@ export const authService = {
       AUTH_ENDPOINTS.RESET_PASSWORD_CODE,
       body,
     ),
+
+  // Hatalar: 400 (yanlış şifre, aynı adres, 60 sn bekleme), 409 (adres kullanımda).
+  sendEmailChangeCode: (body: EmailChangeCodeRequest) =>
+    apiPostVoid<EmailChangeCodeRequest>(AUTH_ENDPOINTS.EMAIL_CHANGE_CODE, body),
+
+  // Başarıda tüm oturumlar kapanır (refresh token'lar iptal); yeniden giriş gerekir.
+  confirmEmailChange: (body: EmailChangeConfirmRequest) =>
+    apiPostVoid<EmailChangeConfirmRequest>(AUTH_ENDPOINTS.EMAIL_CHANGE_CONFIRM, body),
 };

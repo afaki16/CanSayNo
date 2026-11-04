@@ -17,6 +17,10 @@ export const AUTH_ENDPOINTS = {
   // ile sıfırlanır. İkisi de anonim.
   FORGOT_PASSWORD_CODE: '/api/Auth/forgot-password/code',
   RESET_PASSWORD_CODE: '/api/Auth/reset-password/code',
+  // E-posta değişikliği (kodla, oturum açık): şifre + yeni adres → yeni adrese
+  // kod; kodla onay. Onayda backend tüm oturumları kapatır.
+  EMAIL_CHANGE_CODE: '/api/Auth/profile/email/code',
+  EMAIL_CHANGE_CONFIRM: '/api/Auth/profile/email/confirm',
 } as const;
 
 

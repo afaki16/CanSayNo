@@ -10,6 +10,7 @@ export default function AppLayout() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
       <Stack.Screen name="account" />
+      <Stack.Screen name="change-email" />
       <Stack.Screen name="scenarios/[id]" />
       <Stack.Screen name="scenarios/detail/[scenarioId]" />
       <Stack.Screen name="scenarios/practice/[scenarioId]" />

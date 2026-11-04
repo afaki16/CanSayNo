@@ -86,6 +86,28 @@ export function toResetPasswordErrorMessage(error: unknown): string {
   return GENERIC;
 }
 
+export function toEmailChangeErrorMessage(error: unknown): string {
+  if (!isApiError(error)) {
+    return GENERIC;
+  }
+  if (error.isNetworkError) {
+    return NETWORK;
+  }
+  if (error.status === 409) {
+    return 'Bu e-posta adresi başka bir hesapta kullanılıyor';
+  }
+  if (error.status === 429) {
+    return 'Çok fazla deneme yaptın, biraz bekleyip tekrar dene';
+  }
+  if (error.status === 400 && error.errors.length > 0) {
+    return error.errors.join('\n');
+  }
+  if (error.code && USER_FACING_CODES.includes(error.code)) {
+    return error.message;
+  }
+  return GENERIC;
+}
+
 export function toProfileErrorMessage(error: unknown): string {
   if (!isApiError(error)) {
     return GENERIC;

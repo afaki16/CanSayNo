@@ -91,6 +91,15 @@ export interface UpdateProfileRequest {
 
 // Kodla şifre sıfırlama. tenantId: mobil kullanıcılar tenant'sız; backend
 // e-posta tek hesaba aitse tenantId'ye bakmıyor, 0 "belirtilmedi" demek.
+export interface EmailChangeCodeRequest {
+  newEmail: string;
+  currentPassword: string;
+}
+
+export interface EmailChangeConfirmRequest {
+  code: string;
+}
+
 export interface ForgotPasswordCodeRequest {
   email: string;
   tenantId: number;

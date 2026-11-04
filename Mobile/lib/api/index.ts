@@ -52,6 +52,7 @@ export {
   toAccountErrorMessage,
   toRegisterErrorMessage,
   toResetPasswordErrorMessage,
+  toEmailChangeErrorMessage,
 } from './services/authErrors';
 export {
   toScenarioErrorMessage,

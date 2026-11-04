@@ -1,6 +1,6 @@
 // Hesap bilgileri — Profil'deki ayarlar kartından açılır.
-// Ad/soyad düzenlenir (PUT /api/Auth/profile). E-posta salt okunur: değişiklik
-// akışı backend'de var ama onay linkini açacak mobil ekran henüz yok.
+// Ad/soyad düzenlenir (PUT /api/Auth/profile). E-posta burada salt okunur;
+// değişiklik kodla ayrı ekranda yapılır ("E-postayı değiştir" → change-email).
 // Telefon formda yok; /me'den okunan değer olduğu gibi geri gönderilir (silinmesin).
 //
 // Altında KVKK / App Store bölümleri: "Verilerimi indir" (JSON, paylaşım menüsü) ve
@@ -20,6 +20,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   Alert,
+  Pressable,
   ScrollView,
   StyleSheet,
   View,
@@ -203,7 +204,14 @@ export default function AccountScreen() {
                   editable={false}
                   leftIcon={<EnvelopeSimple size={19} color={Colors.textMuted} />}
                 />
-                <Text style={styles.hint}>E-posta değişikliği yakında eklenecek.</Text>
+                <Pressable
+                  onPress={() => router.push('/(app)/change-email')}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  style={styles.hintLink}
+                >
+                  <Text style={styles.hintLinkText}>E-postayı değiştir</Text>
+                </Pressable>
               </View>
             </View>
           )}
@@ -389,5 +397,14 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: FontSize.xs,
     color: Colors.textMuted,
+  },
+  hintLink: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  hintLinkText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+    color: Colors.primary,
   },
 });
