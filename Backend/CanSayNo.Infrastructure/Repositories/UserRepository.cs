@@ -72,9 +72,12 @@ public class UserRepository : RepositoryBase<User, int>, IUserRepository
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
 
-    public async Task<bool> EmailExistsAsync(string email, int? tenantId)
+    public async Task<bool> EmailExistsAsync(string email, int? excludeUserId = null)
     {
-        return await _context.Set<User>().AnyAsync(u => u.Email == email && u.TenantId == tenantId);
+        var query = _context.Set<User>().Where(u => u.Email == email);
+        if (excludeUserId.HasValue)
+            query = query.Where(u => u.Id != excludeUserId.Value);
+        return await query.AnyAsync();
     }
 
     public async Task<bool> PhoneExistsAsync(string phoneNumber, int? tenantId, int? excludeUserId = null)

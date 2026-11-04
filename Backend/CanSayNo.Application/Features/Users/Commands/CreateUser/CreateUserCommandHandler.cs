@@ -56,8 +56,8 @@ namespace CanSayNo.Application.Features.Users.Commands.CreateUser
 
             var normalizedEmail = request.Email?.Trim().ToLowerInvariant();
 
-            // Check if email already exists within this tenant scope
-            if (await _unitOfWork.Users.EmailExistsAsync(normalizedEmail, tenantId))
+            // Email is unique across all tenants
+            if (await _unitOfWork.Users.EmailExistsAsync(normalizedEmail))
                 return Result<UserListDto>.Failure(Error.Failure(
                     ErrorCode.AlreadyExists,
                     _localizer["users.emailExists"]));

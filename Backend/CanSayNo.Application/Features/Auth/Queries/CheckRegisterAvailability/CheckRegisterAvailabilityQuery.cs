@@ -46,7 +46,7 @@ namespace CanSayNo.Application.Features.Auth.Queries.CheckRegisterAvailability
 
             if (!string.IsNullOrWhiteSpace(request.Email))
             {
-                var taken = await _unitOfWork.Users.EmailExistsAsync(request.Email.Trim().ToLowerInvariant(), tenantId: null);
+                var taken = await _unitOfWork.Users.EmailExistsAsync(request.Email.Trim().ToLowerInvariant());
                 dto.Email = new FieldAvailability { IsAvailable = !taken, Reason = taken ? _localizer["users.emailExists"] : null };
             }
 

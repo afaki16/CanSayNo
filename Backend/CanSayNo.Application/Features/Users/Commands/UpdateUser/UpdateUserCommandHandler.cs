@@ -62,9 +62,8 @@ namespace CanSayNo.Application.Features.Users.Commands.UpdateUser
 
             var normalizedEmail = request.Email?.Trim().ToLowerInvariant();
 
-            // Check if email already exists for another user in the same tenant
-        var existingUser = await _unitOfWork.Users.GetByEmailAsync(normalizedEmail, user.TenantId);
-            if (existingUser != null && existingUser.Id != request.Id)
+            // Email is unique across all tenants
+            if (await _unitOfWork.Users.EmailExistsAsync(normalizedEmail, excludeUserId: request.Id))
             return Result<UserListDto>.Failure(Error.Failure(
                         ErrorCode.AlreadyExists,
                         _localizer["users.emailExists"]));

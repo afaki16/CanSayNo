@@ -49,7 +49,7 @@ namespace CanSayNo.Application.Features.Auth.Commands.ConfirmEmailChange
             var user = token.User;
 
             // The address may have been taken by someone else since the request
-            if (await _unitOfWork.Users.EmailExistsAsync(newEmail, user.TenantId))
+            if (await _unitOfWork.Users.EmailExistsAsync(newEmail))
                 return Result.Failure(Error.Failure(ErrorCode.AlreadyExists, _localizer["users.emailExists"]));
 
             var oldEmail = user.Email;

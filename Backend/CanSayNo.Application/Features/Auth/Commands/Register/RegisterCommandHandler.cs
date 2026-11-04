@@ -64,8 +64,8 @@ namespace CanSayNo.Application.Features.Auth.Commands.Register
         {
             var normalizedEmail = request.Email?.Trim().ToLowerInvariant();
 
-            // Public register: users without a tenant share one uniqueness scope (TenantId null)
-            if (await _unitOfWork.Users.EmailExistsAsync(normalizedEmail, tenantId: null))
+            // Email is unique across all tenants (seeded tenant users included)
+            if (await _unitOfWork.Users.EmailExistsAsync(normalizedEmail))
              return Result<UserDto>.Failure(Error.Failure(
                   ErrorCode.AlreadyExists,
                   _localizer["users.emailExists"]));

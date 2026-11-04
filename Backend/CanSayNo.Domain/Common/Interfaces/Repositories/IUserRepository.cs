@@ -19,7 +19,12 @@ namespace CanSayNo.Domain.Common.Interfaces.Repositories
         /// </summary>
         Task<User> GetUserWithRolesReadOnlyAsync(int userId);
         Task<User> GetUserWithPermissionsAsync(int userId);
-        Task<bool> EmailExistsAsync(string email, int? tenantId);
+        /// <summary>
+        /// Email uniqueness is global (across all tenants): Hayırcı entities are not tenant-scoped,
+        /// so a mobile user (TenantId=null) must not be able to take a seeded tenant user's address.
+        /// </summary>
+        /// <param name="excludeUserId">If set, that user is ignored (for updates).</param>
+        Task<bool> EmailExistsAsync(string email, int? excludeUserId = null);
         /// <param name="excludeUserId">If set, that user is ignored (for updates).</param>
         Task<bool> PhoneExistsAsync(string phoneNumber, int? tenantId, int? excludeUserId = null);
         Task<UserRole> GetUserRoleAsync(int userId, int roleId);

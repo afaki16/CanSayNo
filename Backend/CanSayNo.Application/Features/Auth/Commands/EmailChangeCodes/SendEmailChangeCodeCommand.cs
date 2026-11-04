@@ -87,7 +87,7 @@ namespace CanSayNo.Application.Features.Auth.Commands.EmailChangeCodes
             if (newEmail == user.Email)
                 return Result.Failure(Error.Failure(ErrorCode.ValidationFailed, _localizer["auth.emailChangeSameAddress"]));
 
-            if (await _unitOfWork.Users.EmailExistsAsync(newEmail, user.TenantId))
+            if (await _unitOfWork.Users.EmailExistsAsync(newEmail))
                 return Result.Failure(Error.Failure(ErrorCode.AlreadyExists, _localizer["users.emailExists"]));
 
             var issue = await _otpService.IssueAsync(
