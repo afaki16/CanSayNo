@@ -16,8 +16,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   newArchEnabled: true,
   ios: {
     supportsTablet: true,
+    // Mağaza kimliği — yayından sonra DEĞİŞTİRİLEMEZ (RevenueCat ürünleri de buna bağlı).
+    bundleIdentifier: 'com.cansayno.app',
   },
   android: {
+    package: 'com.cansayno.app',
     adaptiveIcon: {
       backgroundColor: '#E6F4FE',
       foregroundImage: './assets/images/android-icon-foreground.png',
@@ -47,6 +50,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-secure-store',
     'expo-font',
+    // RevenueCat: Android'de varsayılan singleTask, kullanıcı ödemeyi doğrulamak için
+    // uygulamadan çıkıp dönünce satın almayı iptal edebiliyor.
+    './plugins/withAndroidLaunchMode',
   ],
   experiments: {
     typedRoutes: true,
@@ -57,5 +63,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Tip-güvenli erişim için lib/config/env.ts kullan, doğrudan okuma.
     apiBaseUrl: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5156',
     appEnv: process.env.EXPO_PUBLIC_APP_ENV || 'development',
+    // RevenueCat public SDK anahtarları (gizli değil; secret/webhook anahtarı ASLA buraya girmez).
+    // Boşsa satın alma kapalı kalır — paywall bunu gösterir.
+    revenueCatIosKey: process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || '',
+    revenueCatAndroidKey: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || '',
   },
 });

@@ -20,6 +20,7 @@ import 'react-native-reanimated';
 import { LoadingScreen } from '@/components/ui';
 import { Fonts } from '@/constants/theme';
 // Barrel import: queryClient + response interceptor (401 → refresh) side-effect olarak kayıt olur.
+import { usePurchasesIdentity } from '@/hooks/usePurchasesIdentity';
 import { useSessionValidation } from '@/hooks/useSessionValidation';
 import { queryClient } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
@@ -30,6 +31,8 @@ export default function RootLayout() {
   const rehydrate = useAuthStore((state) => state.rehydrate);
 
   useSessionValidation();
+  // RevenueCat appUserID = backend User.Id; giriş/çıkışta eşitlenir.
+  usePurchasesIdentity();
 
   // Oturum değişince (giriş, çıkış, refresh başarısız) sorguları sıfırla:
   // önceki hesabın verisi (ilerleme, istatistik) yeni hesaba görünmesin ve

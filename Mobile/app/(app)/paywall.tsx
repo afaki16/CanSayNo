@@ -1,6 +1,7 @@
 // Paywall — koyu tam ekran modal. Taç hero, fayda listesi, yıllık/aylık plan
-// seçimi ve CTA. Satın alma RevenueCat entegrasyonuna kadar devre dışı;
-// fiyatlar şimdilik sabit (aylık ₺79, yıllık ₺499).
+// seçimi ve CTA. Planlar ve fiyatlar RevenueCat "current" offering'inden gelir
+// (mağazanın yerel fiyat metni); satın alma/geri yükleme usePremiumPurchase'ta.
+// Premium, mağaza işleminden sonra backend webhook'u görünce açılır.
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -15,11 +16,14 @@ import {
   X,
 } from 'phosphor-react-native';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Text } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
+import { useMySubscription } from '@/hooks/queries/useSubscription';
+import { usePremiumPurchase } from '@/hooks/usePremiumPurchase';
+import { toPurchaseErrorMessage, type PurchasesPackage } from '@/lib/purchases/purchases';
 
 interface Benefit {
   icon: Icon;
@@ -66,8 +70,97 @@ type PlanId = 'yearly' | 'monthly';
 
 const WHITE_55 = 'rgba(255,255,255,0.55)';
 
+// Yıllığın aylık eşdeğerine göre indirim yüzdesi (ör. 48). Hesaplanamazsa null.
+function yearlyDiscountPercent(
+  yearly: PurchasesPackage | null,
+  monthly: PurchasesPackage | null,
+): number | null {
+  if (!yearly || !monthly || monthly.product.price <= 0) {
+    return null;
+  }
+  const percent = Math.round((1 - yearly.product.price / (monthly.product.price * 12)) * 100);
+  return percent > 0 ? percent : null;
+}
+
+// Aylığın 12 katı, mağazanın para biriminde ("₺948"). Biçimlenemezse null.
+function twelveMonthsPrice(monthly: PurchasesPackage | null): string | null {
+  if (!monthly) {
+    return null;
+  }
+  try {
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: monthly.product.currencyCode,
+      maximumFractionDigits: 0,
+    }).format(monthly.product.price * 12);
+  } catch {
+    return null;
+  }
+}
+
 export default function PaywallScreen() {
   const [plan, setPlan] = useState<PlanId>('yearly');
+  const { data: subscription } = useMySubscription();
+  const {
+    enabled,
+    yearly,
+    monthly,
+    isLoadingOffering,
+    offeringError,
+    refetchOffering,
+    purchase,
+    isPurchasing,
+    restore,
+    isRestoring,
+  } = usePremiumPurchase();
+
+  const isPremium = subscription?.isPremium ?? false;
+  const hasPlans = yearly !== null || monthly !== null;
+  // Seçili plan teklifte yoksa diğerine düş (ör. yalnızca aylık tanımlıysa).
+  const selectedPlan: PlanId =
+    plan === 'yearly' ? (yearly ? 'yearly' : 'monthly') : monthly ? 'monthly' : 'yearly';
+  const selectedPackage = selectedPlan === 'yearly' ? yearly : monthly;
+  const discount = yearlyDiscountPercent(yearly, monthly);
+  const oldYearlyPrice = discount !== null ? twelveMonthsPrice(monthly) : null;
+
+  const onPurchase = async () => {
+    if (!selectedPackage) {
+      return;
+    }
+    try {
+      const outcome = await purchase(selectedPackage);
+      if (outcome === 'premium') {
+        Alert.alert('Premium aktif', 'Tüm bağlamlar ve sınırsız pratik açıldı.', [
+          { text: 'Harika', onPress: () => router.back() },
+        ]);
+      } else if (outcome === 'pending') {
+        Alert.alert('Satın alma alındı', 'Premium birkaç dakika içinde hesabında aktif olacak.', [
+          { text: 'Tamam', onPress: () => router.back() },
+        ]);
+      }
+      // 'cancelled': kullanıcı vazgeçti, ekranda kal.
+    } catch (e) {
+      Alert.alert('Satın alma tamamlanamadı', toPurchaseErrorMessage(e));
+    }
+  };
+
+  const onRestore = async () => {
+    try {
+      const outcome = await restore();
+      if (outcome === 'premium') {
+        Alert.alert('Geri yüklendi', 'Premium aboneliğin bu hesapta aktif.', [
+          { text: 'Tamam', onPress: () => router.back() },
+        ]);
+      } else {
+        Alert.alert(
+          'Aktif abonelik bulunamadı',
+          'Bu mağaza hesabında aktif bir CanSayNo aboneliği görünmüyor.',
+        );
+      }
+    } catch (e) {
+      Alert.alert('Geri yüklenemedi', toPurchaseErrorMessage(e));
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
@@ -131,55 +224,132 @@ export default function PaywallScreen() {
           })}
         </View>
 
-        {/* Planlar */}
-        <View style={styles.plans}>
-          <Pressable
-            onPress={() => setPlan('yearly')}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: plan === 'yearly' }}
-            style={[styles.planCard, plan === 'yearly' && styles.planCardSelected]}
-          >
-            <View style={styles.planBadge}>
-              <Text style={styles.planBadgeText}>EN POPÜLER · %48 İNDİRİM</Text>
-            </View>
-            <View style={styles.planRow}>
-              <View>
-                <Text style={styles.planName}>Yıllık</Text>
-                <Text style={styles.planNote}>₺41,58 / ay olarak faturalanır</Text>
-              </View>
-              <View style={styles.planPriceCol}>
-                <Text style={styles.planPrice}>₺499</Text>
-                <Text style={styles.planOldPrice}>₺948</Text>
-              </View>
-            </View>
-          </Pressable>
+        {isPremium ? (
+          <View style={styles.premiumBox}>
+            <Text style={styles.premiumTitle}>Premium zaten aktif</Text>
+            <Text style={styles.premiumText}>
+              Tüm bağlamlar ve sınırsız pratik hesabında açık.
+            </Text>
+            <Button variant="primary" size="lg" fullWidth onPress={() => router.back()}>
+              Pratiğe dön
+            </Button>
+          </View>
+        ) : (
+          <>
+            {/* Planlar */}
+            <View style={styles.plans}>
+              {isLoadingOffering ? (
+                <View style={styles.plansState}>
+                  <ActivityIndicator color="#FFFFFF" />
+                </View>
+              ) : !enabled ? (
+                <View style={styles.plansState}>
+                  <Text style={styles.stateText}>Satın alma bu sürümde kapalı.</Text>
+                </View>
+              ) : offeringError || !hasPlans ? (
+                <View style={styles.plansState}>
+                  <Text style={styles.stateText}>Planlar yüklenemedi.</Text>
+                  <Pressable
+                    onPress={() => refetchOffering()}
+                    hitSlop={8}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.retryText}>Tekrar dene</Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <>
+                  {yearly ? (
+                    <Pressable
+                      onPress={() => setPlan('yearly')}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: selectedPlan === 'yearly' }}
+                      style={[styles.planCard, selectedPlan === 'yearly' && styles.planCardSelected]}
+                    >
+                      {discount !== null ? (
+                        <View style={styles.planBadge}>
+                          <Text style={styles.planBadgeText}>
+                            EN POPÜLER · %{discount} İNDİRİM
+                          </Text>
+                        </View>
+                      ) : null}
+                      <View style={styles.planRow}>
+                        <View>
+                          <Text style={styles.planName}>Yıllık</Text>
+                          {yearly.product.pricePerMonthString ? (
+                            <Text style={styles.planNote}>
+                              {yearly.product.pricePerMonthString} / ay olarak faturalanır
+                            </Text>
+                          ) : null}
+                        </View>
+                        <View style={styles.planPriceCol}>
+                          <Text style={styles.planPrice}>{yearly.product.priceString}</Text>
+                          {oldYearlyPrice ? (
+                            <Text style={styles.planOldPrice}>{oldYearlyPrice}</Text>
+                          ) : null}
+                        </View>
+                      </View>
+                    </Pressable>
+                  ) : null}
 
-          <Pressable
-            onPress={() => setPlan('monthly')}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: plan === 'monthly' }}
-            style={[styles.planCard, plan === 'monthly' && styles.planCardSelected]}
-          >
-            <View style={styles.planRow}>
-              <View>
-                <Text style={styles.planName}>Aylık</Text>
-                <Text style={styles.planNote}>İstediğin zaman iptal et</Text>
-              </View>
-              <Text style={styles.planPrice}>₺79</Text>
+                  {monthly ? (
+                    <Pressable
+                      onPress={() => setPlan('monthly')}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: selectedPlan === 'monthly' }}
+                      style={[
+                        styles.planCard,
+                        selectedPlan === 'monthly' && styles.planCardSelected,
+                      ]}
+                    >
+                      <View style={styles.planRow}>
+                        <View>
+                          <Text style={styles.planName}>Aylık</Text>
+                          <Text style={styles.planNote}>İstediğin zaman iptal et</Text>
+                        </View>
+                        <Text style={styles.planPrice}>{monthly.product.priceString}</Text>
+                      </View>
+                    </Pressable>
+                  ) : null}
+                </>
+              )}
             </View>
-          </Pressable>
-        </View>
 
-        {/* CTA — RevenueCat gelene kadar devre dışı */}
-        <View style={styles.cta}>
-          <Button variant="primary" size="lg" fullWidth disabled onPress={() => {}}>
-            Premium&apos;a geç
-          </Button>
-          <Text style={styles.soonNote}>Satın alma yakında aktif olacak</Text>
-          <Text style={styles.footer}>
-            Satın alımı geri yükle · Koşullar · Gizlilik
-          </Text>
-        </View>
+            {/* CTA */}
+            <View style={styles.cta}>
+              <Button
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={!selectedPackage || isRestoring}
+                loading={isPurchasing}
+                onPress={onPurchase}
+              >
+                Premium&apos;a geç
+              </Button>
+              {isPurchasing ? (
+                <Text style={styles.soonNote}>Satın alma doğrulanıyor…</Text>
+              ) : null}
+              <Text style={styles.footer}>
+                Abonelik, iptal edilmediği sürece dönem sonunda otomatik yenilenir. İptal,
+                mağaza hesabının abonelik ayarlarından yapılır.
+              </Text>
+              {enabled ? (
+                <Pressable
+                  onPress={onRestore}
+                  disabled={isPurchasing || isRestoring}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  style={styles.restoreButton}
+                >
+                  <Text style={styles.restoreText}>
+                    {isRestoring ? 'Geri yükleniyor…' : 'Satın alımı geri yükle'}
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -293,6 +463,22 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: Spacing.lg,
   },
+  plansState: {
+    minHeight: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+  },
+  stateText: {
+    fontSize: FontSize.sm,
+    color: WHITE_55,
+    textAlign: 'center',
+  },
+  retryText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+    color: Colors.primaryLight,
+  },
   planCard: {
     padding: Spacing.md,
     borderRadius: 18,
@@ -349,6 +535,24 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
   },
 
+  // Premium zaten aktif
+  premiumBox: {
+    gap: Spacing.sm,
+    paddingVertical: Spacing.lg,
+    alignItems: 'center',
+  },
+  premiumTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.black,
+    color: '#FFFFFF',
+  },
+  premiumText: {
+    fontSize: FontSize.sm,
+    color: WHITE_55,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
+  },
+
   // CTA
   cta: {
     gap: Spacing.sm,
@@ -363,5 +567,14 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     color: 'rgba(255,255,255,0.4)',
     textAlign: 'center',
+  },
+  restoreButton: {
+    alignSelf: 'center',
+    paddingVertical: Spacing.xs,
+  },
+  restoreText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+    color: 'rgba(255,255,255,0.75)',
   },
 });

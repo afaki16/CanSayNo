@@ -7,6 +7,8 @@ import { Platform } from 'react-native';
 
 interface AppEnv {
   apiBaseUrl: string;
+  // Platformun RevenueCat public SDK anahtarı; yoksa null (satın alma kapalı).
+  revenueCatApiKey: string | null;
   appEnv: 'development' | 'staging' | 'production';
   isDev: boolean;
   isProd: boolean;
@@ -30,8 +32,17 @@ function getApiBaseUrl(): string {
   return configuredUrl;
 }
 
+function getRevenueCatApiKey(): string | null {
+  const extra = Constants.expoConfig?.extra;
+  const key = (Platform.OS === 'ios' ? extra?.revenueCatIosKey : extra?.revenueCatAndroidKey) as
+    | string
+    | undefined;
+  return key ? key : null;
+}
+
 export const env: AppEnv = {
   apiBaseUrl: getApiBaseUrl(),
+  revenueCatApiKey: getRevenueCatApiKey(),
   appEnv:
     (Constants.expoConfig?.extra?.appEnv as AppEnv['appEnv']) || 'development',
   get isDev() {
