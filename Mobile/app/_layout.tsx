@@ -12,7 +12,8 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
@@ -29,6 +30,18 @@ export default function RootLayout() {
   const rehydrate = useAuthStore((state) => state.rehydrate);
 
   useSessionValidation();
+
+  // Oturum değişince (giriş, çıkış, refresh başarısız) sorguları sıfırla:
+  // önceki hesabın verisi (ilerleme, istatistik) yeni hesaba görünmesin ve
+  // önceki oturumdan kalan 401 hataları yeni girişte tekrar kullanılmasın.
+  // clear() değil resetQueries(): ekrandaki sorgular silinmez, sıfırlanıp yeniden çekilir.
+  const previousAuth = useRef(isAuthenticated);
+  useEffect(() => {
+    if (previousAuth.current !== isAuthenticated) {
+      queryClient.resetQueries();
+      previousAuth.current = isAuthenticated;
+    }
+  }, [isAuthenticated]);
 
   // Font yüklenemezse (fontError) sistem fontuyla devam et — açılışı bloklama.
   const [fontsLoaded, fontError] = useFonts({
@@ -49,15 +62,19 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Protected guard={!isAuthenticated}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-          </Stack.Protected>
-          <Stack.Protected guard={isAuthenticated}>
-            <Stack.Screen name="(app)" />
-          </Stack.Protected>
-        </Stack>
+        {/* RN'nin KeyboardAvoidingView'i Android edge-to-edge'de klavye kapanınca boşluk bırakıyordu;
+            ekranlar react-native-keyboard-controller'ın sürümünü kullanır. */}
+        <KeyboardProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Protected guard={!isAuthenticated}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(auth)" />
+            </Stack.Protected>
+            <Stack.Protected guard={isAuthenticated}>
+              <Stack.Screen name="(app)" />
+            </Stack.Protected>
+          </Stack>
+        </KeyboardProvider>
         <StatusBar style="dark" />
       </SafeAreaProvider>
     </QueryClientProvider>
