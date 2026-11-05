@@ -7,6 +7,7 @@
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import {
   ArrowUpRight,
   ChatCircleText,
@@ -104,6 +105,7 @@ export default function ResultScreen() {
 
   return (
     <View style={styles.root}>
+      <StatusBar style="light" />
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Kutlama header'ı */}
         <LinearGradient
@@ -270,6 +272,9 @@ export default function ResultScreen() {
           </View>
         </View>
       </ScrollView>
+      {/* Durum çubuğu şeridi: kaydırınca içerik saat/ikonların altına girmesin.
+          Rengi hero gradyanının üst rengiyle aynı, en üstteyken fark edilmez. */}
+      <View style={[styles.statusBarScrim, { height: insets.top }]} pointerEvents="none" />
     </View>
   );
 }
@@ -278,6 +283,13 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  statusBarScrim: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.primary,
   },
   centered: {
     alignItems: 'center',
