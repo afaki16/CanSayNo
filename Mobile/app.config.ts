@@ -50,6 +50,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-secure-store',
     'expo-font',
+    // Yerel hatırlatmalar. Android küçük ikon: tek renk (beyaz + şeffaf) olmalı.
+    [
+      'expo-notifications',
+      { icon: './assets/images/android-icon-monochrome.png', color: '#2D7FF9' },
+    ],
     // RevenueCat: Android'de varsayılan singleTask, kullanıcı ödemeyi doğrulamak için
     // uygulamadan çıkıp dönünce satın almayı iptal edebiliyor.
     './plugins/withAndroidLaunchMode',

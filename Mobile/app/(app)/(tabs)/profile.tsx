@@ -34,7 +34,9 @@ import { useMySessions } from '@/hooks/queries/useSessions';
 import { EMPTY_STATS, useMyStats } from '@/hooks/queries/useStats';
 import { useMySubscription } from '@/hooks/queries/useSubscription';
 import { useAuth } from '@/hooks/useAuth';
+import { formatReminderTime } from '@/lib/notifications/reminderPlan';
 import { getInitials } from '@/lib/utils/initials';
+import { useReminderStore } from '@/stores/reminderStore';
 import type { ApiBadge } from '@/types/api/stats';
 import type { ApiMySubscription } from '@/types/api/subscription';
 
@@ -81,6 +83,7 @@ export default function ProfileScreen() {
   const { data } = useMyStats();
   const stats = data ?? EMPTY_STATS;
   const { data: subscription } = useMySubscription();
+  const reminderPrefs = useReminderStore((state) => state.prefs);
   const isPremium = subscription?.isPremium ?? false;
 
   // logout() bilerek throw etmiyor: backend'e ulaşılamasa veya token süresi
@@ -212,17 +215,23 @@ export default function ProfileScreen() {
             <CaretRight size={16} color={Colors.textDisabled} />
           </Pressable>
 
-          {/* Bildirim altyapısı (push) henüz yok — tasarımdaki yerinde, "Yakında" olarak. */}
-          <View
-            style={[styles.settingRow, styles.settingRowDivider]}
-            accessibilityState={{ disabled: true }}
+          {/* Yerel günlük hatırlatma (sunucu push'u yok). */}
+          <Pressable
+            onPress={() => router.push('/(app)/notifications')}
+            accessibilityRole="button"
+            style={({ pressed }) => [
+              styles.settingRow,
+              styles.settingRowDivider,
+              pressed && styles.pressed,
+            ]}
           >
             <Bell size={21} color={Colors.textSecondary} />
-            <Text style={[styles.settingText, styles.settingTextMuted]}>Bildirimler</Text>
-            <View style={styles.soonPill}>
-              <Text style={styles.soonPillText}>YAKINDA</Text>
-            </View>
-          </View>
+            <Text style={styles.settingText}>Bildirimler</Text>
+            <Text style={styles.settingValue}>
+              {reminderPrefs.enabled ? formatReminderTime(reminderPrefs) : 'Kapalı'}
+            </Text>
+            <CaretRight size={16} color={Colors.textDisabled} />
+          </Pressable>
 
           <Pressable
             onPress={handleLogout}
@@ -434,19 +443,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: FontWeight.semibold,
   },
-  settingTextMuted: {
-    color: Colors.textMuted,
-  },
-  soonPill: {
-    backgroundColor: Colors.chip,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: Radius.full,
-  },
-  soonPillText: {
-    fontSize: 10,
-    fontWeight: FontWeight.extrabold,
-    letterSpacing: 0.4,
+  settingValue: {
+    fontSize: FontSize.sm,
     color: Colors.textMuted,
   },
   pressed: {

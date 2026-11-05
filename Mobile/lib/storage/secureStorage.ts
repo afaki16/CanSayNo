@@ -10,6 +10,8 @@ export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'auth.accessToken',
   REFRESH_TOKEN: 'auth.refreshToken',
   USER: 'auth.user',
+  // Hatırlatma tercihi cihaza aittir; çıkışta silinmez.
+  REMINDER_PREFS: 'prefs.reminder',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
