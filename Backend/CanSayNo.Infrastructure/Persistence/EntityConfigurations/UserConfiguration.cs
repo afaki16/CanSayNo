@@ -24,15 +24,13 @@ namespace CanSayNo.Infrastructure.Persistence.EntityConfigurations
                 .IsRequired()
                 .HasMaxLength(100);
 
-            // Email unique per tenant; separate rule when TenantId is null (public / legacy rows).
-            // Soft-deleted rows are excluded so email/phone can be reused after delete.
-            builder.HasIndex(x => new { x.TenantId, x.Email })
-                .IsUnique()
-                .HasFilter("\"TenantId\" IS NOT NULL AND NOT \"IsDeleted\"");
-
+            // Email is unique across ALL tenants (Hayırcı entities are not tenant-scoped; see
+            // IUserRepository.EmailExistsAsync). Handlers check first; this index closes the race
+            // where two concurrent registrations pass the check. Soft-deleted rows are excluded so
+            // an address can be reused after delete.
             builder.HasIndex(x => x.Email)
                 .IsUnique()
-                .HasFilter("\"TenantId\" IS NULL AND NOT \"IsDeleted\"");
+                .HasFilter("NOT \"IsDeleted\"");
 
             builder.Property(x => x.PasswordHash)
                 .IsRequired()

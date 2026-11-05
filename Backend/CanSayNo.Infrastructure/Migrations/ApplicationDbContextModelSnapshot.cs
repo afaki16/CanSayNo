@@ -801,17 +801,13 @@ namespace CanSayNo.Infrastructure.Migrations
 
                     b.HasIndex("Email")
                         .IsUnique()
-                        .HasFilter("\"TenantId\" IS NULL AND NOT \"IsDeleted\"");
+                        .HasFilter("NOT \"IsDeleted\"");
 
                     b.HasIndex("PhoneNumber")
                         .IsUnique()
                         .HasFilter("\"TenantId\" IS NULL AND \"PhoneNumber\" IS NOT NULL AND \"PhoneNumber\" <> '' AND NOT \"IsDeleted\"");
 
                     b.HasIndex("TenantId");
-
-                    b.HasIndex("TenantId", "Email")
-                        .IsUnique()
-                        .HasFilter("\"TenantId\" IS NOT NULL AND NOT \"IsDeleted\"");
 
                     b.HasIndex("TenantId", "PhoneNumber")
                         .IsUnique()
