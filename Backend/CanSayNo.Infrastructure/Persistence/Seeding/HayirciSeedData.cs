@@ -7,13 +7,14 @@ using Microsoft.Extensions.Logging;
 namespace CanSayNo.Infrastructure.Persistence.Seeding
 {
     /// <summary>
-    /// Hayırcı (CanSayNo) test senaryolarını runtime'da seed eder.
+    /// Hayırcı (CanSayNo) senaryolarını runtime'da seed eder (ilk 7 burada, kalan katalog
+    /// <c>HayirciSeedData.Catalog.cs</c>'de).
     ///
     /// EF Core <c>HasData</c> KULLANILMAZ — JSONB owned/converter alanları HasData ile sorun
     /// çıkarır ve her model değişikliğinde migration'a gömülür. Bunun yerine startup'ta
     /// (migration sonrası) idempotent ekleme yapılır: ID'si zaten DB'de olan senaryo atlanır.
     /// </summary>
-    public static class HayirciSeedData
+    public static partial class HayirciSeedData
     {
         public static async Task SeedScenariosAsync(IServiceProvider serviceProvider)
         {
@@ -23,7 +24,7 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
 
             try
             {
-                var seedScenarios = BuildScenarios();
+                var seedScenarios = BuildScenarios().Concat(BuildCatalogScenarios()).ToList();
                 var seedIds = seedScenarios.Select(s => s.Id).ToList();
 
                 var existingIds = await context.Scenarios

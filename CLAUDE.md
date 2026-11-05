@@ -57,7 +57,7 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 | `DailyUsage` | (UserId, Date) composite | — |
 
 - JSONB: `System.Text.Json` + `HasConversion` + `ValueComparer` (`Configurations/Hayirci/JsonbColumnExtensions.cs`). `.OwnsOne().ToJson()` KULLANMA — `Dictionary<enum,int>` ve `List<enum>` ile kırılıyor
-- Seed: `Persistence/Seeding/HayirciSeedData.cs`, runtime + idempotent (HasData değil). DB'de 7 senaryo: `is_001`…`is_006` + `aile_001_evlenmek`
+- Seed: `Persistence/Seeding/HayirciSeedData.cs` (ilk 7) + `HayirciSeedData.Catalog.cs` (43, kısa `Make(...)` yardımcısıyla), runtime + idempotent (HasData değil; var olan ID atlanır, mevcut senaryo GÜNCELLENMEZ). **50 senaryo (2026-11-05)**: her bağlamda 10; İş'in 10'u ücretsiz, diğerleri premium
 - `PressureTactics` hiçbir DTO'da yok — sadece AI prompt'una girer, client'a asla sızmamalı
 
 ### Mevcut API
