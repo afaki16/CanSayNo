@@ -17,6 +17,7 @@ import {
   Star,
   ThumbsUp,
 } from 'phosphor-react-native';
+import { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
@@ -51,6 +52,8 @@ export default function ResultScreen() {
     sessionId?: string;
   }>();
   const insets = useSafeAreaInsets();
+  // Şerit yalnızca kaydırınca görünür; en üstte gradyanın kendisi durum çubuğunun arkasında.
+  const [isScrolled, setIsScrolled] = useState(false);
   const { startPractice, isStarting } = useStartPractice();
   const { data: session, isPending, isError, error, refetch, isFetching } =
     useEvaluateSession(sessionId);
@@ -106,7 +109,11 @@ export default function ResultScreen() {
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={(e) => setIsScrolled(e.nativeEvent.contentOffset.y > 8)}
+      >
         {/* Kutlama header'ı */}
         <LinearGradient
           colors={[Colors.primary, Colors.primaryDark]}
@@ -272,9 +279,10 @@ export default function ResultScreen() {
           </View>
         </View>
       </ScrollView>
-      {/* Durum çubuğu şeridi: kaydırınca içerik saat/ikonların altına girmesin.
-          Rengi hero gradyanının üst rengiyle aynı, en üstteyken fark edilmez. */}
-      <View style={[styles.statusBarScrim, { height: insets.top }]} pointerEvents="none" />
+      {/* Durum çubuğu şeridi: kaydırınca içerik saat/ikonların altına girmesin. */}
+      {isScrolled ? (
+        <View style={[styles.statusBarScrim, { height: insets.top }]} pointerEvents="none" />
+      ) : null}
     </View>
   );
 }
