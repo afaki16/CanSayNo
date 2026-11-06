@@ -38,6 +38,20 @@ namespace CanSayNo.Domain.Constants
         public const string Delete = "Tenants.Delete";
     }
 
+    // Hayırcı senaryo kataloğu (admin paneli). Mobil okuma uçları bunlara bağlı DEĞİL.
+    public static class Scenarios
+    {
+        public const string Read = "Scenarios.Read";
+        public const string Create = "Scenarios.Create";
+        public const string Update = "Scenarios.Update";
+    }
+
+    // Hayırcı yönetim göstergeleri (kullanım, premium, LLM maliyeti)
+    public static class Dashboard
+    {
+        public const string Read = "Dashboard.Read";
+    }
+
     // Helper methods
     public static class Helper
     {

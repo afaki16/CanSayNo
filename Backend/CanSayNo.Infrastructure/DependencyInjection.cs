@@ -55,6 +55,8 @@ namespace CanSayNo.Infrastructure
 
         // Aynı oturuma eşzamanlı mesaj/değerlendirme isteklerini sıraya sokar (tek örnek).
         services.AddSingleton<ISessionLock, InMemorySessionLock>();
+        // Admin paneli raporları (salt okunur).
+        services.AddScoped<IAdminHayirciReadService, AdminHayirciReadService>();
 
         // Add Memory Cache
         services.AddMemoryCache();

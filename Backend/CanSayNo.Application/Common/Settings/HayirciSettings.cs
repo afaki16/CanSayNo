@@ -21,6 +21,14 @@ public class HayirciSettings
     /// </summary>
     public int UsageDayUtcOffsetHours { get; set; } = 3;
 
+    /// <summary>
+    /// Admin göstergesindeki LLM maliyeti KABA TAHMİNİ için ortalama fiyat (USD / 1M token).
+    /// Oturumda girdi ve çıktı ayrı tutulmadığı için tek bir harmanlanmış fiyat kullanılır:
+    /// Sonnet 5.5 girdi $2, çıktı $10, cache okuma $0.20 / MTok; konuşma çoğunlukla girdi
+    /// olduğundan ~$3 varsayıldı. Gerçek fatura için Anthropic konsoluna bakılmalı.
+    /// </summary>
+    public decimal AdminEstimatedUsdPerMillionTokens { get; set; } = 3.0m;
+
     /// <summary>Pratikte kullanıcının tek mesajının azami uzunluğu (karakter).</summary>
     public int MaxUserMessageLength { get; set; } = 500;
 
