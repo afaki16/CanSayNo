@@ -6,7 +6,7 @@ Claude Code bu dosyayı her oturumda otomatik okur. Ürün tasarımı ve ilk gel
 
 **Hayırcı** (kod adı CanSayNo): Kullanıcının AI karakterlerle rol yaparak "hayır demeyi" pratik ettiği mobil uygulama. Hedef: Türkiye + global. Solo geliştirici: Alperen.
 
-- 5 bağlam: `is` (İş & Kariyer — ÜCRETSİZ), `aile`, `arkadas`, `romantik`, `satici` (dördü premium)
+- 8 bağlam: `is` (İş & Kariyer — ÜCRETSİZ), `aile`, `arkadas`, `romantik`, `satici` (Satıcı & Hizmet), `komsu` (Ev & Komşu), `okul` (Okul & Kampüs), `dijital` (Dijital & Sosyal Medya) — İş dışındakiler premium. Son üçü 2026-11-07'de eklendi (enum 6–8; DB'de int, migration gerekmedi). Bağlam UI metadata'sı mobilde `lib/mockData/contexts.ts`, panelde `utils/hayirciLabels.ts`; yeni bağlam eklerken ikisi + `ContextId` + admin ID regex'i (backend `AdminScenarioCommands` + `ScenarioForm.vue`) + `AdminScenarioIds.Prefix` + `dailyTask` başlıkları güncellenir. "Kaşif" rozeti = en az 5 farklı bağlam (`UserProgress.ContextExplorerContexts`)
 - 7 karakter arketipi: babacanManipulator, duygusalKurban, agresifIsrarci, tatliDilliSatici, masumRicaci, pasifAgresif, otoriter
 - 13 baskı taktiği (`PressureTactic` enum), 5 değerlendirme ekseni: netlik, nezaket, dayaniklilik, alternatifSunma, ozurDengesi
 - Freemium: İş bağlamı tamamen ücretsiz, diğer 4 bağlam premium (RevenueCat, aylık ₺49.99 placeholder)
@@ -57,7 +57,7 @@ Test hesabı: `admin@cansayno.com` / `Admin123!`
 | `DailyUsage` | (UserId, Date) composite | — |
 
 - JSONB: `System.Text.Json` + `HasConversion` + `ValueComparer` (`Configurations/Hayirci/JsonbColumnExtensions.cs`). `.OwnsOne().ToJson()` KULLANMA — `Dictionary<enum,int>` ve `List<enum>` ile kırılıyor
-- Seed: `Persistence/Seeding/HayirciSeedData.cs` (ilk 7) + `HayirciSeedData.Catalog.cs` (43, kısa `Make(...)` yardımcısıyla), runtime + idempotent (HasData değil; var olan ID atlanır, mevcut senaryo GÜNCELLENMEZ). **50 senaryo (2026-11-05)**: her bağlamda 10; İş'in 10'u ücretsiz, diğerleri premium
+- Seed: `Persistence/Seeding/HayirciSeedData.cs` (ilk 7) + `HayirciSeedData.Catalog.cs` (43, kısa `Make(...)` yardımcısıyla), runtime + idempotent (HasData değil; var olan ID atlanır, mevcut senaryo GÜNCELLENMEZ). **50 senaryo (2026-11-05)**: her bağlamda 10; İş'in 10'u ücretsiz, diğerleri premium. **+15 (2026-11-07)**: `HayirciSeedData.NewContexts.cs`, yeni 3 bağlamda 5'er (toplam 65); her bağlamdan biri gerçek LLM ile uçtan uca denendi
 - `PressureTactics` hiçbir DTO'da yok — sadece AI prompt'una girer, client'a asla sızmamalı
 
 ### Mevcut API
