@@ -11,5 +11,5 @@ public enum Badge
     NightOwl = 7,               // Gece 22-04 arası pratik
     EarlyBird = 8,              // Sabah 5-8 arası pratik
     Persistent = 9,             // 50 oturum tamamladı
-    ContextExplorer = 10        // 5 bağlamın hepsinde pratik yaptı
+    ContextExplorer = 10        // en az 5 farklı bağlamda pratik yaptı
 }

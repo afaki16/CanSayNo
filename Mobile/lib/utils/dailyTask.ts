@@ -23,6 +23,9 @@ const CONTEXT_TASK_TITLES: Record<ApiContextId, string> = {
   arkadas: 'Arkadaş baskısıyla pratik yap',
   romantik: 'İlişki baskısıyla pratik yap',
   satici: 'Satıcı ısrarıyla pratik yap',
+  komsu: 'Komşu ricasıyla pratik yap',
+  okul: 'Okul baskısıyla pratik yap',
+  dijital: 'Dijital baskıyla pratik yap',
 };
 
 function pick(scenarios: ApiScenarioListItem[], isPremium: boolean): {

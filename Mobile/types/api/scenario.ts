@@ -4,7 +4,15 @@
 //
 // Backend enum'ları camelCase STRING olarak serialize ediyor — number değil.
 
-export type ApiContextId = 'is' | 'aile' | 'arkadas' | 'romantik' | 'satici';
+export type ApiContextId =
+  | 'is'
+  | 'aile'
+  | 'arkadas'
+  | 'romantik'
+  | 'satici'
+  | 'komsu'
+  | 'okul'
+  | 'dijital';
 
 export type ApiCharacterArchetype =
   | 'babacanManipulator'

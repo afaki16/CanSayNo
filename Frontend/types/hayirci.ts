@@ -1,7 +1,15 @@
 // Hayırcı admin paneli tipleri — backend /api/admin/* (HayirciAdminController) ile birebir.
 // Enum'lar JSON'da camelCase string gelir (JsonStringEnumConverter).
 
-export type ContextId = 'is' | 'aile' | 'arkadas' | 'romantik' | 'satici'
+export type ContextId =
+  | 'is'
+  | 'aile'
+  | 'arkadas'
+  | 'romantik'
+  | 'satici'
+  | 'komsu'
+  | 'okul'
+  | 'dijital'
 
 export type CharacterArchetype =
   | 'babacanManipulator'

@@ -14,7 +14,10 @@ export const CONTEXTS: { value: ContextId; title: string; color: string; idPrefi
   { value: 'aile', title: 'Aile & Akraba', color: '#FF7043', idPrefix: 'aile' },
   { value: 'arkadas', title: 'Arkadaş & Sosyal', color: '#F7A93B', idPrefix: 'arkadas' },
   { value: 'romantik', title: 'Romantik İlişkiler', color: '#F25287', idPrefix: 'romantik' },
-  { value: 'satici', title: 'Satıcı & Pazarlama', color: '#8B6DF0', idPrefix: 'satici' },
+  { value: 'satici', title: 'Satıcı & Hizmet', color: '#8B6DF0', idPrefix: 'satici' },
+  { value: 'komsu', title: 'Ev & Komşu', color: '#14A39A', idPrefix: 'komsu' },
+  { value: 'okul', title: 'Okul & Kampüs', color: '#3DA35D', idPrefix: 'okul' },
+  { value: 'dijital', title: 'Dijital & Sosyal Medya', color: '#0E9FC0', idPrefix: 'dijital' },
 ]
 
 export const contextOf = (id: ContextId) => CONTEXTS.find((c) => c.value === id) ?? CONTEXTS[0]
@@ -79,5 +82,5 @@ export const BADGE_LABELS: Record<string, string> = {
   nightOwl: 'Gece kuşu',
   earlyBird: 'Erkenci',
   persistent: 'Azimli (50 pratik)',
-  contextExplorer: 'Kaşif (5 bağlam)',
+  contextExplorer: 'Kaşif (5 farklı bağlam)',
 }

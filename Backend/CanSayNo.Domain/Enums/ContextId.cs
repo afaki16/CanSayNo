@@ -6,5 +6,8 @@ public enum ContextId
     Aile = 2,         // Aile & Akraba
     Arkadas = 3,      // Arkadaş & Sosyal
     Romantik = 4,     // Romantik İlişkiler
-    Satici = 5        // Satıcı & Pazarlama
+    Satici = 5,       // Satıcı & Hizmet
+    Komsu = 6,        // Ev & Komşu
+    Okul = 7,         // Okul & Kampüs
+    Dijital = 8       // Dijital & Sosyal Medya
 }

@@ -25,6 +25,9 @@ public static class UserProgress
     /// <summary>WorkMaster: İş bağlamında bu kadar değerlendirilmiş pratik.</summary>
     public const int WorkMasterSessions = 10;
 
+    // Bağlam sayısı arttıkça "hepsi" şartı rozeti erişilmez kılmasın diye sabit eşik.
+    public const int ContextExplorerContexts = 5;
+
     public sealed record Result(int XpEarned, IReadOnlyList<Badge> NewBadges);
 
     /// <param name="practiceDate">Pratiğin yerel (TR) takvim günü.</param>
@@ -71,7 +74,7 @@ public static class UserProgress
         Unlock(Badge.WorkMaster,
             evaluatedByContext.TryGetValue(ContextId.Is, out var workCount) && workCount >= WorkMasterSessions);
         Unlock(Badge.ContextExplorer,
-            Enum.GetValues<ContextId>().All(c => evaluatedByContext.TryGetValue(c, out var n) && n > 0));
+            evaluatedByContext.Count(kv => kv.Value > 0) >= ContextExplorerContexts);
 
         if (newBadges.Count > 0)
         {

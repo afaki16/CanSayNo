@@ -24,7 +24,7 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
 
             try
             {
-                var seedScenarios = BuildScenarios().Concat(BuildCatalogScenarios()).ToList();
+                var seedScenarios = BuildScenarios().Concat(BuildCatalogScenarios()).Concat(BuildNewContextScenarios()).ToList();
                 var seedIds = seedScenarios.Select(s => s.Id).ToList();
 
                 var existingIds = await context.Scenarios

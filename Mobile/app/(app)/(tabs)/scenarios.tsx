@@ -1,5 +1,5 @@
-// Senaryolar tab — bağlam seçimi. 5 bağlam kartı 2-sütun grid'de; son kart
-// (tek kalan) satırı doldurur ("öne çıkan" hissi). Ücretsiz bağlam senaryo listesine,
+// Senaryolar tab — bağlam seçimi. Bağlam kartları 2-sütun grid'de; sayı tekse son
+// kart satırı doldurur ("öne çıkan" hissi). Ücretsiz bağlam senaryo listesine,
 // premium bağlam paywall'a yönlendirir.
 //
 // Bağlam metadata'sı (isim/renk/ikon) client'ta sabit; kartlardaki senaryo sayıları

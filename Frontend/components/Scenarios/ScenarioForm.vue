@@ -338,7 +338,7 @@ const rounds = [
   { key: 'roundThree' as const, label: '3. raunt (son koz)' },
 ]
 
-const ID_PATTERN = /^(is|aile|arkadas|romantik|satici)_[0-9]{3}_[a-z0-9_]{2,60}$/
+const ID_PATTERN = /^(is|aile|arkadas|romantik|satici|komsu|okul|dijital)_[0-9]{3}_[a-z0-9_]{2,60}$/
 const idExample = computed(() => `${contextOf(formData.contextId).idPrefix}_011_yeni_konu`)
 const idRule = (v: string) => {
   if (!ID_PATTERN.test(v ?? '')) return 'Biçim: <bağlam>_<3 hane>_<konu>; küçük harf, rakam ve _'

@@ -17,7 +17,7 @@ public record CreateAdminScenarioCommand(string Id, AdminScenarioUpsertDto Body)
 public class CreateAdminScenarioCommandValidator : AbstractValidator<CreateAdminScenarioCommand>
 {
     // Örn. "romantik_011_yeni_konu": bağlam öneki + 3 haneli sıra + kısa konu.
-    private static readonly Regex IdPattern = new("^(is|aile|arkadas|romantik|satici)_[0-9]{3}_[a-z0-9_]{2,60}$");
+    private static readonly Regex IdPattern = new("^(is|aile|arkadas|romantik|satici|komsu|okul|dijital)_[0-9]{3}_[a-z0-9_]{2,60}$");
 
     public CreateAdminScenarioCommandValidator()
     {
@@ -131,6 +131,9 @@ public static class AdminScenarioIds
         ContextId.Arkadas => "arkadas",
         ContextId.Romantik => "romantik",
         ContextId.Satici => "satici",
+        ContextId.Komsu => "komsu",
+        ContextId.Okul => "okul",
+        ContextId.Dijital => "dijital",
         _ => "?"
     };
 }

@@ -4,7 +4,10 @@
 import {
   Briefcase,
   ChatCircleText,
+  DeviceMobile,
+  GraduationCap,
   Heart,
+  HouseLine,
   type Icon,
   ShoppingBag,
   SmileyWink,
@@ -17,6 +20,9 @@ const ICON_MAP: Record<string, Icon> = {
   SmileyWink,
   Heart,
   ShoppingBag,
+  HouseLine,
+  GraduationCap,
+  DeviceMobile,
 };
 
 // Bilinmeyen bir ad gelirse güvenli fallback ile her zaman geçerli bir ikon döner.

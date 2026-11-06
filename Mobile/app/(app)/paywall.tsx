@@ -39,8 +39,8 @@ const BENEFITS: Benefit[] = [
     icon: LockKeyOpen,
     color: Colors.primaryLight,
     bg: 'rgba(45,127,249,0.18)',
-    title: '5 bağlamın tamamı',
-    description: 'Aile, arkadaş, romantik, satıcı + iş',
+    title: '8 bağlamın tamamı',
+    description: 'Aile, ilişki, okul, komşu, dijital ve daha fazlası',
   },
   {
     icon: InfinityIcon,
