@@ -16,12 +16,12 @@
         <h2 class="user-name">{{ user?.firstName }} {{ user?.lastName }}</h2>
         <div class="user-meta">
           <v-chip
-            :color="user?.status === 1 ? 'success' : 'error'"
+            :color="isUserActive(user?.status) ? 'success' : 'error'"
             size="small"
             variant="tonal"
             prepend-icon="mdi-circle"
           >
-            {{ user?.status === 1 ? 'Aktif' : 'Pasif' }}
+            {{ isUserActive(user?.status) ? 'Aktif' : 'Pasif' }}
           </v-chip>
           <v-chip
             v-if="user?.emailConfirmed"
@@ -194,6 +194,11 @@
           </div>
         </div>
       </v-window-item>
+
+      <!-- Tab 4: Hayırcı (abonelik, ilerleme, son pratikler) — sekme açılınca yüklenir -->
+      <v-window-item value="hayirci">
+        <UserHayirciOverview v-if="currentTab === 'hayirci'" :user-id="user?.id ? Number(user.id) : null" />
+      </v-window-item>
     </v-window>
 
     <!-- Footer Actions -->
@@ -222,6 +227,8 @@
 import { ref } from 'vue'
 import type { User } from '~/types'
 import { dateTimeFormatLong } from '~/utils/datesFormat'
+import UserHayirciOverview from '~/components/Users/UserHayirciOverview.vue'
+import { isUserActive } from '~/utils/userStatus'
 
 defineProps<{
   user?: User | null
@@ -237,7 +244,8 @@ const currentTab = ref('general')
 const tabs = [
   { value: 'general', label: 'Genel Bilgiler', icon: 'mdi-information' },
   { value: 'roles', label: 'Roller', icon: 'mdi-shield-account' },
-  { value: 'security', label: 'Güvenlik', icon: 'mdi-security' }
+  { value: 'security', label: 'Güvenlik', icon: 'mdi-security' },
+  { value: 'hayirci', label: 'Hayırcı', icon: 'mdi-hand-back-left' }
 ]
 
 const getInitials = (firstName?: string, lastName?: string) => {

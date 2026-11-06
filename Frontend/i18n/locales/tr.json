@@ -55,6 +55,8 @@
   "sidebar": {
     "menu": {
       "dashboard": "Anasayfa",
+      "hayirci": "Hayırcı",
+      "scenarios": "Senaryolar",
       "userManagement": "Kullanıcı Yönetimi",
       "users": "Kullanıcılar",
       "tenants": "Kiracılar",
@@ -80,27 +82,31 @@
       "evening": "İyi akşamlar"
     },
     "todayLabel": "Bugün:",
-    "trendVsLast7Days": "son 7 günde",
-    "trendNoChange": "değişim yok",
     "stats": {
-      "totalUsers": "Toplam Kullanıcı",
-      "activeUsers": "Aktif Kullanıcı",
-      "totalRoles": "Toplam Rol",
-      "totalPermissions": "Toplam İzin",
-      "newPermissions": "2 yeni izin"
+      "appUsers": "Uygulama kullanıcısı",
+      "newUsers": "son 7 günde +{n}",
+      "activeToday": "Bugün aktif",
+      "activeWeek": "7 günde {n} aktif",
+      "premium": "Premium",
+      "premiumRate": "kullanıcıların %{n}'i",
+      "sessionsToday": "Bugünkü pratik",
+      "evaluatedToday": "{n} tanesi değerlendirildi"
     },
-    "weeklyRevenueAnalysis": "Haftalık Gelir Analizi",
-    "revenueLabel": "Gelir (₺)",
-    "days": {
-      "mon": "Pzt",
-      "tue": "Sal",
-      "wed": "Çar",
-      "thu": "Per",
-      "fri": "Cum",
-      "sat": "Cmt",
-      "sun": "Paz"
-    },
-    "pageTitle": "Anasayfa - CanSayNo"
+    "pageTitle": "Anasayfa - CanSayNo",
+    "activityChart": "Son 14 gün",
+    "sessionsLabel": "Pratik",
+    "activeUsersLabel": "Aktif kullanıcı",
+    "llmTitle": "LLM kullanımı (30 gün)",
+    "tokens": "Token",
+    "estimatedCost": "Tahmini maliyet",
+    "costNote": "Kaba tahmin: girdi/çıktı ayrı tutulmuyor, ortalama {rate} $ / 1M token varsayıldı. Gerçek fatura için Anthropic konsoluna bak.",
+    "topScenarios": "En çok oynanan senaryolar",
+    "lowestScenarios": "En düşük puanlı senaryolar",
+    "lowestNote": "En az 3 değerlendirmesi olanlar",
+    "noData": "Henüz veri yok",
+    "sessionsCount": "{n} oturum",
+    "avgScore": "ort. {n}",
+    "loadError": "Göstergeler yüklenemedi"
   },
   "validation": {
     "required": "Bu alan zorunludur",

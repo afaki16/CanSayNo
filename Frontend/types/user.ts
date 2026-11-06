@@ -39,9 +39,11 @@ export interface UpdateUserRequest {
   roleIds: string[]
 }
 
+// Backend Domain/Common/Enums/UserStatus ile aynı değerler. API JSON'da enum'ı camelCase
+// metin olarak gönderir ("active"); sayıya çevirmek için utils/userStatus.ts.
 export enum UserStatus {
+  Inactive = 0,
   Active = 1,
-  Inactive = 2,
-  Banned = 3,
-  PendingVerification = 4
+  Banned = 2,
+  PendingVerification = 3
 }

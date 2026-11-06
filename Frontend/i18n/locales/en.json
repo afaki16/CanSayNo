@@ -55,6 +55,8 @@
   "sidebar": {
     "menu": {
       "dashboard": "Dashboard",
+      "hayirci": "Hayırcı",
+      "scenarios": "Scenarios",
       "userManagement": "User Management",
       "users": "Users",
       "tenants": "Tenants",
@@ -80,27 +82,31 @@
       "evening": "Good evening"
     },
     "todayLabel": "Today:",
-    "trendVsLast7Days": "in the last 7 days",
-    "trendNoChange": "no change",
     "stats": {
-      "totalUsers": "Total Users",
-      "activeUsers": "Active Users",
-      "totalRoles": "Total Roles",
-      "totalPermissions": "Total Permissions",
-      "newPermissions": "2 new permissions"
+      "appUsers": "App users",
+      "newUsers": "+{n} in last 7 days",
+      "activeToday": "Active today",
+      "activeWeek": "{n} active in 7 days",
+      "premium": "Premium",
+      "premiumRate": "{n}% of users",
+      "sessionsToday": "Practices today",
+      "evaluatedToday": "{n} evaluated"
     },
-    "weeklyRevenueAnalysis": "Weekly Revenue Analysis",
-    "revenueLabel": "Revenue ($)",
-    "days": {
-      "mon": "Mon",
-      "tue": "Tue",
-      "wed": "Wed",
-      "thu": "Thu",
-      "fri": "Fri",
-      "sat": "Sat",
-      "sun": "Sun"
-    },
-    "pageTitle": "Dashboard - CanSayNo"
+    "pageTitle": "Dashboard - CanSayNo",
+    "activityChart": "Last 14 days",
+    "sessionsLabel": "Practices",
+    "activeUsersLabel": "Active users",
+    "llmTitle": "LLM usage (30 days)",
+    "tokens": "Tokens",
+    "estimatedCost": "Estimated cost",
+    "costNote": "Rough estimate: input/output are not stored separately; an average of ${rate} / 1M tokens is assumed. Check the Anthropic console for the real bill.",
+    "topScenarios": "Most played scenarios",
+    "lowestScenarios": "Lowest scoring scenarios",
+    "lowestNote": "With at least 3 evaluations",
+    "noData": "No data yet",
+    "sessionsCount": "{n} sessions",
+    "avgScore": "avg. {n}",
+    "loadError": "Could not load metrics"
   },
   "validation": {
     "required": "This field is required",

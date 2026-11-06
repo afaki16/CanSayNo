@@ -93,3 +93,25 @@ export type {
   MenuItem,
   UserPreferences
 } from './common'
+
+// Hayırcı admin types
+export type {
+  ContextId,
+  CharacterArchetype,
+  PressureTactic,
+  SubscriptionStatus,
+  SessionStatus,
+  AdminScenario,
+  AdminScenarioUpsert,
+  AdminScenarioScene,
+  AdminScenarioCharacter,
+  AdminScenarioTactics,
+  AdminScenarioUsage,
+  CreateAdminScenarioRequest,
+  AdminUserOverview,
+  AdminUserSession,
+  AdminUserSubscription,
+  AdminDashboard,
+  AdminDailyPoint,
+  AdminScenarioRank
+} from './hayirci'

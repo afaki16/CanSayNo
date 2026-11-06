@@ -15,6 +15,19 @@
     },
 
     {
+      title: 'sidebar.menu.hayirci',
+      icon: 'mdi-hand-back-left',
+      children: [
+        {
+          title: 'sidebar.menu.scenarios',
+          icon: 'mdi-script-text',
+          to: '/scenarios',
+          permission: 'Scenarios.Read'
+        }
+      ]
+    },
+
+    {
       title: 'sidebar.menu.userManagement',
       icon: 'mdi-account-group',
       children: [

@@ -56,11 +56,11 @@
 <!-- For Status -->
   <template #cell-status="{ value }">
   <v-chip
-    :color="value == 1 ? 'success' : 'error'"
+    :color="isUserActive(value) ? 'success' : 'error'"
     size="small"
     variant="tonal"
   >
-    {{ value == 1 ? 'Aktif' : 'Pasif' }}
+    {{ isUserActive(value) ? 'Aktif' : 'Pasif' }}
   </v-chip>
 </template>
   </BaseDataTable>
@@ -116,6 +116,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { dateTimeFormatLong } from '~/utils/datesFormat.ts'
+import { isUserActive } from '~/utils/userStatus'
 import BaseDataTable from '~/components/UI/BaseDataTable.vue'
 import ResizableDrawer from '~/components/UI/ResizableDrawer.vue'
 import UserForm from '~/components/Users/UserForm.vue'

@@ -59,6 +59,15 @@ export const API_ENDPOINTS = {
   },
 
   // Admin endpoints (Admin/SuperAdmin only)
+  // Hayırcı admin (HayirciAdminController — /api/admin)
+  HAYIRCI_ADMIN: {
+    SCENARIOS: '/api/admin/scenarios',
+    SCENARIO: (id: string) => `/api/admin/scenarios/${encodeURIComponent(id)}`,
+    SCENARIO_ACTIVE: (id: string) => `/api/admin/scenarios/${encodeURIComponent(id)}/active`,
+    USER_OVERVIEW: (userId: number) => `/api/admin/users/${userId}/overview`,
+    DASHBOARD: '/api/admin/dashboard',
+  },
+
   ADMIN: {
     ACTIVE_USERS_COUNT: '/api/admin/active-users-count',
     ACTIVE_USERS: '/api/admin/active-users',

@@ -23,6 +23,10 @@
           {{ trendPrefix }}{{ Math.abs(trendPercent) }}%
           <span class="font-normal text-on-surface-variant">{{ trendSubtitle }}</span>
         </p>
+        <!-- Trend yüzdesi olmayan kartlar için kısa açıklama satırı -->
+        <p v-else-if="caption" class="text-body-sm text-on-surface-variant mt-2">
+          {{ caption }}
+        </p>
       </div>
 
       <!-- Sağ: İkon (büyük) -->
@@ -75,6 +79,7 @@ interface Props {
   value: number | string
   trendPercent?: number
   trendSubtitle?: string
+  caption?: string
   icon: string
   color?: 'primary' | 'secondary' | 'tertiary' | 'info'
   sparkline?: number[]

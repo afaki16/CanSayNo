@@ -296,6 +296,7 @@
 
 <script setup lang="ts">
 import type { User, Role, CreateUserRequest, UpdateUserRequest } from '~/types'
+import { toUserStatusNumber } from '~/utils/userStatus'
 import { computed, reactive, ref, watch, watchEffect, onMounted } from 'vue'
 
 const { validationRules: rules } = useValidators()
@@ -416,7 +417,7 @@ watchEffect(() => {
       lastName: props.user.lastName,
       email: props.user.email,
       phoneNumber: props.user.phoneNumber || '',
-      status: props.user.status ?? 1,
+      status: toUserStatusNumber(props.user.status ?? 1),
       roleIds: props.user.roles?.map(r => String(r.id)) || [],
       password: '',
       confirmPassword: ''
