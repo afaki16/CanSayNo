@@ -129,11 +129,16 @@ export function parseApiErrorBody(
   return { message, errors, code: normalizeCode(payload?.code) };
 }
 
+// Backend bu başlığı görünce refresh token'ı cookie olarak YAZMAZ ve cookie'den OKUMAZ.
+// RN'nin ağ katmanı cookie'leri düz metin bir veritabanında saklar; token yalnızca SecureStore'da kalmalı.
+export const CLIENT_HEADERS = { 'X-Client': 'mobile' } as const;
+
 export const apiClient: AxiosInstance = axios.create({
   baseURL: env.apiBaseUrl,
   timeout: 15000, // 15 saniye
   headers: {
     'Content-Type': 'application/json',
+    ...CLIENT_HEADERS,
   },
 });
 

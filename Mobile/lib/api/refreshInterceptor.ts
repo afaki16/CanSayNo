@@ -15,7 +15,7 @@ import { env } from '@/lib/config/env';
 import { useAuthStore } from '@/stores/authStore';
 import type { AuthResponse, RefreshTokenRequest } from '@/types/api/auth';
 
-import { apiClient, ApiError, parseApiErrorBody } from './client';
+import { apiClient, ApiError, CLIENT_HEADERS, parseApiErrorBody } from './client';
 import type { ApiResponse } from './client';
 import { AUTH_ENDPOINTS, isPath, NO_REFRESH_ENDPOINTS } from './endpoints';
 
@@ -58,7 +58,7 @@ async function refreshAccessToken(): Promise<string> {
   const response = await axios.post<ApiResponse<AuthResponse>>(
     `${env.apiBaseUrl}${AUTH_ENDPOINTS.REFRESH_TOKEN}`,
     body,
-    { headers: { 'Content-Type': 'application/json' } },
+    { headers: { 'Content-Type': 'application/json', ...CLIENT_HEADERS } },
   );
 
   if (!response.data.success || !response.data.data) {

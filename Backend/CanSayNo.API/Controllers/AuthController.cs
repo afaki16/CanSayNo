@@ -611,8 +611,21 @@ namespace CanSayNo.API.Controllers
 
         private const string RefreshCookieName = "refresh_token";
 
+        // Native apps send "X-Client: mobile" and keep the refresh token in the OS keystore. They get no
+        // cookie and their cookie is never read: React Native's networking stack persists cookies in a
+        // plain-text app database (Android: app_webview/Default/Cookies), which would leave an unencrypted
+        // copy of the token outside the keystore and inside device backups. (Kickstart TEMPLATE_UPGRADES #26)
+        private const string ClientHeaderName = "X-Client";
+        private const string MobileClientValue = "mobile";
+
+        private bool IsMobileClient =>
+            string.Equals(Request.Headers[ClientHeaderName].ToString(), MobileClientValue, StringComparison.OrdinalIgnoreCase);
+
         private void WriteRefreshTokenCookie(string token, DateTime expiresAtUtc)
         {
+            if (IsMobileClient)
+                return;
+
             // Secure=true requires HTTPS; allow HTTP only in Development.
             var isDev = HttpContext.RequestServices
                 .GetRequiredService<IHostEnvironment>()
@@ -630,6 +643,7 @@ namespace CanSayNo.API.Controllers
 
         private void ClearRefreshTokenCookie()
         {
+            // Also runs for mobile clients: deletes a cookie a device stored before it sent X-Client.
             // Same options as Append so the browser actually overwrites the existing cookie.
             // Missing options here would make this no-op for some browsers.
             var isDev = HttpContext.RequestServices
@@ -648,6 +662,10 @@ namespace CanSayNo.API.Controllers
 
         private string? ReadRefreshToken(string? bodyValue)
         {
+            // Mobile: body only — a stale cookie left in the device's jar must never override it.
+            if (IsMobileClient)
+                return bodyValue;
+
             // Cookie wins for web clients; body is the fallback for clients without a cookie jar.
             if (Request.Cookies.TryGetValue(RefreshCookieName, out var cookieValue)
                 && !string.IsNullOrEmpty(cookieValue))
