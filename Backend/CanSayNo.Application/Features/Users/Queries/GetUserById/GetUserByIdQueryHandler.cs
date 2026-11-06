@@ -41,7 +41,7 @@ namespace CanSayNo.Application.Features.Users.Queries.GetUserById
                     "User not found"));
 
             // Admin/User can only view users from their own tenant; SuperAdmin can view any user
-            if (!_currentUserService.CanAccessAllTenants && user.TenantId != _currentUserService.TenantId)
+            if (!TenantAdminVisibility.CanAccessUserTenant(_currentUserService, user))
                 return Result<UserListDto>.Failure(Error.Failure(
                     ErrorCode.Forbidden,
                     "You do not have access to this user"));

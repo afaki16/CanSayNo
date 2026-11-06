@@ -50,7 +50,7 @@ namespace CanSayNo.Application.Features.Users.Commands.UpdateUser
                     _localizer["users.notFound"]));
 
             // Admin/User can only update users from their own tenant; SuperAdmin can update any user
-            if (!_currentUserService.CanAccessAllTenants && user.TenantId != _currentUserService.TenantId)
+            if (!TenantAdminVisibility.CanAccessUserTenant(_currentUserService, user))
                 return Result<UserListDto>.Failure(Error.Failure(
                     ErrorCode.Forbidden,
                     _localizer["users.noAccessToUpdate"]));

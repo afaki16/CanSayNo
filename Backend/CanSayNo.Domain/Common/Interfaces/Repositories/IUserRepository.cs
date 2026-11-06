@@ -30,7 +30,8 @@ namespace CanSayNo.Domain.Common.Interfaces.Repositories
         Task<UserRole> GetUserRoleAsync(int userId, int roleId);
         Task AddUserRoleAsync(UserRole userRole);
         void RemoveUserRole(UserRole userRole);
-        Task<(IEnumerable<User> Users, int TotalCount)> GetUsersPagedAsync(int page, int pageSize, string searchTerm = null, int? tenantId = null, bool excludeUsersWithSuperAdminRole = false);
+        /// <param name="includeTenantless">tenantId verildiğinde TenantId null kullanıcıları da dahil et (Hayırcı uygulama kullanıcıları).</param>
+        Task<(IEnumerable<User> Users, int TotalCount)> GetUsersPagedAsync(int page, int pageSize, string searchTerm = null, int? tenantId = null, bool excludeUsersWithSuperAdminRole = false, bool includeTenantless = false);
         Task<IEnumerable<int>> GetUserIdsByRoleIdAsync(int roleId);
         Task<int> CountActiveSuperAdminsAsync();
     }

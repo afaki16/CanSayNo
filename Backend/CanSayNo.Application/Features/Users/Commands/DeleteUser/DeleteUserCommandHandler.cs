@@ -66,7 +66,7 @@ namespace CanSayNo.Application.Features.Users.Commands.DeleteUser
             }
 
             // Admin/User can only delete users from their own tenant; SuperAdmin can delete any user
-            if (!_currentUserService.CanAccessAllTenants && user.TenantId != _currentUserService.TenantId)
+            if (!TenantAdminVisibility.CanAccessUserTenant(_currentUserService, user))
                 return Result.Failure(Error.Failure(
                     ErrorCode.Forbidden,
                     _localizer["users.noAccessToDelete"]));

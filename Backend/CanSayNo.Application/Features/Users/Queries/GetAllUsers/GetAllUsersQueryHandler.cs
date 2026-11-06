@@ -31,11 +31,11 @@ namespace CanSayNo.Application.Features.Users.Queries.GetAllUsers
 
         public async Task<PagedResult<UserListDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            // SuperAdmin sees all tenants' users, Admin/User see only their tenant's users
+            // SuperAdmin sees all tenants' users; Admin sees their tenant plus tenantless (Hayırcı app) users
             int? tenantId = _currentUserService.CanAccessAllTenants ? null : _currentUserService.TenantId;
             var excludeSuperAdmins = !_currentUserService.CanAccessAllTenants;
 
-            var (users, totalCount) = await _unitOfWork.Users.GetUsersPagedAsync(request.Page, request.PageSize, request.SearchTerm, tenantId, excludeSuperAdmins);
+            var (users, totalCount) = await _unitOfWork.Users.GetUsersPagedAsync(request.Page, request.PageSize, request.SearchTerm, tenantId, excludeSuperAdmins, includeTenantless: true);
             var userDtos = _mapper.Map<IEnumerable<UserListDto>>(users);
             var totalPages = (int)Math.Ceiling(totalCount / (double)request.PageSize);
             return PagedResult<UserListDto>.Success(userDtos, request.Page, totalPages, totalCount);

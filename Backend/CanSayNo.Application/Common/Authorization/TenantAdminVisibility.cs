@@ -16,5 +16,15 @@ namespace CanSayNo.Application.Common.Authorization
 
         public static bool IsHiddenFromTenantAdmin(ICurrentUserService current, User user) =>
             !current.CanAccessAllTenants && UserHasSuperAdminRole(user);
+
+        /// <summary>
+        /// Hayırcı: mobil kayıt olan uygulama kullanıcıları tenant'sız (TenantId null); Hayırcı verisi
+        /// tenant-scoped değil. Tenant Admin kendi tenant'ına EK OLARAK tenant'sız kullanıcıları da
+        /// görür/yönetir (başka tenant'ları değil). SuperAdmin her şeye erişir.
+        /// </summary>
+        public static bool CanAccessUserTenant(ICurrentUserService current, User user) =>
+            current.CanAccessAllTenants
+            || user.TenantId == null
+            || user.TenantId == current.TenantId;
     }
 }

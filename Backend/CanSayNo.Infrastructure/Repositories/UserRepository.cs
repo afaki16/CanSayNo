@@ -104,9 +104,9 @@ public class UserRepository : RepositoryBase<User, int>, IUserRepository
         _context.UserRoles.Remove(userRole);
     }
 
-    public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersPagedAsync(int page, int pageSize, string searchTerm = null, int? tenantId = null, bool excludeUsersWithSuperAdminRole = false)
+    public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersPagedAsync(int page, int pageSize, string searchTerm = null, int? tenantId = null, bool excludeUsersWithSuperAdminRole = false, bool includeTenantless = false)
     {
-        var baseQuery = BuildUsersQuery(searchTerm, tenantId, excludeUsersWithSuperAdminRole).AsNoTracking();
+        var baseQuery = BuildUsersQuery(searchTerm, tenantId, excludeUsersWithSuperAdminRole, includeTenantless).AsNoTracking();
         var totalCount = await baseQuery.CountAsync();
 
         var users = await baseQuery
@@ -118,12 +118,14 @@ public class UserRepository : RepositoryBase<User, int>, IUserRepository
         return (users, totalCount);
     }
 
-    private IQueryable<User> BuildUsersQuery(string searchTerm, int? tenantId, bool excludeUsersWithSuperAdminRole)
+    private IQueryable<User> BuildUsersQuery(string searchTerm, int? tenantId, bool excludeUsersWithSuperAdminRole, bool includeTenantless)
     {
         var query = _context.Set<User>().AsQueryable();
 
         if (tenantId.HasValue)
-            query = query.Where(u => u.TenantId == tenantId.Value);
+            query = includeTenantless
+                ? query.Where(u => u.TenantId == tenantId.Value || u.TenantId == null)
+                : query.Where(u => u.TenantId == tenantId.Value);
 
         if (excludeUsersWithSuperAdminRole)
             query = query.Where(u => !u.UserRoles.Any(ur => ur.Role.Name == RoleNames.SuperAdmin));
