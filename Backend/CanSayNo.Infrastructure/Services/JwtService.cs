@@ -121,6 +121,19 @@ namespace CanSayNo.Infrastructure.Services
                     _localizer["auth.invalidCredentials"]));
             }
 
+            // Self-registered account still waiting for its verification link. The password is already
+            // verified, so saying "verify your email" leaks nothing and lets the client offer a resend;
+            // the generic answer below left these users stuck on "invalid credentials".
+            if (user.Status == Domain.Common.Enums.UserStatus.PendingVerification && !user.EmailConfirmed)
+            {
+                await _bruteForceService.RecordFailedAttemptAsync(
+                    normalizedEmail, safeIp, userAgent, "EmailNotConfirmed");
+
+                return Result<LoginResponseDto>.Failure(Error.Failure(
+                    ErrorCode.EmailNotConfirmed,
+                    _localizer["auth.emailNotConfirmed"]));
+            }
+
             if (user.Status != Domain.Common.Enums.UserStatus.Active)
             {
                 await _bruteForceService.RecordFailedAttemptAsync(

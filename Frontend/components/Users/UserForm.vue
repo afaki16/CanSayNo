@@ -74,7 +74,7 @@
                 density="comfortable"
                 hide-details="auto"
                 type="tel"
-                :rules="[rules.required, rules.phone]"
+                :rules="[rules.phone]"
                 class="modern-input"
               />
             </v-col>
