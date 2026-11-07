@@ -20,15 +20,16 @@ export interface ContextCardProps {
   context: Context;
   // Sayılar API'den türetilir, metadata'da tutulmaz — çağıran ekran verir.
   progress: ContextProgress;
+  // Premium bağlam + aboneliği olmayan kullanıcı. Abonelik bilgisi çağıran ekrandan gelir.
+  isLocked: boolean;
   onPress: () => void;
 }
 
 // Senaryolar ekranındaki skeleton bu yüksekliği kullanır — layout kaymasın.
 export const CONTEXT_CARD_MIN_HEIGHT = 190;
 
-export function ContextCard({ context, progress, onPress }: ContextCardProps) {
+export function ContextCard({ context, progress, isLocked, onPress }: ContextCardProps) {
   const Icon = getContextIcon(context.iconName);
-  const isLocked = !context.isFree;
 
   return (
     <Pressable

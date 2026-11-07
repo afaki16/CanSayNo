@@ -1,6 +1,6 @@
 // Senaryolar tab — bağlam seçimi. Bağlam kartları 2-sütun grid'de; sayı tekse son
-// kart satırı doldurur ("öne çıkan" hissi). Ücretsiz bağlam senaryo listesine,
-// premium bağlam paywall'a yönlendirir.
+// kart satırı doldurur ("öne çıkan" hissi). Açık bağlam (ücretsiz ya da kullanıcı
+// premium) senaryo listesine, kilitli bağlam paywall'a yönlendirir.
 //
 // Bağlam metadata'sı (isim/renk/ikon) client'ta sabit; kartlardaki senaryo sayıları
 // API'den gelen listeden hesaplanır.
@@ -13,6 +13,7 @@ import { ContextCard, ErrorState, Skeleton, Text } from '@/components/ui';
 import { CONTEXT_CARD_MIN_HEIGHT } from '@/components/ui/ContextCard';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
 import { useScenarios } from '@/hooks/queries/useScenarios';
+import { useMySubscription } from '@/hooks/queries/useSubscription';
 import { toScenarioErrorMessage } from '@/lib/api';
 import { contexts } from '@/lib/mockData';
 import { buildContextProgress, progressFor } from '@/lib/scenarios/contextProgress';
@@ -21,10 +22,14 @@ import type { Context } from '@/types/scenario';
 export default function ScenariosScreen() {
   const { data, isPending, isError, error, refetch, isFetching } = useScenarios();
 
+  const { data: subscription } = useMySubscription();
+  const isPremium = subscription?.isPremium ?? false;
+
   const progress = buildContextProgress(data);
+  const isLocked = (context: Context) => !context.isFree && !isPremium;
 
   const handlePress = (context: Context) => {
-    if (context.isFree) {
+    if (!isLocked(context)) {
       router.push({
         pathname: '/(app)/scenarios/[id]',
         params: { id: context.id },
@@ -60,6 +65,7 @@ export default function ScenariosScreen() {
                 <ContextCard
                   context={context}
                   progress={progressFor(progress, context.id)}
+                  isLocked={isLocked(context)}
                   onPress={() => handlePress(context)}
                 />
               </View>
