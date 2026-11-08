@@ -76,7 +76,7 @@ rmSync(dist, { recursive: true, force: true });
 mkdirSync(dist, { recursive: true });
 cpSync(join(src, 'assets'), join(dist, 'assets'), { recursive: true });
 cpSync(join(root, '..', 'Mobile', 'assets', 'fonts'), join(dist, 'assets', 'fonts'), { recursive: true });
-// _headers / _redirects: Cloudflare Pages yapılandırması (güvenlik başlıkları, kısa adresler)
+// _headers / _redirects: Cloudflare yapılandırması (güvenlik başlıkları, kısa adresler)
 for (const file of ['robots.txt', 'favicon.svg', '_headers', '_redirects']) cpSync(join(src, file), join(dist, file));
 
 // Ana sayfa

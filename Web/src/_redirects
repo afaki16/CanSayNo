@@ -1,4 +1,4 @@
-# Cloudflare Pages yönlendirmeleri — kısa / İngilizce adresler
+# Cloudflare yönlendirmeleri (Workers statik site) — kısa / İngilizce adresler
 /privacy          /en/privacy/      301
 /terms            /en/terms/        301
 /en               /en/privacy/      302

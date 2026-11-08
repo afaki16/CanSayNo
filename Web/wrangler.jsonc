@@ -1,0 +1,20 @@
+// cansayno.com — Cloudflare Workers statik site (Pages'in yerini alan sistem).
+// `npm run deploy`: dist/ üretilir (strict) ve yüklenir; alan adları otomatik bağlanır
+// (cansayno.com bu hesapta Cloudflare'de olmalı). _headers ve _redirects dist/ içinde çalışır.
+{
+  "name": "cansayno-web",
+  "compatibility_date": "2026-10-19",
+  "assets": {
+    "directory": "./dist",
+    // Olmayan adres → dist/404.html (404 durum koduyla)
+    "not_found_handling": "404-page",
+    // /gizlilik → /gizlilik/ (klasör index.html'leri)
+    "html_handling": "auto-trailing-slash"
+  },
+  "routes": [
+    { "pattern": "cansayno.com", "custom_domain": true },
+    { "pattern": "www.cansayno.com", "custom_domain": true }
+  ],
+  // Önizleme adresi (*.workers.dev) kapalı: site yalnızca cansayno.com'da
+  "workers_dev": false
+}

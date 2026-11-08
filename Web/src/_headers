@@ -1,4 +1,4 @@
-# Cloudflare Pages yanıt başlıkları (https://developers.cloudflare.com/pages/configuration/headers/)
+# Cloudflare yanıt başlıkları (Workers statik site; Pages ile aynı biçim)
 # Site tamamen statik ve JavaScript'siz: CSP sıkı tutulur. style-src 'unsafe-inline' yalnızca
 # HTML'deki style="--c:..." öznitelikleri için (bağlam kartı renkleri, skor çubuğu).
 /*

@@ -48,12 +48,11 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
   - Ayarlar: JWT secret, Anthropic anahtarı, RevenueCat webhook secret, CORS.
   - Otomatik yedek ve log saklama süresi.
 - [ ] **E-posta gönderimi:** Doğrulama ve şifre kodları için bir SMTP sağlayıcı (SPF/DKIM ayarlı). Gönderen adresi `noreply@cansayno.com` olabilir.
-- [ ] **Web sitesi → cansayno.com** (Cloudflare Pages; alan adı Cloudflare'de). Site hazır (`Web/`, güvenlik başlıkları `_headers`, kısa adresler `_redirects`); `npm run deploy` önce `build:strict` çalıştırır, boşluk kalırsa yayınlamaz.
-  1. Ad soyad + il'i `docs/store/` belgelerine yaz (`[AD SOYAD]`, `[İL]`, `[FULL NAME]`, `[CITY]`).
-  2. `npx wrangler@4.151.3 login` (tarayıcıda Cloudflare'e giriş).
-  3. İlk sefer: `npx wrangler@4.151.3 pages project create cansayno --production-branch main`, sonra `cd Web && npm run deploy`.
-  4. Cloudflare panelinde Workers & Pages › cansayno › Custom domains › `cansayno.com` (ve istersen `www.cansayno.com`) ekle; DNS kaydını Cloudflare kendisi oluşturur, HTTPS birkaç dakikada aktif olur.
-  5. Doğrula: `https://cansayno.com/hesap-silme/` uygulama kurulmadan açılıyor mu (Google şartı).
+- [ ] **Web sitesi → cansayno.com** (Cloudflare Workers statik site — wrangler artık Pages projesi oluşturmuyor, Workers'a yönlendiriyor). Site hazır (`Web/`, `wrangler.jsonc`, güvenlik başlıkları `_headers`, kısa adresler `_redirects`); `npm run deploy` önce `build:strict` çalıştırır, boşluk kalırsa yayınlamaz.
+  1. [x] `npx wrangler@4.151.3 login` (2026-11-08, Cloudflare hesabı alperenfaki@gmail.com).
+  2. [ ] Ad soyad + il'i `docs/store/` belgelerine yaz (`[AD SOYAD]`, `[İL]`, `[FULL NAME]`, `[CITY]`).
+  3. [ ] `cd Web && npm run deploy` — `cansayno.com` ve `www.cansayno.com` otomatik bağlanır (`wrangler.jsonc` routes, custom_domain); HTTPS birkaç dakikada aktif olur. Alan adında çakışan eski DNS kaydı varsa wrangler uyarır.
+  4. [ ] Doğrula: `https://cansayno.com/hesap-silme/` uygulama kurulmadan açılıyor mu (Google şartı), güvenlik başlıkları, `/privacy` yönlendirmesi.
 - [ ] **Hukuki takip:** KVKK yurt dışı aktarım (Anthropic, RevenueCat ABD) için standart sözleşme + Kurul bildirimi gerekip gerekmediğini avukata sor; Hetzner ve Brevo ile veri işleme sözleşmesini (DPA/AVV, panellerinden) imzala.
 - [ ] **Yedek süresi:** Gizlilik politikası "silinen veri yedeklerden en geç 30 günde çıkar" diyor — canlı sunucuda veritabanı yedeklerini en fazla 30 gün tutacak şekilde ayarla. Güvenlik kayıtlarının 90 günlük temizliği backend'de hazır (`SecurityLogCleanupService`, `DataRetention:SecurityLogDays`).
 - [x] **Uygulamaya yasal linkler** (Apple abonelik kuralı, 2026-11-08): paywall, kayıt ekranı ve Profil'de Gizlilik Politikası + Kullanım Şartları; uygulama içi tarayıcıda açılır (`lib/constants/legal.ts`, `components/ui/LegalLinks.tsx`). Site yayına girene kadar sayfa açılmaz (DNS yok).
