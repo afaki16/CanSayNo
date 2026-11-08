@@ -21,5 +21,17 @@ namespace CanSayNo.Domain.Common.Interfaces.Repositories
             int userId,
             VerificationChannel channel,
             VerificationPurpose purpose);
+
+        /// <summary>
+        /// Atomically counts one verification attempt (single UPDATE). False when the token is used,
+        /// expired or already has <paramref name="maxAttempts"/> attempts.
+        /// </summary>
+        Task<bool> TryReserveAttemptAsync(int tokenId, int maxAttempts, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Atomically marks the token used; false if it was already used (e.g. by a concurrent request).
+        /// With <paramref name="minAttempts"/>, only when the attempt counter has reached it.
+        /// </summary>
+        Task<bool> TryMarkUsedAsync(int tokenId, int? minAttempts = null, CancellationToken cancellationToken = default);
     }
 }

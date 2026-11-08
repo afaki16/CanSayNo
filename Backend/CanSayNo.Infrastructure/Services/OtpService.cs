@@ -91,30 +91,35 @@ namespace CanSayNo.Infrastructure.Services
             if (token is null || !token.IsValid)
                 return Result<string>.Failure(Error.Failure(ErrorCode.ValidationFailed, _localizer["auth.otpInvalidOrExpired"]));
 
+            // The attempt is counted in the database BEFORE the code is compared (one atomic UPDATE). With a
+            // read-compare-increment, parallel guesses all read the same counter and the 5-attempt limit
+            // could be bypassed; now every guess needs its own slot, so at most MaxFailedAttempts are compared.
+            // Every attempt counts, including the successful one (the token is used after that anyway).
+            if (!await _unitOfWork.UserVerificationTokens.TryReserveAttemptAsync(token.Id, MaxFailedAttempts, cancellationToken))
+                return Result<string>.Failure(Error.Failure(
+                    ErrorCode.ValidationFailed,
+                    token.FailedAttempts >= MaxFailedAttempts ? _localizer["auth.otpTooManyAttempts"] : _localizer["auth.otpInvalidOrExpired"]));
+
             var expected = Convert.FromBase64String(token.Token);
             var actual = Convert.FromBase64String(HashCode(user.Id, purpose, (code ?? string.Empty).Trim()));
             if (!CryptographicOperations.FixedTimeEquals(expected, actual))
             {
-                token.FailedAttempts++;
-                var burned = token.FailedAttempts >= MaxFailedAttempts;
-                if (burned)
-                    token.MarkAsUsed();
-
-                _unitOfWork.UserVerificationTokens.Update(token);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                // Burned by whichever request finds the database counter at the limit
+                var burned = await _unitOfWork.UserVerificationTokens.TryMarkUsedAsync(token.Id, MaxFailedAttempts, cancellationToken);
 
                 _logger.LogWarning(
-                    "Wrong OTP code. UserId: {UserId}, Purpose: {Purpose}, Attempts: {Attempts}, Burned: {Burned}",
-                    user.Id, purpose, token.FailedAttempts, burned);
+                    "Wrong OTP code. UserId: {UserId}, Purpose: {Purpose}, Burned: {Burned}",
+                    user.Id, purpose, burned);
 
                 return Result<string>.Failure(Error.Failure(
                     ErrorCode.ValidationFailed,
                     burned ? _localizer["auth.otpTooManyAttempts"] : _localizer["auth.otpInvalidOrExpired"]));
             }
 
-            token.MarkAsUsed();
-            _unitOfWork.UserVerificationTokens.Update(token);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            // Conditional UPDATE: of two concurrent requests with the right code, only one succeeds.
+            if (!await _unitOfWork.UserVerificationTokens.TryMarkUsedAsync(token.Id, cancellationToken: cancellationToken))
+                return Result<string>.Failure(Error.Failure(ErrorCode.ValidationFailed, _localizer["auth.otpInvalidOrExpired"]));
+
             return Result<string>.Success(token.Destination ?? user.Email);
         }
 

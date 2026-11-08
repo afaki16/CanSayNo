@@ -60,5 +60,26 @@ namespace CanSayNo.Infrastructure.Repositories
 
             UpdateRange(activeTokens);
         }
+
+        public async Task<bool> TryReserveAttemptAsync(int tokenId, int maxAttempts, CancellationToken cancellationToken = default)
+        {
+            var now = DateTime.UtcNow;
+            var updated = await _context.Set<UserVerificationToken>()
+                .Where(t => t.Id == tokenId && !t.IsUsed && t.ExpiresAt > now && t.FailedAttempts < maxAttempts)
+                .ExecuteUpdateAsync(s => s.SetProperty(t => t.FailedAttempts, t => t.FailedAttempts + 1), cancellationToken);
+            return updated == 1;
+        }
+
+        public async Task<bool> TryMarkUsedAsync(int tokenId, int? minAttempts = null, CancellationToken cancellationToken = default)
+        {
+            var now = DateTime.UtcNow;
+            var min = minAttempts ?? 0;
+            var updated = await _context.Set<UserVerificationToken>()
+                .Where(t => t.Id == tokenId && !t.IsUsed && t.FailedAttempts >= min)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(t => t.IsUsed, true)
+                    .SetProperty(t => t.UsedAt, now), cancellationToken);
+            return updated == 1;
+        }
     }
 }

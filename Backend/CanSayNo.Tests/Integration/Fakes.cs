@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+using CanSayNo.Application.Common.Results;
 using CanSayNo.Application.Features.Sessions.Common;
 using CanSayNo.Application.Interfaces;
 
@@ -44,4 +46,27 @@ public sealed class FakeSessionEvaluator : ISessionEvaluator
             "Hayır, bu sefer yapamayacağım.");
         return Task.FromResult(new EvaluationReply(AiCallOutcome.Success, raw, 500));
     }
+}
+
+/// <summary>E-posta gönderilmez; tek seferlik kodlar adrese göre saklanır (şifre sıfırlama testleri okur).</summary>
+public sealed class FakeEmailService : IEmailService
+{
+    public ConcurrentDictionary<string, string> PasswordCodes { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    private static Task<Result> Ok() => Task.FromResult(Result.Success());
+
+    public Task<Result> SendPasswordCodeAsync(string email, string firstName, string code, int validMinutes)
+    {
+        PasswordCodes[email] = code;
+        return Ok();
+    }
+
+    public Task<Result> SendEmailAsync(string to, string subject, string body) => Ok();
+    public Task<Result> SendEmailConfirmationAsync(string email, string confirmationLink) => Ok();
+    public Task<Result> SendPasswordResetAsync(string email, string firstName, string resetLink) => Ok();
+    public Task<Result> SendEmailChangeVerificationAsync(string newEmail, string firstName, string confirmLink, int validHours) => Ok();
+    public Task<Result> SendEmailChangedNoticeAsync(string oldEmail, string firstName, string newEmail) => Ok();
+    public Task<Result> SendEmailChangeCodeAsync(string newEmail, string firstName, string code, int validMinutes) => Ok();
+    public Task<Result> SendWelcomeEmailAsync(string email, string userName) => Ok();
+    public Task<Result> SendBruteForceAlertAsync(string email, string firstName, string ipAddress, int failureCount, int lockoutMinutes) => Ok();
 }

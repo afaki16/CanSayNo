@@ -54,6 +54,9 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.RemoveAll<ISessionEvaluator>();
             services.AddSingleton<ICharacterChatService, FakeCharacterChatService>();
             services.AddSingleton<ISessionEvaluator, FakeSessionEvaluator>();
+            services.RemoveAll<IEmailService>();
+            services.AddSingleton<FakeEmailService>();
+            services.AddSingleton<IEmailService>(sp => sp.GetRequiredService<FakeEmailService>());
         });
     }
 

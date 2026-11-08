@@ -13,7 +13,7 @@ namespace CanSayNo.Domain.Entities
         public bool IsUsed { get; set; }
         public DateTime? UsedAt { get; set; }
         public string? RequestIpAddress { get; set; }
-        /// <summary>Wrong code entries for short OTP codes; the code is burned after a few failures.</summary>
+        /// <summary>Code entries for short OTP codes (counted before comparing); no more entries after a few.</summary>
         public int FailedAttempts { get; set; }
 
         public User User { get; set; } = null!;

@@ -64,13 +64,10 @@ namespace CanSayNo.API.Controllers
 
             var result = await _mediator.Send(command);
 
-            // On success, also drop an HttpOnly cookie so web clients can stop storing the
-            // refresh token in JS-accessible places (localStorage / non-HttpOnly cookie).
-            // The body still contains the token for backwards compatibility with mobile/CLI
-            // clients that don't have a cookie jar - they'll keep working unchanged.
+            // Web gets the refresh token only as an HttpOnly cookie; native clients (X-Client: mobile) get it in the body.
             if (result.IsSuccess && result.Value is not null)
             {
-                WriteRefreshTokenCookie(result.Value.RefreshToken, result.Value.ExpiresAt);
+                DeliverRefreshToken(result.Value);
             }
 
             return HandleResult(result);
@@ -156,7 +153,7 @@ namespace CanSayNo.API.Controllers
             // Rotate the cookie too so the new refresh token replaces the old one.
             if (result.IsSuccess && result.Value is not null)
             {
-                WriteRefreshTokenCookie(result.Value.RefreshToken, result.Value.ExpiresAt);
+                DeliverRefreshToken(result.Value);
             }
 
             return HandleResult(result);
@@ -315,6 +312,7 @@ namespace CanSayNo.API.Controllers
         /// <returns>Success message</returns>
         [HttpPost("change-password")]
         [Authorize]
+        [EnableRateLimiting("sensitive")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
@@ -620,6 +618,17 @@ namespace CanSayNo.API.Controllers
 
         private bool IsMobileClient =>
             string.Equals(Request.Headers[ClientHeaderName].ToString(), MobileClientValue, StringComparison.OrdinalIgnoreCase);
+
+        // Web: cookie only, and the token is removed from the body so an XSS can't read a long-lived
+        // credential from the response. Native clients have no cookie and keep it in the body.
+        private void DeliverRefreshToken(LoginResponseDto response)
+        {
+            if (IsMobileClient)
+                return;
+
+            WriteRefreshTokenCookie(response.RefreshToken, response.ExpiresAt);
+            response.RefreshToken = null!;
+        }
 
         private void WriteRefreshTokenCookie(string token, DateTime expiresAtUtc)
         {

@@ -23,11 +23,13 @@ public static class TestApi
     public const string FreeScenario = "is_001_cuma_mesaji";
     public const string PremiumScenario = "aile_001_evlenmek";
 
-    public static HttpClient NewClient(ApiFactory factory)
+    /// <param name="mobile">true: mobil uygulama gibi (X-Client: mobile → refresh token gövdede).
+    /// false: tarayıcı gibi (refresh token yalnızca HttpOnly cookie'de); cookie'ler elle yönetilir.</param>
+    public static HttpClient NewClient(ApiFactory factory, bool mobile = true)
     {
-        var client = factory.CreateClient();
-        // Mobil gibi davran: refresh token gövdede gelir, cookie yazılmaz.
-        client.DefaultRequestHeaders.Add("X-Client", "mobile");
+        var client = factory.CreateClient(new() { HandleCookies = false });
+        if (mobile)
+            client.DefaultRequestHeaders.Add("X-Client", "mobile");
         // Her client ayrı bir cihaz: IP başına rate limit'ler testler arasında paylaşılmaz.
         client.DefaultRequestHeaders.Add(TestClientIpStartupFilter.HeaderName, $"2001:db8::{Guid.NewGuid().ToString("N")[..4]}:{Guid.NewGuid().ToString("N")[..4]}");
         return client;
