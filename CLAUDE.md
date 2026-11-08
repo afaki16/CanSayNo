@@ -167,6 +167,13 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
 - Çalıştırma: 3000'i Sethumo kullanıyor → `API_BASE_URL=http://localhost:5177 npx nuxt dev --port 3100 --host 127.0.0.1` + API'ye `CorsSettings__AllowedOrigins__0=http://localhost:3100`. `nuxt typecheck` çalışmaz (tsconfig yok). Emulator Chrome'unda dev modu donuyor; `nuxt build` + `node .output/server/index.mjs` ile denendi
 - **Tenant görünürlüğü (2026-11-06)**: Admin kendi tenant'ına EK OLARAK tenant'sız (mobil) kullanıcıları görür/düzenler/siler — `TenantAdminVisibility.CanAccessUserTenant`, liste `GetUsersPagedAsync(includeTenantless: true)`. Başka tenant'lar ve SuperAdmin'ler Admin'e kapalı kalır
 
+## Mağaza Hazırlığı (2026-11-08)
+
+- Bireysel geliştirici hesabı, iletişim `info@factech.app`. Alan adı henüz yok (`factech.app` kullanıcının; `cansayno.factech.app` seçenek)
+- Taslaklar `docs/store/`: gizlilik (TR/EN, koddaki gerçek veri envanterine göre: reklam/analitik/crash SDK'sı YOK), kullanım şartları (TR/EN), Google hesap silme sayfası, mağaza metinleri + Veri güvenliği / App Privacy cevapları, `yayin-kontrol-listesi.md`. `[AD SOYAD]`, `[ADRES]`, sunucu/e-posta sağlayıcı yer tutucu
+- Yayın engelleri: Google bireysel hesapta 12 tester × 14 gün kapalı test; paywall/kayıt ekranında tıklanabilir şartlar/gizlilik linki yok (Apple); ikon/splash hâlâ Expo varsayılanı; canlı sunucu + SMTP yok; `supportsTablet: true` (iPad ekran görüntüsü ister); `eas.json` yok
+- Uygulama yalnızca Türkçe — İngilizce listeleme çeviriden sonra
+
 ## Diğer Bekleyenler
 
 - ~~Premium gating + RevenueCat webhook~~ — backend yapıldı (2026-11-04), sahte olaylarla 31 test geçti:
