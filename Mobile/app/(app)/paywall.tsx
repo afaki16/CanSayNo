@@ -19,7 +19,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Text } from '@/components/ui';
+import { Button, LegalLinks, Text } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
 import { useMySubscription } from '@/hooks/queries/useSubscription';
 import { usePremiumPurchase } from '@/hooks/usePremiumPurchase';
@@ -46,8 +46,8 @@ const BENEFITS: Benefit[] = [
     icon: InfinityIcon,
     color: '#3DD68C',
     bg: 'rgba(31,169,113,0.18)',
-    title: 'Sınırsız pratik',
-    description: 'Günlük limit yok, dilediğin kadar dene',
+    title: 'Her gün daha çok pratik',
+    description: 'Günde 30 pratiğe kadar, dilediğin senaryoda',
   },
   {
     icon: ChartLineUp,
@@ -130,7 +130,7 @@ export default function PaywallScreen() {
     try {
       const outcome = await purchase(selectedPackage);
       if (outcome === 'premium') {
-        Alert.alert('Premium aktif', 'Tüm bağlamlar ve sınırsız pratik açıldı.', [
+        Alert.alert('Premium aktif', 'Tüm bağlamların kilidi açıldı.', [
           { text: 'Harika', onPress: () => router.back() },
         ]);
       } else if (outcome === 'pending') {
@@ -228,7 +228,7 @@ export default function PaywallScreen() {
           <View style={styles.premiumBox}>
             <Text style={styles.premiumTitle}>Premium zaten aktif</Text>
             <Text style={styles.premiumText}>
-              Tüm bağlamlar ve sınırsız pratik hesabında açık.
+              Tüm bağlamlar hesabında açık.
             </Text>
             <Button variant="primary" size="lg" fullWidth onPress={() => router.back()}>
               Pratiğe dön
@@ -347,6 +347,8 @@ export default function PaywallScreen() {
                   </Text>
                 </Pressable>
               ) : null}
+              {/* Apple abonelik kuralı: satın alma ekranında şartlar + gizlilik linki */}
+              <LegalLinks onDark />
             </View>
           </>
         )}

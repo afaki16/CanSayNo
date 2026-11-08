@@ -67,23 +67,23 @@
   --color-on-primary-fixed-variant: 27 79 168;
   --color-inverse-primary: 169 199 255;
 
-  /* Secondary (accent / orange)
-   *   #855300 = 133 83 0
-   *   #fea619 = 254 166 25
-   *   #684000 = 104 64 0
-   *   #ffddb8 = 255 221 184
-   *   #ffb95f = 255 185 95
-   *   #2a1700 = 42 23 0
-   *   #653e00 = 101 62 0
+  /* Secondary (vurgu) — CanSayNo mercanı (logodaki el, mobil Colors.secondary)
+   *   #b8401a = 184 64 26
+   *   #ff7043 = 255 112 67
+   *   #5c1a00 = 92 26 0
+   *   #ffdbcf = 255 219 207
+   *   #ffb59c = 255 181 156
+   *   #3a0b00 = 58 11 0
+   *   #8a2d0c = 138 45 12
    */
-  --color-secondary: 133 83 0;
+  --color-secondary: 184 64 26;
   --color-on-secondary: 255 255 255;
-  --color-secondary-container: 254 166 25;
-  --color-on-secondary-container: 104 64 0;
-  --color-secondary-fixed: 255 221 184;
-  --color-secondary-fixed-dim: 255 185 95;
-  --color-on-secondary-fixed: 42 23 0;
-  --color-on-secondary-fixed-variant: 101 62 0;
+  --color-secondary-container: 255 112 67;
+  --color-on-secondary-container: 92 26 0;
+  --color-secondary-fixed: 255 219 207;
+  --color-secondary-fixed-dim: 255 181 156;
+  --color-on-secondary-fixed: 58 11 0;
+  --color-on-secondary-fixed-variant: 138 45 12;
 
   /* Tertiary
    *   #a43a3a = 164 58 58
@@ -171,17 +171,18 @@
   --color-on-primary-fixed-variant: 27 79 168;
   --color-inverse-primary: 45 127 249;
 
-  /* Secondary
-   *   #fea619 = 254 166 25
+  /* Secondary — CanSayNo mercanı. Koyu zeminde container üstü yazı açık mercan (rozetler okunsun)
+   *   #ff7043 = 255 112 67
+   *   #ffb59c = 255 181 156
    */
-  --color-secondary: 254 166 25;
+  --color-secondary: 255 112 67;
   --color-on-secondary: 255 255 255;
-  --color-secondary-container: 254 166 25;
-  --color-on-secondary-container: 104 64 0;
-  --color-secondary-fixed: 255 221 184;
-  --color-secondary-fixed-dim: 255 185 95;
-  --color-on-secondary-fixed: 42 23 0;
-  --color-on-secondary-fixed-variant: 101 62 0;
+  --color-secondary-container: 255 112 67;
+  --color-on-secondary-container: 255 181 156;
+  --color-secondary-fixed: 255 219 207;
+  --color-secondary-fixed-dim: 255 181 156;
+  --color-on-secondary-fixed: 58 11 0;
+  --color-on-secondary-fixed-variant: 138 45 12;
 
   /* Tertiary */
   --color-tertiary: 164 58 58;

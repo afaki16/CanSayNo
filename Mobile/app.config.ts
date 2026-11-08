@@ -15,7 +15,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   userInterfaceStyle: 'automatic',
   newArchEnabled: true,
   ios: {
-    supportsTablet: true,
+    // iPad'de iPhone görünümünde çalışır. Ekranlar iPad için tasarlanmadı; Apple yayından sonra
+    // desteklenen cihazı KALDIRMAYA izin vermez, ama sonradan eklemeye izin verir → kapalı başla.
+    supportsTablet: false,
+    infoPlist: {
+      // Yalnızca HTTPS (standart, muaf şifreleme) — her yüklemede ihracat uyumluluğu sorusu sorulmaz.
+      ITSAppUsesNonExemptEncryption: false,
+    },
     // Mağaza kimliği — yayından sonra DEĞİŞTİRİLEMEZ (RevenueCat ürünleri de buna bağlı).
     bundleIdentifier: 'com.cansayno.app',
   },
@@ -29,6 +35,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundImage: './assets/images/android-icon-background.png',
       monochromeImage: './assets/images/android-icon-monochrome.png',
     },
+    // Paketlerin eklediği ama kullanılmayan izinler (Play incelemesinde soru doğurur):
+    // depolama — veri dışa aktarımı yalnızca uygulamanın önbelleğine yazar (hooks/useAccountData.ts);
+    // biyometri — expo-secure-store requireAuthentication kullanılmıyor (lib/storage/secureStorage.ts).
+    blockedPermissions: [
+      'android.permission.READ_EXTERNAL_STORAGE',
+      'android.permission.WRITE_EXTERNAL_STORAGE',
+      'android.permission.USE_BIOMETRIC',
+      'android.permission.USE_FINGERPRINT',
+    ],
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
   },

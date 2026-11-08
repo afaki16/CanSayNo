@@ -103,7 +103,7 @@
     "notFound": "Practice session not found",
     "scenarioNotFound": "Scenario not found",
     "premiumRequired": "This scenario is for premium members. Upgrade to unlock all contexts.",
-    "dailyLimitReached": "You've used today's free practice. Come back tomorrow or go premium for unlimited practice.",
+    "dailyLimitReached": "You've used today's free practice. Come back tomorrow or go premium to practice more every day.",
     "fairUseLimitReached": "You've practiced a lot today! You've reached the daily fair-use limit; continue tomorrow.",
     "notActive": "This practice has ended; no more messages can be sent.",
     "tokenLimitReached": "This practice has reached its message limit. You can start a new one.",

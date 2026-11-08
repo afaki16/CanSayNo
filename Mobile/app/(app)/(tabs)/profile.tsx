@@ -21,7 +21,7 @@ import {
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Text } from '@/components/ui';
+import { LegalLinks, Text } from '@/components/ui';
 import {
   Colors,
   FontSize,
@@ -250,6 +250,10 @@ export default function ProfileScreen() {
             </Text>
           </Pressable>
         </View>
+
+        <View style={styles.legal}>
+          <LegalLinks />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -438,6 +442,9 @@ const styles = StyleSheet.create({
   settingRowDivider: {
     borderBottomWidth: 1,
     borderBottomColor: Colors.chip,
+  },
+  legal: {
+    marginTop: Spacing.lg,
   },
   settingText: {
     flex: 1,

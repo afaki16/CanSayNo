@@ -20,7 +20,7 @@
             class="text-primary"
             style="font-size: 32px"
           />
-          <h1 class="text-headline-md font-headline-md font-bold text-on-surface truncate">
+          <h1 class="text-[1.375rem] leading-7 font-headline-md font-bold text-on-surface truncate">
             {{ appData?.app?.brand?.text || 'CanSayNo' }}
           </h1>
         </div>
@@ -334,11 +334,11 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Active menu item — turuncu gradient pill */
+/* Active menu item — CanSayNo marka geçişi (mor → mavi, design/brand/brand.mjs) */
 .sidebar-active-pill {
-  background: linear-gradient(90deg, #fea619, #ff8c00);
+  background: linear-gradient(90deg, #5B4BE0, #2D7FF9);
   color: #ffffff !important;
-  box-shadow: 0 4px 15px rgba(254, 166, 25, 0.3);
+  box-shadow: 0 4px 15px rgba(91, 75, 224, 0.3);
 }
 
 .sidebar-active-pill :deep(.iconify),

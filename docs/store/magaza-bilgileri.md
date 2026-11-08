@@ -48,7 +48,7 @@ Karakter sınırları parantez içinde. Uygulama şu an **yalnızca Türkçe**; 
 > • Reklam yok. Verilerin satılmaz.
 >
 > **ÜCRETSİZ VE PREMIUM**
-> İş & Kariyer bağlamındaki tüm senaryolar ücretsiz; günde 1 pratik yapabilirsin. Premium ile 8 bağlamın tamamını açar, her gün dilediğin kadar pratik yaparsın.
+> İş & Kariyer bağlamındaki tüm senaryolar ücretsiz; günde 1 pratik yapabilirsin. Premium ile 8 bağlamın tamamını açar, her gün 30 pratiğe kadar yaparsın.
 >
 > Premium aylık veya yıllık otomatik yenilenen bir aboneliktir. Ödeme, satın alma onaylandığında App Store / Google Play hesabından alınır. Abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse otomatik yenilenir. Aboneliğini mağaza hesap ayarlarından yönetebilir ve iptal edebilirsin.
 >
@@ -79,7 +79,7 @@ Uzun açıklama: Türkçe metnin çevirisi. Uygulama İngilizceye çevrilirken b
 
 - **RevenueCat:** entitlement `premium`. Offering `default` (current), paketler `$rc_monthly` ve `$rc_annual`; uygulama bu iki paketi okuyor.
 - **Webhook:** `https://api.cansayno.com/api/Webhooks/revenuecat`. Authorization değeri sunucuda `RevenueCat__WebhookAuthorization` ile aynı olmalı.
-- Abonelik adı/açıklaması (Apple, her dil için): "Premium: tüm bağlamlar ve günlük sınırsız pratik"
+- Abonelik adı/açıklaması (Apple, her dil için): "Premium: tüm bağlamlar ve günde 30 pratik"
 
 ## 5. Google Play "Veri güvenliği" formu
 

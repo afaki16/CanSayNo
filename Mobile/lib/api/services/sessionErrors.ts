@@ -8,7 +8,7 @@ const NETWORK = 'Bağlantı kurulamadı, internet bağlantını kontrol et';
 const GENERIC = 'Pratik başlatılamadı, lütfen tekrar dene';
 const SESSION = 'Oturumun sona ermiş, tekrar giriş yap';
 const DAILY_LIMIT =
-  'Bugünkü ücretsiz pratik hakkını kullandın. Yarın tekrar gel ya da premium ile sınırsız pratik yap.';
+  'Bugünkü ücretsiz pratik hakkını kullandın. Yarın tekrar gel ya da premium ile her gün daha çok pratik yap.';
 
 // Kullanıcı başına dakikalık istek sınırı (backend "ai" rate limit politikası; gövdesi kodsuz).
 const TOO_FAST = 'Çok hızlı gidiyorsun. Birkaç saniye bekleyip tekrar dene.';

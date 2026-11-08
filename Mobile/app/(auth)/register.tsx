@@ -34,6 +34,7 @@ import {
 } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { openLegalPage } from '@/lib/utils/openLegalPage';
 import { newPasswordSchema } from '@/lib/validation/password';
 
 const registerSchema = z.object({
@@ -184,8 +185,22 @@ export default function RegisterScreen() {
 
           <Text style={styles.terms}>
             Devam ederek{' '}
-            <Text style={styles.termsAccent}>Kullanım Koşulları</Text> ve{' '}
-            <Text style={styles.termsAccent}>Gizlilik Politikası</Text>&apos;nı
+            <Text
+              style={styles.termsAccent}
+              onPress={() => openLegalPage('terms')}
+              accessibilityRole="link"
+            >
+              Kullanım Şartları
+            </Text>{' '}
+            ve{' '}
+            <Text
+              style={styles.termsAccent}
+              onPress={() => openLegalPage('privacy')}
+              accessibilityRole="link"
+            >
+              Gizlilik Politikası
+            </Text>
+            &apos;nı
             kabul edersin.
           </Text>
 
@@ -253,6 +268,7 @@ const styles = StyleSheet.create({
   termsAccent: {
     color: Colors.textSecondary,
     fontWeight: FontWeight.semibold,
+    textDecorationLine: 'underline',
   },
   bottomLink: {
     marginTop: Spacing.md,

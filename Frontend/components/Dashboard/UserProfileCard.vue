@@ -3,7 +3,7 @@
     class="bg-surface-container-lowest border border-outline-variant/20 rounded-xl shadow-sm overflow-hidden flex flex-col h-full"
   >
     <!-- Banner (gradient — gerçek tema rengiyle) -->
-    <div class="h-24 relative bg-gradient-to-br from-primary to-primary-container">
+    <div class="h-24 relative" style="background: var(--theme-gradient, linear-gradient(135deg, #5B4BE0 0%, #2D7FF9 100%))">
       <!-- Subtle pattern overlay (optional decorative) -->
       <div
         class="absolute inset-0 opacity-20"
@@ -51,7 +51,7 @@
       <!-- Action Button -->
       <button
         @click="$router.push('/profile')"
-        class="w-full mt-md py-2.5 bg-secondary-container text-on-secondary-container font-bold rounded-xl hover:opacity-90 transition-all text-body-sm"
+        class="btn-gradient-primary w-full mt-md py-2.5 text-white font-bold rounded-xl hover:opacity-90 transition-all text-body-sm"
       >
         Profili Düzenle
       </button>

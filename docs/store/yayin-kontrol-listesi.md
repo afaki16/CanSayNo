@@ -51,24 +51,19 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
 - [ ] **Web sitesi** (`Web/`, içerik `docs/store/`'dan üretilir; `/hesap-silme` Google'ın istediği silme bağlantısı, uygulama kurulmadan açılabilmeli):
   - Tanıtım sayfası + `/gizlilik` + `/kullanim-sartlari` + `/hesap-silme`.
   - İçerik `docs/store/` belgelerinden. Statik site; ücretsiz barındırılabilir.
-- [ ] **Uygulamaya yasal linkler** (Apple abonelik kuralı):
-  - Paywall: Kullanım Şartları ve Gizlilik linkleri.
-  - Kayıt ekranındaki "Kullanım Koşulları / Gizlilik Politikası" metni: şu an tıklanamıyor, link olmalı.
-  - Profil: iki link.
-- [ ] **`app.config.ts`:**
-  - `ios.supportsTablet: false`: iPad ekran görüntüsü zorunluluğunu kaldırır. Uygulama iPad'e özel tasarlanmadı.
-  - `ios.infoPlist.ITSAppUsesNonExemptEncryption: false`: her yüklemede ihracat şifreleme sorusunu atlar; yalnızca HTTPS kullanılıyor.
-  - Canlı `EXPO_PUBLIC_API_URL` ve RevenueCat anahtarları.
-- [ ] **EAS Build** (`eas.json`): development / preview / production profilleri. iOS derlemesi Mac olmadan EAS ile yapılır.
+- [x] **Uygulamaya yasal linkler** (Apple abonelik kuralı, 2026-11-08): paywall, kayıt ekranı ve Profil'de Gizlilik Politikası + Kullanım Şartları; uygulama içi tarayıcıda açılır (`lib/constants/legal.ts`, `components/ui/LegalLinks.tsx`). Site yayına girene kadar sayfa açılmaz (DNS yok).
+- [x] **`app.config.ts`** (2026-11-08): `ios.supportsTablet: false`, `ios.infoPlist.ITSAppUsesNonExemptEncryption: false`, kullanılmayan Android izinleri engellendi (depolama, biyometri).
+- [ ] Canlı `EXPO_PUBLIC_API_URL` (eas.json'da `https://api.cansayno.com`) ve RevenueCat anahtarları (EAS ortam değişkeni olarak).
+- [x] **EAS Build** (`Mobile/eas.json`, 2026-11-08): development / preview (APK, staging) / production (otomatik sürüm numarası). **Senin yapacağın:** `npx eas-cli login` → `npx eas-cli init` (projeyi Expo hesabına bağlar, `app.config.ts`'e projectId ekler). İlk EAS derlemesinde CMake 3.31.6'nın sunucuda indirildiğini doğrula (`plugins/withAndroidCmakeVersion.js`).
 - [ ] **RevenueCat:**
   - Ürünler (`cansayno_premium_monthly`, `cansayno_premium_annual`), `premium` entitlement, offering, webhook.
   - Sandbox ve kapalı testte gerçek satın alma denemesi.
-- [ ] **Android izinleri:** Derlemenin manifest'inde gereksiz izin (ör. kesin alarm) olmadığını kontrol et; Google bunları sorguluyor.
+- [x] **Android izinleri** (2026-11-08): kesin alarm (`SCHEDULE_EXACT_ALARM`) yok; depolama ve biyometri izinleri `blockedPermissions` ile çıkarıldı. Kalanlar: internet, bildirim, açılışta hatırlatmaları yeniden kurma (`RECEIVE_BOOT_COMPLETED`), titreşim, uygulama içi satın alma (`BILLING`), launcher rozet izinleri. `SYSTEM_ALERT_WINDOW` yalnızca debug derlemesinde.
 - [ ] **İnceleme hesabı:** Canlı veritabanında `review@...`, premium açık.
 
 ### Görseller
-- [ ] **Uygulama ikonu + splash:** Şu an **Expo'nun varsayılan şablon görselleri** (`Mobile/assets/images/icon.png`, android-icon-*, splash-icon). Marka ikonu tasarlanmalı: 1024×1024, iOS için şeffaflıksız, Android için adaptive ön/arka plan + tek renk bildirim ikonu. Mağaza reddi ve kötü ilk izlenim sebebi.
-- [ ] Google öne çıkan görsel: 1024×500.
+- [x] **Uygulama ikonu + splash** (2026-11-08): balon + "dur" eli, mor→mavi geçiş. `node design/brand/generate.mjs` üretir; emulator'de ana ekran ve açılışta doğrulandı.
+- [x] Google öne çıkan görsel 1024×500 ve 1024 uygulama ikonu: `docs/store/gorseller/`.
 - [ ] Ekran görüntüleri: iPhone 6,9" + Android telefon (bkz. `magaza-bilgileri.md` §9).
 
 ## 3. Önerilen sıra

@@ -25,3 +25,5 @@ export { Skeleton } from './Skeleton';
 export type { SkeletonProps } from './Skeleton';
 export { ErrorState } from './ErrorState';
 export type { ErrorStateProps } from './ErrorState';
+export { LegalLinks } from './LegalLinks';
+export type { LegalLinksProps } from './LegalLinks';
