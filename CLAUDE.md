@@ -173,6 +173,8 @@ Chat ekranı şu an kullanıcı ne yazarsa yazsın script'li cevap veriyor. Hede
 - Taslaklar `docs/store/`: gizlilik (TR/EN, koddaki gerçek veri envanterine göre: reklam/analitik/crash SDK'sı YOK), kullanım şartları (TR/EN), Google hesap silme sayfası, mağaza metinleri + Veri güvenliği / App Privacy cevapları, `yayin-kontrol-listesi.md`. `[AD SOYAD]`, `[ADRES]`, sunucu/e-posta sağlayıcı yer tutucu
 - Yayın engelleri: Google bireysel hesapta 12 tester × 14 gün kapalı test; paywall/kayıt ekranında tıklanabilir şartlar/gizlilik linki yok (Apple); ikon/splash hâlâ Expo varsayılanı; canlı sunucu + SMTP yok; `supportsTablet: true` (iPad ekran görüntüsü ister); `eas.json` yok
 - Uygulama yalnızca Türkçe — İngilizce listeleme çeviriden sonra
+- Kararlar: yaş 16+, ücretsiz deneme YOK, iPad desteği kapalı başlayacak (Apple yayından sonra cihaz desteğini kaldırmaya izin vermiyor; sonradan açılabilir)
+- **Web sitesi `Web/`** (statik, alan adı bekleniyor): `npm run build` → `dist/` (ana sayfa + `/gizlilik/`, `/kullanim-sartlari/`, `/hesap-silme/`, `/en/privacy/`, `/en/terms/`, 404). Yasal sayfalar `docs/store/*.md`'den `marked` ile üretilir — metni orada düzelt. `build:strict` doldurulmamış `[YER TUTUCU]` kalırsa durur (yayından önce bunu kullan). Renk/font uygulamayla aynı (Satoshi, `Mobile/assets/fonts`'tan kopyalanır). `npm run preview` → :4173. Headless Chrome 500px'ten dar pencere açmıyor; telefon görünümünü 375px iframe ile kontrol et
 
 ## Diğer Bekleyenler
 

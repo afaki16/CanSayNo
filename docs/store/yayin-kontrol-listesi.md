@@ -48,7 +48,7 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
   - Ayarlar: JWT secret, Anthropic anahtarı, RevenueCat webhook secret, CORS.
   - Otomatik yedek ve log saklama süresi.
 - [ ] **E-posta gönderimi:** Doğrulama ve şifre kodları için bir SMTP sağlayıcı (SPF/DKIM ayarlı). Gönderen adresi `noreply@[ALAN ADI]` olabilir.
-- [ ] **Web sitesi:**
+- [ ] **Web sitesi** (`Web/`, içerik `docs/store/`'dan üretilir; `/hesap-silme` Google'ın istediği silme bağlantısı, uygulama kurulmadan açılabilmeli):
   - Tanıtım sayfası + `/gizlilik` + `/kullanim-sartlari` + `/hesap-silme`.
   - İçerik `docs/store/` belgelerinden. Statik site; ücretsiz barındırılabilir.
 - [ ] **Uygulamaya yasal linkler** (Apple abonelik kuralı):

@@ -1,0 +1,14 @@
+{
+  "name": "cansayno-web",
+  "private": true,
+  "type": "module",
+  "description": "CanSayNo tanıtım sitesi ve yasal sayfalar (statik). Yasal metinler docs/store/*.md'den üretilir.",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:strict": "node build.mjs --strict",
+    "preview": "node preview.mjs"
+  },
+  "devDependencies": {
+    "marked": "15.0.12"
+  }
+}

@@ -33,13 +33,13 @@ Bu kurallara uyulmadığında hesabı askıya alabilir ya da kapatabiliriz.
 
 ## 5. Ücretsiz kullanım ve Premium
 
-- **Ücretsiz:** İş & Kariyer bağlamındaki senaryolar ücretsizdir; günde [1] pratik hakkın vardır.
+- **Ücretsiz:** İş & Kariyer bağlamındaki senaryolar ücretsizdir; günde 1 pratik hakkın vardır.
 - **Premium:** Tüm bağlamları açan, otomatik yenilenen bir aboneliktir (aylık veya yıllık).
   - Satın alma ve faturalandırma App Store ya da Google Play üzerinden yapılır.
   - Abonelik, dönem bitmeden en az 24 saat önce iptal edilmezse otomatik yenilenir.
   - İptal ve iade işlemleri ilgili mağazanın hesap ayarlarından ve politikalarına göre yapılır.
   - Uygulamayı ya da hesabı silmek aboneliği **iptal etmez**; aboneliği mağazadan iptal etmelisin.
-- **Adil kullanım:** Premium aboneler günde en fazla [30] pratik yapabilir. Bu sınır, otomatik kötüye kullanımı önlemek içindir; normal kullanımda bu sayıya ulaşılmaz.
+- **Adil kullanım:** Premium aboneler günde en fazla 30 pratik yapabilir. Bu sınır, otomatik kötüye kullanımı önlemek içindir; normal kullanımda bu sayıya ulaşılmaz.
 - Fiyatlar mağazada gösterilir. Fiyat değişiklikleri mağazanın kurallarına göre önceden bildirilir.
 
 ## 6. İçerik

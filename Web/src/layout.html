@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{title}}</title>
+  <meta name="description" content="{{description}}">
+  <meta name="theme-color" content="#2D7FF9">
+  <meta property="og:title" content="{{title}}">
+  <meta property="og:description" content="{{description}}">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body class="{{bodyClass}}">
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand" href="/" aria-label="CanSayNo ana sayfa">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 16 12" fill="none"><path d="M2 10 L8 3 L14 10" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="brand-name">CanSayNo</span>
+      </a>
+      <nav class="header-nav" aria-label="Ana menü">
+        <a href="/#nasil-calisir">Nasıl çalışır</a>
+        <a href="/#baglamlar">Bağlamlar</a>
+        <a href="/#fiyat">Fiyat</a>
+      </nav>
+    </div>
+  </header>
+
+{{content}}
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="/">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 16 12" fill="none"><path d="M2 10 L8 3 L14 10" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="brand-name">CanSayNo</span>
+        </a>
+        <p>Hayır demek bir beceridir.</p>
+        <p><a href="mailto:info@factech.app">info@factech.app</a></p>
+      </div>
+      <nav aria-label="Yasal">
+        <h2>Yasal</h2>
+        <a href="/gizlilik/">Gizlilik Politikası</a>
+        <a href="/kullanim-sartlari/">Kullanım Şartları</a>
+        <a href="/hesap-silme/">Hesap Silme</a>
+      </nav>
+      <nav aria-label="English" lang="en">
+        <h2>English</h2>
+        <a href="/en/privacy/">Privacy Policy</a>
+        <a href="/en/terms/">Terms of Use</a>
+        <a href="/hesap-silme/#english">Account Deletion</a>
+      </nav>
+    </div>
+    <div class="container footer-note">
+      <p>CanSayNo bir terapi ya da psikolojik danışmanlık hizmeti değildir. © 2026 CanSayNo</p>
+    </div>
+  </footer>
+</body>
+</html>

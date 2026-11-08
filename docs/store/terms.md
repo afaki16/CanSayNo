@@ -33,13 +33,13 @@ If you break these rules, we may suspend or close your account.
 
 ## 5. Free use and Premium
 
-- **Free:** Scenarios in the Work & Career context are free, with [1] practice per day.
+- **Free:** Scenarios in the Work & Career context are free, with 1 practice per day.
 - **Premium:** An auto-renewing subscription (monthly or yearly) that unlocks all contexts.
   - Purchase and billing happen through the App Store or Google Play.
   - The subscription renews automatically unless you cancel at least 24 hours before the period ends.
   - Cancellations and refunds are handled in your store account settings, under the store's policies.
   - Deleting the App or your account does **not** cancel the subscription. Cancel it in your store account.
-- **Fair use:** Premium subscribers can do up to [30] practices per day. This limit prevents automated abuse; normal use does not reach it.
+- **Fair use:** Premium subscribers can do up to 30 practices per day. This limit prevents automated abuse; normal use does not reach it.
 - Prices are shown in the store. Price changes are announced in advance under the store's rules.
 
 ## 6. Content

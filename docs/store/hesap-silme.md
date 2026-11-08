@@ -1,9 +1,6 @@
 # CanSayNo: Hesap ve Veri Silme / Account and Data Deletion
 
-> Bu sayfa Google Play'in istediği **hesap silme bağlantısıdır**. Uygulamayı kurmadan da açılabilmelidir.
-> This page is the **account deletion link** required by Google Play. It must open without installing the app.
-
-**Uygulama / App:** CanSayNo
+**Uygulama / App:** CanSayNo<br>
 **Geliştirici / Developer:** [AD SOYAD / FULL NAME]
 
 ---
