@@ -86,7 +86,7 @@ Talepler için info@factech.app adresine, hesabına kayıtlı e-posta adresinden
 
 ## 8. Yaş sınırı
 
-Uygulama [16] yaşından küçükler için tasarlanmamıştır. Bu yaşın altındaki kişilere ait olduğunu öğrendiğimiz hesapları sileriz.
+Uygulama 16 yaşından küçükler için tasarlanmamıştır. Bu yaşın altındaki kişilere ait olduğunu öğrendiğimiz hesapları sileriz.
 
 ## 9. Değişiklikler
 

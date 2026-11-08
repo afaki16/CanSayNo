@@ -86,7 +86,7 @@ Send requests to info@factech.app from the email address registered to your acco
 
 ## 8. Age
 
-The App is not intended for anyone under [16]. If we learn that an account belongs to someone under this age, we delete it.
+The App is not intended for anyone under 16. If we learn that an account belongs to someone under this age, we delete it.
 
 ## 9. Changes
 

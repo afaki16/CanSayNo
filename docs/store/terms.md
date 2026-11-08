@@ -16,7 +16,7 @@ The App lets you practise saying "no" and setting boundaries by chatting with fi
 
 ## 3. Account
 
-- You must be at least [16] years old to sign up.
+- You must be at least 16 years old to sign up.
 - Give accurate information and keep your password to yourself.
 - You can delete your account at any time in the App (Profile › Account › Delete my account; in the app: *Profil › Hesap bilgileri › Hesabımı sil*).
 

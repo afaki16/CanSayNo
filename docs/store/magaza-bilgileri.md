@@ -75,7 +75,7 @@ Uzun açıklama: Türkçe metnin çevirisi. Uygulama İngilizceye çevrilirken b
 | Ürün kimliği | `cansayno_premium_monthly` | `cansayno_premium_annual` |
 | Fiyat (TR) | ₺79 | ₺499 |
 | Apple abonelik grubu | `CanSayNo Premium` (ikisi aynı grupta) | |
-| Ücretsiz deneme | [KARAR: yok / 7 gün] | |
+| Ücretsiz deneme | Yok (karar 2026-11-08) | |
 
 - **RevenueCat:** entitlement `premium`. Offering `default` (current), paketler `$rc_monthly` ve `$rc_annual`; uygulama bu iki paketi okuyor.
 - **Webhook:** `https://[API ALAN ADI]/api/Webhooks/revenuecat`. Authorization değeri sunucuda `RevenueCat__WebhookAuthorization` ile aynı olmalı.

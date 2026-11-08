@@ -36,8 +36,8 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
 
 ### Kararlar
 - [ ] **Alan adı:** `cansayno.factech.app` (hemen, ücretsiz) mi, ayrı bir marka alanı mı (`cansayno.com` / `.app`)? Adres mağaza listesine ve uygulamaya yazılacağı için baştan karar vermek iyi. Web uygulaması da ileride aynı alan altında olacak.
-- [ ] **Yaş sınırı:** 16+ öneriliyor.
-- [ ] **Ücretsiz deneme:** yok / 7 gün?
+- [x] **Yaş sınırı:** 16+ (karar 2026-11-08).
+- [x] **Ücretsiz deneme:** yok (karar 2026-11-08).
 - [ ] **Fiyatlar:** ₺79 aylık / ₺499 yıllık. Diğer ülkelerin fiyatları mağazada otomatik ya da elle belirlenir.
 
 ## 2. Teknik işler (birlikte yapacağımız)

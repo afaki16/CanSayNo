@@ -16,7 +16,7 @@ Uygulama, yapay zekâ ile canlandırılan kurgusal karakterlerle yazışarak "ha
 
 ## 3. Hesap
 
-- Kayıt olmak için en az [16] yaşında olmalısın.
+- Kayıt olmak için en az 16 yaşında olmalısın.
 - Doğru bilgi vermeli ve şifreni kimseyle paylaşmamalısın.
 - Hesabını istediğin zaman uygulamadan silebilirsin (Profil › Hesap bilgileri › Hesabımı sil).
 
