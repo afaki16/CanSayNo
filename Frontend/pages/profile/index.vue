@@ -616,7 +616,7 @@ onMounted(loadSessions);
 .hero-banner {
   height: 140px;
   border-radius: 12px 12px 0 0;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 45%, #a855f7 100%);
+  background: linear-gradient(135deg, #5B4BE0 0%, #2D7FF9 100%); /* CanSayNo marka geçişi */
   position: relative;
   overflow: hidden;
 }

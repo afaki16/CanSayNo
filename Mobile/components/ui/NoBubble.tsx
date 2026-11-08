@@ -10,7 +10,9 @@ import { Colors, FontWeight, Gradients } from '@/constants/theme';
 
 import { Text } from './Text';
 
-const BUBBLE_TAIL = '#4A5CE8';
+// Kuyruk balonun alt kenarından başlar (içine taşarsa geçişle ek yeri görünür). Rengi, geçişin
+// kuyruğun durduğu noktadaki tonu (sol alt, geçişin ~%64'ü).
+const BUBBLE_TAIL = '#3E6CF0';
 
 export function NoBubble() {
   return (
@@ -29,7 +31,6 @@ export function NoBubble() {
         </LinearGradient>
         {/* Balon kuyruğu */}
         <Svg width={42} height={32} viewBox="0 0 42 32" style={styles.tail}>
-          {/* Sol alt köşe geçişin ortasına denk gelir */}
           <Path d="M0 0 H42 L11 31 Z" fill={BUBBLE_TAIL} />
         </Svg>
       </View>
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
   },
   tail: {
     position: 'absolute',
-    bottom: -15,
+    bottom: -29,
     left: 36,
   },
   no: {

@@ -163,6 +163,13 @@ export default function HomeScreen() {
             style={styles.taskCard}
             accessibilityRole="button"
           >
+            <LinearGradient
+              colors={Gradients.brand.colors}
+              start={Gradients.brand.start}
+              end={Gradients.brand.end}
+              style={[StyleSheet.absoluteFill, { borderRadius: 22 }]}
+              pointerEvents="none"
+            />
             <View style={styles.flex}>
               <Text style={styles.taskLabel}>BUGÜNKÜ GÖREV</Text>
               <Text style={styles.taskTitle}>{dailyTask.title}</Text>

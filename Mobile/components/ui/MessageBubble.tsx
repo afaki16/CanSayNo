@@ -2,6 +2,7 @@
 // AI balonlarında sol tarafta karakterin baş harfleriyle yuvarlak avatar yer alır;
 // gruplanmış ardışık AI mesajlarında avatar gizlenip yerine boşluk bırakılır (gutter korunur).
 
+import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -20,6 +21,7 @@ import {
   Colors,
   FontSize,
   FontWeight,
+  Gradients,
   Radius,
   Shadow,
   Spacing,
@@ -128,11 +130,16 @@ export function MessageBubble({
 
   return (
     <View style={styles.userRow}>
-      <View style={styles.userBubble}>
+      <LinearGradient
+        colors={Gradients.brand.colors}
+        start={Gradients.brand.start}
+        end={Gradients.brand.end}
+        style={styles.userBubble}
+      >
         <Text style={styles.userText} selectable>
           {content}
         </Text>
-      </View>
+      </LinearGradient>
     </View>
   );
 }
@@ -192,6 +199,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     maxWidth: '80%',
   },
+  // Zemin marka geçişi (LinearGradient); düz renk yalnızca yedek
   userBubble: {
     flexShrink: 1,
     backgroundColor: Colors.primary,

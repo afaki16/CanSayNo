@@ -292,12 +292,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  // Başlığın (Gradients.brandDeep) üst kenarına yakın koyu mor
   statusBarScrim: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.indigoDark,
   },
   centered: {
     alignItems: 'center',

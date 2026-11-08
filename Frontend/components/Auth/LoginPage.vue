@@ -378,9 +378,10 @@ onUnmounted(() => {
   --lp-card-border: rgba(255, 255, 255, 0.06);
   --lp-input-bg: rgba(255, 255, 255, 0.04);
   --lp-input-border: rgba(255, 255, 255, 0.1);
-  --lp-accent: #818cf8;
-  --lp-accent-glow: rgba(129, 140, 248, 0.25);
-  --lp-gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+  /* CanSayNo marka renkleri (design/brand/brand.mjs) — koyu zeminde okunsun diye açık tonlar */
+  --lp-accent: #8B9CFF;
+  --lp-accent-glow: rgba(91, 75, 224, 0.3);
+  --lp-gradient: linear-gradient(135deg, #5B4BE0, #2D7FF9);
   --lp-text: #f1f1f4;
   --lp-text-secondary: rgba(255, 255, 255, 0.5);
   --lp-text-muted: rgba(255, 255, 255, 0.3);
@@ -636,7 +637,7 @@ onUnmounted(() => {
 }
 
 .forgot-link:hover {
-  color: #a5b4fc;
+  color: #B5C1FF;
 }
 
 /* Login Button */
