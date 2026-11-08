@@ -1,0 +1,55 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>Balon + el ikonları</title>
+<style>
+  @font-face { font-family: Satoshi; src: url('../../../Mobile/assets/fonts/Satoshi-Bold.ttf'); }
+  body { margin: 0; padding: 28px; font-family: Satoshi, system-ui, sans-serif; background: #F8F7F4; color: #16181D; }
+  h1 { margin: 0 0 4px; } h2 { font-size: 16px; margin: 22px 0 10px; }
+  .row { display: flex; gap: 22px; align-items: flex-end; flex-wrap: wrap; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 12px; color: #5A6472; }
+  .ios { border-radius: 22.37%; box-shadow: 0 3px 10px rgba(0,0,0,.14); }
+  .android { border-radius: 50%; overflow: hidden; position: relative; box-shadow: 0 3px 10px rgba(0,0,0,.14); }
+  .android img { position: absolute; width: 150%; height: 150%; left: -25%; top: -25%; }
+  .wall { padding: 18px; border-radius: 18px; }
+  .wall.light { background: linear-gradient(135deg, #f3d9c6, #c9d8f2); }
+  .wall.dark { background: linear-gradient(135deg, #1c2333, #3a2440); }
+</style></head><body>
+  <h1>Balon + "dur" eli</h1>
+  <div style="color:#5A6472">Android önizlemesi kabaca: tam ikon ortadan kırpılmıştır; gerçek adaptive katmanlar seçimden sonra üretilir.</div>
+  
+  <h2>A · Mavi zemin, beyaz balon, mavi el</h2>
+  <div class="row">
+    <div class="cell"><img class="ios" src="png/a-mavi-zemin.png" width="180"><span>180</span></div><div class="cell"><img class="ios" src="png/a-mavi-zemin.png" width="120"><span>120</span></div><div class="cell"><img class="ios" src="png/a-mavi-zemin.png" width="60"><span>60</span></div><div class="cell"><img class="ios" src="png/a-mavi-zemin.png" width="40"><span>40</span></div><div class="cell"><img class="ios" src="png/a-mavi-zemin.png" width="29"><span>29</span></div>
+    <div class="cell"><div class="android" style="width:120px;height:120px"><img src="png/a-mavi-zemin.png"></div><span>Android daire</span></div>
+    <div class="wall light"><img class="ios" src="png/a-mavi-zemin.png" width="60"></div>
+    <div class="wall dark"><img class="ios" src="png/a-mavi-zemin.png" width="60"></div>
+  </div>
+  <h2>B · Beyaz zemin, mavi balon, beyaz el</h2>
+  <div class="row">
+    <div class="cell"><img class="ios" src="png/b-beyaz-zemin.png" width="180"><span>180</span></div><div class="cell"><img class="ios" src="png/b-beyaz-zemin.png" width="120"><span>120</span></div><div class="cell"><img class="ios" src="png/b-beyaz-zemin.png" width="60"><span>60</span></div><div class="cell"><img class="ios" src="png/b-beyaz-zemin.png" width="40"><span>40</span></div><div class="cell"><img class="ios" src="png/b-beyaz-zemin.png" width="29"><span>29</span></div>
+    <div class="cell"><div class="android" style="width:120px;height:120px"><img src="png/b-beyaz-zemin.png"></div><span>Android daire</span></div>
+    <div class="wall light"><img class="ios" src="png/b-beyaz-zemin.png" width="60"></div>
+    <div class="wall dark"><img class="ios" src="png/b-beyaz-zemin.png" width="60"></div>
+  </div>
+  <h2>C · Mavi zemin, beyaz balon, mercan el</h2>
+  <div class="row">
+    <div class="cell"><img class="ios" src="png/c-mercan-el.png" width="180"><span>180</span></div><div class="cell"><img class="ios" src="png/c-mercan-el.png" width="120"><span>120</span></div><div class="cell"><img class="ios" src="png/c-mercan-el.png" width="60"><span>60</span></div><div class="cell"><img class="ios" src="png/c-mercan-el.png" width="40"><span>40</span></div><div class="cell"><img class="ios" src="png/c-mercan-el.png" width="29"><span>29</span></div>
+    <div class="cell"><div class="android" style="width:120px;height:120px"><img src="png/c-mercan-el.png"></div><span>Android daire</span></div>
+    <div class="wall light"><img class="ios" src="png/c-mercan-el.png" width="60"></div>
+    <div class="wall dark"><img class="ios" src="png/c-mercan-el.png" width="60"></div>
+  </div>
+  
+  <h2>Karşılaştırma · Yapay zekâ görseli (ham)</h2>
+  <div class="row">
+    <div class="cell"><img class="ios" src="../alternatif/balon-el-ai.jpeg" width="180"><span>180</span></div><div class="cell"><img class="ios" src="../alternatif/balon-el-ai.jpeg" width="120"><span>120</span></div><div class="cell"><img class="ios" src="../alternatif/balon-el-ai.jpeg" width="60"><span>60</span></div><div class="cell"><img class="ios" src="../alternatif/balon-el-ai.jpeg" width="40"><span>40</span></div><div class="cell"><img class="ios" src="../alternatif/balon-el-ai.jpeg" width="29"><span>29</span></div>
+    <div class="cell"><div class="android" style="width:120px;height:120px"><img src="../alternatif/balon-el-ai.jpeg"></div><span>Android daire</span></div>
+    <div class="wall light"><img class="ios" src="../alternatif/balon-el-ai.jpeg" width="60"></div>
+    <div class="wall dark"><img class="ios" src="../alternatif/balon-el-ai.jpeg" width="60"></div>
+  </div>
+  
+  <h2>Karşılaştırma · Önceki ok ikonu</h2>
+  <div class="row">
+    <div class="cell"><img class="ios" src="../png/icon.png" width="180"><span>180</span></div><div class="cell"><img class="ios" src="../png/icon.png" width="120"><span>120</span></div><div class="cell"><img class="ios" src="../png/icon.png" width="60"><span>60</span></div><div class="cell"><img class="ios" src="../png/icon.png" width="40"><span>40</span></div><div class="cell"><img class="ios" src="../png/icon.png" width="29"><span>29</span></div>
+    <div class="cell"><div class="android" style="width:120px;height:120px"><img src="../png/icon.png"></div><span>Android daire</span></div>
+    <div class="wall light"><img class="ios" src="../png/icon.png" width="60"></div>
+    <div class="wall dark"><img class="ios" src="../png/icon.png" width="60"></div>
+  </div>
+</body></html>
