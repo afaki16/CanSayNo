@@ -55,6 +55,13 @@ namespace CanSayNo.Infrastructure
 
         // Aynı oturuma eşzamanlı mesaj/değerlendirme isteklerini sıraya sokar (tek örnek).
         services.AddSingleton<ISessionLock, InMemorySessionLock>();
+
+        // Saklama süresi dolan güvenlik kayıtlarını her gün siler (gizlilik politikası §5)
+        services.AddSingleton(
+            configuration.GetSection(Services.Maintenance.DataRetentionSettings.SectionName)
+                .Get<Services.Maintenance.DataRetentionSettings>() ?? new Services.Maintenance.DataRetentionSettings());
+        services.AddScoped<Services.Maintenance.SecurityLogCleanup>();
+        services.AddHostedService<Services.Maintenance.SecurityLogCleanupService>();
         // Admin paneli raporları (salt okunur).
         services.AddScoped<IAdminHayirciReadService, AdminHayirciReadService>();
 

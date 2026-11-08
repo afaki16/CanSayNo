@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node build.mjs",
     "build:strict": "node build.mjs --strict",
-    "preview": "node preview.mjs"
+    "preview": "node preview.mjs",
+    "deploy": "npm run build:strict && npx wrangler@4.151.3 pages deploy dist --project-name cansayno --branch main"
   },
   "devDependencies": {
     "marked": "15.0.12"

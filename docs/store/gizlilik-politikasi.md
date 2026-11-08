@@ -1,13 +1,13 @@
 # CanSayNo Gizlilik Politikası ve KVKK Aydınlatma Metni
 
-_Son güncelleme: [YAYIN TARİHİ]_
+_Son güncelleme: 8 Kasım 2026_
 
 Bu metin, CanSayNo mobil uygulamasını ("Uygulama") kullanırken kişisel verilerinin nasıl işlendiğini açıklar. 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında aydınlatma metni, Avrupa Birliği Genel Veri Koruma Tüzüğü ("GDPR") kapsamında gizlilik bildirimi yerine geçer.
 
 ## 1. Veri sorumlusu
 
 - **Veri sorumlusu:** [AD SOYAD] (bireysel geliştirici)
-- **Adres:** [ADRES]
+- **İl:** [İL]
 - **E-posta:** info@factech.app
 
 ## 2. Hangi verileri işliyoruz?
@@ -46,20 +46,20 @@ Uygulamanın çalışması için aşağıdaki hizmet sağlayıcılarla, yalnızc
 | Anthropic PBC (Claude) | Karakter cevaplarını ve değerlendirmeyi üretmek | Pratik mesajların ve senaryo bilgisi. **Adın ve e-postan gönderilmez.** | ABD |
 | RevenueCat Inc. | Abonelik durumunu yönetmek | Hesap numaran (sayısal kimlik), abonelik ve işlem bilgileri | ABD |
 | Apple / Google | Uygulama içi satın alma | Satın alma işlemini mağaza yürütür; ödeme bilgilerini mağaza işler | ABD / AB |
-| [SUNUCU SAĞLAYICI] | Uygulama sunucusu ve veritabanı | Bu metindeki tüm veriler | [ÜLKE] |
-| [E-POSTA SAĞLAYICI] | Doğrulama ve şifre sıfırlama e-postaları | E-posta adresin, adın, tek kullanımlık kodlar | [ÜLKE] |
+| Hetzner Online GmbH | Uygulama sunucusu ve veritabanı | Bu metindeki tüm veriler | Almanya (AB) |
+| Brevo SAS | Doğrulama ve şifre sıfırlama e-postaları | E-posta adresin, adın, tek kullanımlık kodlar | Fransa (AB) |
 
 Anthropic, API üzerinden gönderilen verileri kendi modellerini eğitmek için kullanmadığını ve yalnızca sınırlı bir süre sakladığını belirtmektedir.
 
-Yurt dışına aktarım KVKK md. 9 ve GDPR'ın 5. bölümüne uygun güvencelerle yapılır: standart sözleşmeler ve hizmet sağlayıcıların veri işleme sözleşmeleri. [HUKUKİ KONTROL: KVKK standart sözleşme bildirimi]
+Yurt dışına aktarım KVKK md. 9 ve GDPR'ın 5. bölümüne uygun güvencelerle yapılır: standart sözleşmeler ve hizmet sağlayıcıların veri işleme sözleşmeleri.
 
 Bunların dışında verilerin yalnızca yasal bir zorunluluk olduğunda, yetkili kamu kurumlarıyla paylaşılır.
 
 ## 5. Ne kadar süre saklıyoruz?
 
 - **Hesap, pratik, ilerleme ve abonelik verileri:** Hesabın açık olduğu sürece saklanır. Hesabını sildiğinde bu veriler **hemen ve kalıcı olarak** silinir.
-- **Giriş denemeleri ve güvenlik kayıtları:** En fazla [90] gün saklanır. Hesap silindiğinde, e-posta adresine bağlı giriş kayıtları da silinir.
-- **Yedekler:** Silinen veriler en geç [30] gün içinde yedeklerden de çıkar.
+- **Giriş denemeleri ve güvenlik kayıtları:** En fazla 90 gün saklanır. Hesap silindiğinde, e-posta adresine bağlı giriş kayıtları da silinir.
+- **Yedekler:** Silinen veriler en geç 30 gün içinde yedeklerden de çıkar.
 - **Mağaza kayıtları:** Apple ve Google'ın satın alma kayıtları, onların kendi politikalarına tabidir.
 
 ## 6. Hakların

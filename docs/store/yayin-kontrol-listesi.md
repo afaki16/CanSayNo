@@ -48,9 +48,14 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
   - Ayarlar: JWT secret, Anthropic anahtarı, RevenueCat webhook secret, CORS.
   - Otomatik yedek ve log saklama süresi.
 - [ ] **E-posta gönderimi:** Doğrulama ve şifre kodları için bir SMTP sağlayıcı (SPF/DKIM ayarlı). Gönderen adresi `noreply@cansayno.com` olabilir.
-- [ ] **Web sitesi** (`Web/`, içerik `docs/store/`'dan üretilir; `/hesap-silme` Google'ın istediği silme bağlantısı, uygulama kurulmadan açılabilmeli):
-  - Tanıtım sayfası + `/gizlilik` + `/kullanim-sartlari` + `/hesap-silme`.
-  - İçerik `docs/store/` belgelerinden. Statik site; ücretsiz barındırılabilir.
+- [ ] **Web sitesi → cansayno.com** (Cloudflare Pages; alan adı Cloudflare'de). Site hazır (`Web/`, güvenlik başlıkları `_headers`, kısa adresler `_redirects`); `npm run deploy` önce `build:strict` çalıştırır, boşluk kalırsa yayınlamaz.
+  1. Ad soyad + il'i `docs/store/` belgelerine yaz (`[AD SOYAD]`, `[İL]`, `[FULL NAME]`, `[CITY]`).
+  2. `npx wrangler@4.151.3 login` (tarayıcıda Cloudflare'e giriş).
+  3. İlk sefer: `npx wrangler@4.151.3 pages project create cansayno --production-branch main`, sonra `cd Web && npm run deploy`.
+  4. Cloudflare panelinde Workers & Pages › cansayno › Custom domains › `cansayno.com` (ve istersen `www.cansayno.com`) ekle; DNS kaydını Cloudflare kendisi oluşturur, HTTPS birkaç dakikada aktif olur.
+  5. Doğrula: `https://cansayno.com/hesap-silme/` uygulama kurulmadan açılıyor mu (Google şartı).
+- [ ] **Hukuki takip:** KVKK yurt dışı aktarım (Anthropic, RevenueCat ABD) için standart sözleşme + Kurul bildirimi gerekip gerekmediğini avukata sor; Hetzner ve Brevo ile veri işleme sözleşmesini (DPA/AVV, panellerinden) imzala.
+- [ ] **Yedek süresi:** Gizlilik politikası "silinen veri yedeklerden en geç 30 günde çıkar" diyor — canlı sunucuda veritabanı yedeklerini en fazla 30 gün tutacak şekilde ayarla. Güvenlik kayıtlarının 90 günlük temizliği backend'de hazır (`SecurityLogCleanupService`, `DataRetention:SecurityLogDays`).
 - [x] **Uygulamaya yasal linkler** (Apple abonelik kuralı, 2026-11-08): paywall, kayıt ekranı ve Profil'de Gizlilik Politikası + Kullanım Şartları; uygulama içi tarayıcıda açılır (`lib/constants/legal.ts`, `components/ui/LegalLinks.tsx`). Site yayına girene kadar sayfa açılmaz (DNS yok).
 - [x] **`app.config.ts`** (2026-11-08): `ios.supportsTablet: false`, `ios.infoPlist.ITSAppUsesNonExemptEncryption: false`, kullanılmayan Android izinleri engellendi (depolama, biyometri).
 - [ ] Canlı `EXPO_PUBLIC_API_URL` (eas.json'da `https://api.cansayno.com`) ve RevenueCat anahtarları (EAS ortam değişkeni olarak).

@@ -1,0 +1,14 @@
+# Cloudflare Pages yanıt başlıkları (https://developers.cloudflare.com/pages/configuration/headers/)
+# Site tamamen statik ve JavaScript'siz: CSP sıkı tutulur. style-src 'unsafe-inline' yalnızca
+# HTML'deki style="--c:..." öznitelikleri için (bağlam kartı renkleri, skor çubuğu).
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+
+# Fontlar değişmez — uzun önbellek
+/assets/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

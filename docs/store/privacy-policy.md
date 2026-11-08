@@ -1,13 +1,13 @@
 # CanSayNo Privacy Policy
 
-_Last updated: [PUBLICATION DATE]_
+_Last updated: 8 November 2026_
 
 This policy explains how your personal data is processed when you use the CanSayNo mobile app (the "App"). It serves as the privacy notice under the EU General Data Protection Regulation ("GDPR"). It is also the information notice under Turkish Law No. 6698 on the Protection of Personal Data ("KVKK").
 
 ## 1. Controller
 
 - **Controller:** [FULL NAME] (individual developer)
-- **Address:** [ADDRESS]
+- **City:** [CITY], Türkiye
 - **Email:** info@factech.app
 
 ## 2. Data we process
@@ -46,20 +46,20 @@ We share only what is needed to run the App:
 | Anthropic PBC (Claude) | Generating character replies and evaluations | Your practice messages and scenario information. **Your name and email are not sent.** | USA |
 | RevenueCat Inc. | Managing subscription status | Your numeric account ID, subscription and transaction data | USA |
 | Apple / Google | In-app purchases | The store runs the purchase and processes payment details | USA / EU |
-| [HOSTING PROVIDER] | App server and database | All data described here | [COUNTRY] |
-| [EMAIL PROVIDER] | Verification and password reset emails | Your email address, name, one-time codes | [COUNTRY] |
+| Hetzner Online GmbH | App server and database | All data described here | Germany (EU) |
+| Brevo SAS | Verification and password reset emails | Your email address, name, one-time codes | France (EU) |
 
 Anthropic states that it does not use data sent through its API to train its models and retains it only for a limited period.
 
-Transfers outside your country are made with appropriate safeguards: standard contractual clauses and the providers' data processing agreements. [LEGAL CHECK]
+Transfers outside your country are made with appropriate safeguards: standard contractual clauses and the providers' data processing agreements.
 
 Apart from the providers above, your data is disclosed to competent authorities only when the law requires it.
 
 ## 5. Retention
 
 - **Account, practice, progress and subscription data:** Kept while your account exists. When you delete your account, this data is deleted **immediately and permanently**.
-- **Sign-in attempts and security logs:** Kept for up to [90] days. Sign-in records tied to your email address are also removed when you delete your account.
-- **Backups:** Deleted data is purged from backups within [30] days.
+- **Sign-in attempts and security logs:** Kept for up to 90 days. Sign-in records tied to your email address are also removed when you delete your account.
+- **Backups:** Deleted data is purged from backups within 30 days.
 - **Store records:** Apple's and Google's purchase records are subject to their own policies.
 
 ## 6. Your rights

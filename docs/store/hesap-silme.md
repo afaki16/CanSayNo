@@ -25,7 +25,7 @@ Ad, soyad, e-posta, şifre özeti, tüm pratiklerin ve mesajların, değerlendir
 
 ### Neler kalır?
 
-- **Yedekler:** Silinen veriler en geç [30] gün içinde yedeklerden de çıkar.
+- **Yedekler:** Silinen veriler en geç 30 gün içinde yedeklerden de çıkar.
 - **Mağaza kayıtları:** Apple ve Google'ın satın alma kayıtları onların politikalarına tabidir.
 - **Abonelik:** Hesabı silmek aboneliğini **iptal etmez**. Aboneliği App Store veya Google Play hesap ayarlarından iptal etmelisin.
 
@@ -53,7 +53,7 @@ Name, email, password hash, all your practices and messages, evaluations, progre
 
 ### What remains
 
-- **Backups:** Deleted data is purged from backups within [30] days.
+- **Backups:** Deleted data is purged from backups within 30 days.
 - **Store records:** Apple's and Google's purchase records are subject to their policies.
 - **Subscription:** Deleting your account does **not** cancel your subscription. Cancel it in your App Store or Google Play account settings.
 

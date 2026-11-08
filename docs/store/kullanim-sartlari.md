@@ -1,6 +1,6 @@
 # CanSayNo Kullanım Şartları
 
-_Son güncelleme: [YAYIN TARİHİ]_
+_Son güncelleme: 8 Kasım 2026_
 
 CanSayNo'yu ("Uygulama") kullanarak bu şartları kabul etmiş olursun. Uygulama [AD SOYAD] ("biz") tarafından bireysel olarak geliştirilir.
 
