@@ -8,7 +8,10 @@ export const Colors = {
   primary: '#2D7FF9',
   primaryDark: '#1B63D6',
   primaryLight: '#5C9DFF',
-  secondary: '#FF7043', // mercan — seri, ipucu, enerji
+  // Marka geçişinin başı (mor). Geçiş: Gradients.brand. Logo: components/ui/BrandMark.tsx
+  indigo: '#5B4BE0',
+  indigoDark: '#4636C4',
+  secondary: '#FF7043', // mercan — seri, ipucu, enerji, logodaki "dur" eli
   amber: '#F7B500', // XP, yıldız, premium
 
   // Backgrounds
@@ -34,6 +37,7 @@ export const Colors = {
 
   // Soft variants — chip, badge, banner ve açık arka planlar için
   primarySoft: '#E7F0FE',
+  indigoSoft: '#ECEAFC',
   secondarySoft: '#FFEAE2',
   amberSoft: '#FEF3D6',
   successSoft: '#E4F5EE',
@@ -118,12 +122,30 @@ export const Shadow = {
     shadowOffset: { width: 0, height: 10 },
     elevation: 8,
   },
-  // Renkli gölge — primary buton ve mavi kartlar
+  // Renkli gölge — primary buton ve marka geçişli kartlar (geçişin ortası)
   primary: {
-    shadowColor: '#2D7FF9',
+    shadowColor: '#4463EE',
     shadowOpacity: 0.32,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 10 },
     elevation: 6,
+  },
+} as const;
+
+// Marka geçişi: mor (sol üst) → mavi (sağ alt). Kaynak design/brand/brand.mjs (ikon, site, panel
+// aynı geçişi kullanır). Büyük marka yüzeyleri (birincil buton, başlık kartları, karşılama
+// görseli, logo) bununla boyanır; küçük etkileşim öğeleri (link, ikon, seçim) Colors.primary kalır.
+// `as const` tuple: expo-linear-gradient `colors` en az iki eleman ister.
+export const Gradients = {
+  brand: {
+    colors: ['#5B4BE0', '#2D7FF9'] as const,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  // Koyu marka yüzeyi (Sonuç ekranı başlığı gibi): aynı yönde bir ton koyu
+  brandDeep: {
+    colors: ['#4636C4', '#1B63D6'] as const,
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
   },
 } as const;

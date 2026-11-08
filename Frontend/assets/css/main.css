@@ -26,7 +26,7 @@
    GRADIENT BUTTONS (DoctorForm / Theetify style)
    ======================================== */
 .btn-gradient-primary {
-  background: var(--theme-gradient, linear-gradient(135deg, #006c49 0%, #10b981 100%)) !important;
+  background: var(--theme-gradient, linear-gradient(135deg, #5B4BE0 0%, #2D7FF9 100%)) !important;
   color: white !important;
   border: none !important;
   border-radius: 12px !important;
@@ -42,7 +42,7 @@
 }
 
 .btn-gradient-primary:hover:not(:disabled) {
-  background: var(--theme-gradient-hover, linear-gradient(135deg, #004d34 0%, #006c49 100%)) !important;
+  background: var(--theme-gradient-hover, linear-gradient(135deg, #4636C4 0%, #1B63D6 100%)) !important;
   transform: translateY(-2px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
 }

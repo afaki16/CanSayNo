@@ -53,6 +53,6 @@ useHead({
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--theme-gradient-sidebar, #14532d);
+  background: var(--theme-gradient-sidebar, linear-gradient(135deg, #5B4BE0 0%, #2D7FF9 100%));
 }
 </style>

@@ -1,14 +1,16 @@
-// Karşılama hero'su: iç içe mavi daireler üzerinde "NO" konuşma balonu ve
-// köşede "dur" eli rozeti. Ölçüler tasarımdaki 212px kompozisyondan.
+// Karşılama hero'su: iç içe açık mor daireler üzerinde marka geçişli "NO" konuşma balonu ve
+// köşede mercan "dur" eli rozeti (logodaki el). Ölçüler tasarımdaki 212px kompozisyondan.
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { HandPalm } from 'phosphor-react-native';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { Colors, FontWeight } from '@/constants/theme';
+import { Colors, FontWeight, Gradients } from '@/constants/theme';
 
 import { Text } from './Text';
+
+const BUBBLE_TAIL = '#4A5CE8';
 
 export function NoBubble() {
   return (
@@ -18,22 +20,22 @@ export function NoBubble() {
 
       <View style={styles.bubbleWrap}>
         <LinearGradient
-          colors={['#5398FF', Colors.primary, Colors.primaryDark]}
-          locations={[0, 0.52, 1]}
-          start={{ x: 0.25, y: 0 }}
-          end={{ x: 0.75, y: 1 }}
+          colors={Gradients.brand.colors}
+          start={Gradients.brand.start}
+          end={Gradients.brand.end}
           style={styles.bubble}
         >
           <Text style={styles.no}>NO</Text>
         </LinearGradient>
         {/* Balon kuyruğu */}
         <Svg width={42} height={32} viewBox="0 0 42 32" style={styles.tail}>
-          <Path d="M0 0 H42 L11 31 Z" fill={Colors.primaryDark} />
+          {/* Sol alt köşe geçişin ortasına denk gelir */}
+          <Path d="M0 0 H42 L11 31 Z" fill={BUBBLE_TAIL} />
         </Svg>
       </View>
 
       <View style={styles.handBadge}>
-        <HandPalm size={26} color={Colors.primary} weight="fill" />
+        <HandPalm size={26} color={Colors.secondary} weight="fill" />
       </View>
     </View>
   );
@@ -49,7 +51,7 @@ const styles = StyleSheet.create({
   outerCircle: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 106,
-    backgroundColor: Colors.primarySoft,
+    backgroundColor: Colors.indigoSoft,
   },
   innerCircle: {
     position: 'absolute',
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
     right: 32,
     bottom: 32,
     borderRadius: 74,
-    backgroundColor: '#D4E5FE',
+    backgroundColor: '#DCDDFB',
   },
   bubbleWrap: {
     width: 152,
@@ -68,7 +70,7 @@ const styles = StyleSheet.create({
     borderRadius: 42,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primaryDark,
+    shadowColor: Colors.indigoDark,
     shadowOpacity: 0.4,
     shadowRadius: 21,
     shadowOffset: { width: 0, height: 22 },
@@ -96,7 +98,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primaryDark,
+    shadowColor: Colors.indigoDark,
     shadowOpacity: 0.26,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 10 },

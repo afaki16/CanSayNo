@@ -1,11 +1,13 @@
 // Genel amaçlı Button bileşeni. 4 varyant (primary/secondary/outline/ghost)
 // ve 3 boyut (sm/md/lg) destekler. Loading / disabled / icon slot'ları içerir.
 // Pressable kullanır; pressed state'inde opacity ile feedback verir.
-// Primary varyantta tasarımdaki mavi renkli gölge (Shadow.primary) var.
+// Primary varyant marka geçişiyle (mor→mavi, Gradients.brand) boyanır ve renkli gölge taşır.
 
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   ActivityIndicator,
   Pressable,
+  StyleSheet,
   View,
   type GestureResponderEvent,
 } from 'react-native';
@@ -16,6 +18,7 @@ import {
   Colors,
   FontSize,
   FontWeight,
+  Gradients,
   Radius,
   Shadow,
   Spacing,
@@ -43,6 +46,8 @@ type VariantStyle = {
   textColor: string;
   // Sadece primary varyantında (renkli) shadow var.
   hasShadow: boolean;
+  // Zemin düz renk yerine marka geçişi (backgroundColor altta yedek olarak kalır).
+  brandGradient?: boolean;
 };
 
 const VARIANT_STYLES: Record<ButtonVariant, VariantStyle> = {
@@ -52,6 +57,7 @@ const VARIANT_STYLES: Record<ButtonVariant, VariantStyle> = {
     borderWidth: 0,
     textColor: Colors.surface,
     hasShadow: true,
+    brandGradient: true,
   },
   secondary: {
     backgroundColor: Colors.secondary,
@@ -130,6 +136,15 @@ export function Button({
         ...(variantStyle.hasShadow && !disabled ? Shadow.primary : null),
       })}
     >
+      {variantStyle.brandGradient ? (
+        <LinearGradient
+          colors={Gradients.brand.colors}
+          start={Gradients.brand.start}
+          end={Gradients.brand.end}
+          style={[StyleSheet.absoluteFill, { borderRadius: Radius.lg }]}
+          pointerEvents="none"
+        />
+      ) : null}
       {loading ? (
         <ActivityIndicator
           size="small"

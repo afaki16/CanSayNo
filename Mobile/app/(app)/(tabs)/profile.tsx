@@ -26,6 +26,7 @@ import {
   Colors,
   FontSize,
   FontWeight,
+  Gradients,
   Radius,
   Shadow,
   Spacing,
@@ -114,9 +115,9 @@ export default function ProfileScreen() {
         {/* Kimlik */}
         <View style={styles.identity}>
           <LinearGradient
-            colors={[Colors.primaryLight, Colors.primary]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            colors={Gradients.brand.colors}
+            start={Gradients.brand.start}
+            end={Gradients.brand.end}
             style={styles.avatar}
           >
             <Text style={styles.avatarText}>{getInitials(fullName)}</Text>

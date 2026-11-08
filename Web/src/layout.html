@@ -5,22 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{title}}</title>
   <meta name="description" content="{{description}}">
-  <meta name="theme-color" content="#2D7FF9">
+  <meta name="theme-color" content="#5B4BE0">
   <meta property="og:title" content="{{title}}">
   <meta property="og:description" content="{{description}}">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="https://cansayno.com/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="{{url}}">
   <meta property="og:url" content="{{url}}">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body class="{{bodyClass}}">
   <header class="site-header">
     <div class="container header-row">
       <a class="brand" href="/" aria-label="CanSayNo ana sayfa">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 16 12" fill="none"><path d="M2 10 L8 3 L14 10" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </span>
+        <img class="brand-mark" src="/assets/logo.svg" alt="" width="30" height="30">
         <span class="brand-name">CanSayNo</span>
       </a>
       <nav class="header-nav" aria-label="Ana menü">
@@ -37,9 +40,7 @@
     <div class="container footer-grid">
       <div class="footer-brand">
         <a class="brand" href="/">
-          <span class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 16 12" fill="none"><path d="M2 10 L8 3 L14 10" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
+          <img class="brand-mark" src="/assets/logo.svg" alt="" width="30" height="30">
           <span class="brand-name">CanSayNo</span>
         </a>
         <p>Hayır demek bir beceridir.</p>

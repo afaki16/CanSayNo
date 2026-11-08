@@ -21,8 +21,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: 'com.cansayno.app',
+    // İkon dosyaları design/brand/generate.mjs ile üretilir; elle değiştirme, betiği çalıştır. Arka plan görseli
+    // mor→mavi geçiş; düz renk yalnızca görsel yüklenemezse görünür.
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#5B4BE0',
       foregroundImage: './assets/images/android-icon-foreground.png',
       backgroundImage: './assets/images/android-icon-background.png',
       monochromeImage: './assets/images/android-icon-monochrome.png',
@@ -39,12 +41,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-splash-screen',
       {
+        // Logo (yuvarlak kare) uygulamanın zemin renginde; koyu temada mürekkep rengi.
         image: './assets/images/splash-icon.png',
-        imageWidth: 200,
+        imageWidth: 120,
         resizeMode: 'contain',
-        backgroundColor: '#ffffff',
+        backgroundColor: '#F8F7F4',
         dark: {
-          backgroundColor: '#000000',
+          backgroundColor: '#16181D',
         },
       },
     ],
@@ -53,7 +56,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Yerel hatırlatmalar. Android küçük ikon: tek renk (beyaz + şeffaf) olmalı.
     [
       'expo-notifications',
-      { icon: './assets/images/android-icon-monochrome.png', color: '#2D7FF9' },
+      { icon: './assets/images/android-icon-monochrome.png', color: '#5B4BE0' },
     ],
     // RevenueCat: Android'de varsayılan singleTask, kullanıcı ödemeyi doğrulamak için
     // uygulamadan çıkıp dönünce satın almayı iptal edebiliyor.

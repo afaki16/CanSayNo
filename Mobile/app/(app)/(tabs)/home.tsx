@@ -22,6 +22,7 @@ import {
   Colors,
   FontSize,
   FontWeight,
+  Gradients,
   Radius,
   Shadow,
   Spacing,
@@ -209,7 +210,7 @@ export default function HomeScreen() {
           </View>
           <View style={styles.xpTrack}>
             <LinearGradient
-              colors={[Colors.primary, Colors.primaryLight]}
+              colors={Gradients.brand.colors}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.xpFill, { width: `${xpRatio * 100}%` }]}

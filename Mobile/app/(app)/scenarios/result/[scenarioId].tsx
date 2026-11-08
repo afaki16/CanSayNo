@@ -23,7 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 
 import { BrandMark, Button, ErrorState, Text } from '@/components/ui';
-import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
+import { Colors, FontSize, FontWeight, Gradients, Radius, Spacing } from '@/constants/theme';
 import { useEvaluateSession } from '@/hooks/queries/useSessions';
 import { useStartPractice } from '@/hooks/useStartPractice';
 import { toEvaluateErrorMessage } from '@/lib/api';
@@ -116,9 +116,9 @@ export default function ResultScreen() {
       >
         {/* Kutlama header'ı */}
         <LinearGradient
-          colors={[Colors.primary, Colors.primaryDark]}
-          start={{ x: 0.3, y: 0 }}
-          end={{ x: 0.7, y: 1 }}
+          colors={Gradients.brandDeep.colors}
+          start={Gradients.brandDeep.start}
+          end={Gradients.brandDeep.end}
           style={[styles.hero, { paddingTop: insets.top + 24 }]}
         >
           <View style={[styles.confetti, styles.confettiA]} />

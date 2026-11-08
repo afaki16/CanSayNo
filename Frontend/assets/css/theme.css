@@ -21,7 +21,7 @@
    *   #eaedff = 234 237 255
    *   #e2e7ff = 226 231 255
    *   #dae2fd = 218 226 253
-   *   #006c49 = 0 108 73
+   *   #2d7ff9 = 45 127 249
    */
   --color-surface-bright: 250 248 255;
   --color-surface: 250 248 255;
@@ -32,7 +32,7 @@
   --color-surface-container-high: 226 231 255;
   --color-surface-container-highest: 218 226 253;
   --color-surface-variant: 218 226 253;
-  --color-surface-tint: 0 108 73;
+  --color-surface-tint: 45 127 249;
 
   /* On-surface (text on surfaces)
    *   #131b2e = 19 27 46
@@ -45,25 +45,27 @@
   --color-background: 250 248 255;
   --color-on-background: 19 27 46;
 
-  /* Primary (brand)
-   *   #006c49 = 0 108 73
+  /* Primary — CanSayNo marka mavisi (design/brand/brand.mjs). Büyük yüzeyler (buton, kenar
+   * çubuğu, giriş ekranları) data.json'daki mor→mavi geçişi (--theme-gradient*) kullanır;
+   * --color-primary küçük etkileşim öğeleri içindir — mobil uygulamadaki kuralla aynı.
+   *   #2d7ff9 = 45 127 249
    *   #ffffff = 255 255 255
-   *   #10b981 = 16 185 129
-   *   #00422b = 0 66 43
-   *   #6ffbbe = 111 251 190
-   *   #4edea3 = 78 222 163
-   *   #002113 = 0 33 19
-   *   #005236 = 0 82 54
+   *   #5c9dff = 92 157 255
+   *   #0b2a66 = 11 42 102
+   *   #d8e6ff = 216 230 255
+   *   #a9c7ff = 169 199 255
+   *   #001a41 = 0 26 65
+   *   #1b4fa8 = 27 79 168
    */
-  --color-primary: 0 108 73;
+  --color-primary: 45 127 249;
   --color-on-primary: 255 255 255;
-  --color-primary-container: 16 185 129;
-  --color-on-primary-container: 0 66 43;
-  --color-primary-fixed: 111 251 190;
-  --color-primary-fixed-dim: 78 222 163;
-  --color-on-primary-fixed: 0 33 19;
-  --color-on-primary-fixed-variant: 0 82 54;
-  --color-inverse-primary: 78 222 163;
+  --color-primary-container: 92 157 255;
+  --color-on-primary-container: 11 42 102;
+  --color-primary-fixed: 216 230 255;
+  --color-primary-fixed-dim: 169 199 255;
+  --color-on-primary-fixed: 0 26 65;
+  --color-on-primary-fixed-variant: 27 79 168;
+  --color-inverse-primary: 169 199 255;
 
   /* Secondary (accent / orange)
    *   #855300 = 133 83 0
@@ -134,7 +136,7 @@
    *   #1e293b = 30 41 59
    *   #222c45 = 34 44 69
    *   #2d3748 = 45 55 72
-   *   #4edea3 = 78 222 163
+   *   #5c9dff = 92 157 255
    */
   --color-surface-bright: 26 34 53;
   --color-surface: 11 19 38;
@@ -145,7 +147,7 @@
   --color-surface-container-high: 34 44 69;
   --color-surface-container-highest: 45 55 72;
   --color-surface-variant: 30 41 59;
-  --color-surface-tint: 78 222 163;
+  --color-surface-tint: 92 157 255;
 
   /* On-surface
    *   #ffffff = 255 255 255
@@ -158,16 +160,16 @@
   --color-background: 11 19 38;
   --color-on-background: 255 255 255;
 
-  /* Primary (dark mode'da daha açık yeşil ön planda) */
-  --color-primary: 78 222 163;
-  --color-on-primary: 0 33 19;
-  --color-primary-container: 16 185 129;
-  --color-on-primary-container: 0 66 43;
-  --color-primary-fixed: 111 251 190;
-  --color-primary-fixed-dim: 78 222 163;
-  --color-on-primary-fixed: 0 33 19;
-  --color-on-primary-fixed-variant: 0 82 54;
-  --color-inverse-primary: 0 108 73;
+  /* Primary (dark mode'da daha açık mavi ön planda) */
+  --color-primary: 92 157 255;
+  --color-on-primary: 0 40 94;
+  --color-primary-container: 45 127 249;
+  --color-on-primary-container: 255 255 255;
+  --color-primary-fixed: 216 230 255;
+  --color-primary-fixed-dim: 169 199 255;
+  --color-on-primary-fixed: 0 26 65;
+  --color-on-primary-fixed-variant: 27 79 168;
+  --color-inverse-primary: 45 127 249;
 
   /* Secondary
    *   #fea619 = 254 166 25

@@ -13,7 +13,7 @@
   },
   "theme": {
     "colors": {
-      "primary": "linear-gradient(180deg, #14532d 0%, #166534 50%, #064e3b 100%)"
+      "primary": "linear-gradient(135deg, #5B4BE0 0%, #2D7FF9 100%)"
     }
   },
   "login": {
