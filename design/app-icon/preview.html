@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><title>CanSayNo ikon önizleme</title>
+<style>
+  @font-face { font-family: Satoshi; src: url('../../Mobile/assets/fonts/Satoshi-Bold.ttf'); font-weight: 700; }
+  body { margin: 0; padding: 32px; font-family: Satoshi, system-ui, sans-serif; background: #F8F7F4; color: #16181D; }
+  h2 { font-size: 18px; margin: 28px 0 12px; }
+  .row { display: flex; gap: 28px; align-items: flex-end; flex-wrap: wrap; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: #5A6472; }
+  .ios { border-radius: 22.37%; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+  .android { border-radius: 50%; overflow: hidden; position: relative; box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+  .android img { position: absolute; width: 150%; height: 150%; left: -25%; top: -25%; }   /* 108dp tuvalin ortadaki 72dp'si */
+  .android.squircle { border-radius: 30%; }
+  .themed { background: #DCE6F7; }
+  .themed img { filter: brightness(0) saturate(100%) invert(22%) sepia(60%) saturate(2000%) hue-rotate(205deg); }
+  .wall { padding: 24px; border-radius: 24px; display: flex; gap: 24px; align-items: center; }
+  .wall.light { background: linear-gradient(135deg, #f3d9c6, #c9d8f2); }
+  .wall.dark { background: linear-gradient(135deg, #1c2333, #3a2440); }
+  .phone { width: 180px; height: 360px; border-radius: 28px; display: grid; place-items: center; box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+  .phone img { width: 120px; }   /* app.config: imageWidth 200dp ≈ ekran genişliğinin yarısı */
+  .bar { width: 200px; height: 34px; border-radius: 10px; background: #fff; display: flex; align-items: center; gap: 8px; padding: 0 10px; box-shadow: 0 1px 4px rgba(0,0,0,.12); font-size: 13px; }
+</style></head>
+<body>
+  <h1 style="margin:0 0 4px">CanSayNo ikon adayları</h1>
+  <div style="color:#5A6472">Mobile/components/ui/BrandMark.tsx geometrisinden üretildi (design/app-icon/generate.mjs)</div>
+
+  <h2>iOS (sistem köşe maskesiyle)</h2>
+  <div class="row">
+    <div class="cell"><img class="ios" src="png/icon.png" width="180"><span>180 — ana ekran @3x</span></div>
+    <div class="cell"><img class="ios" src="png/icon.png" width="120"><span>120</span></div>
+    <div class="cell"><img class="ios" src="png/icon.png" width="60"><span>60</span></div>
+    <div class="cell"><img class="ios" src="png/icon.png" width="40"><span>40 — ayarlar</span></div>
+    <div class="cell"><img class="ios" src="png/icon.png" width="29"><span>29 — bildirim</span></div>
+    <div class="cell"><img src="png/icon.png" width="120"><span>Ham dosya (köşesiz)</span></div>
+  </div>
+
+  <h2>Android (adaptive: arka plan + ön plan, farklı launcher maskeleri)</h2>
+  <div class="row">
+    <div class="cell"><div class="android" style="width:160px;height:160px"><img src="png/android-icon-background.png"><img src="png/android-icon-foreground.png"></div><span>Daire (Pixel)</span></div>
+    <div class="cell"><div class="android squircle" style="width:160px;height:160px"><img src="png/android-icon-background.png"><img src="png/android-icon-foreground.png"></div><span>Yuvarlak kare (Samsung)</span></div>
+    <div class="cell"><div class="android" style="width:72px;height:72px"><img src="png/android-icon-background.png"><img src="png/android-icon-foreground.png"></div><span>72</span></div>
+    <div class="cell"><div class="android" style="width:48px;height:48px"><img src="png/android-icon-background.png"><img src="png/android-icon-foreground.png"></div><span>48</span></div>
+    <div class="cell"><div class="android themed" style="width:160px;height:160px"><img src="png/android-icon-monochrome.png"></div><span>Temalı ikon (Android 13+)</span></div>
+    <div class="cell"><div class="bar"><img src="png/android-icon-monochrome.png" width="18" style="filter:brightness(0)"> CanSayNo · Bugünkü pratiğin seni bekliyor</div><span>Bildirim çubuğu (tek renk)</span></div>
+  </div>
+
+  <h2>Ana ekranda</h2>
+  <div class="row">
+    <div class="wall light">
+      <img class="ios" src="png/icon.png" width="64"><img class="ios" src="png/icon.png" width="64" style="opacity:0"><div class="android" style="width:64px;height:64px"><img src="png/android-icon-background.png"><img src="png/android-icon-foreground.png"></div>
+    </div>
+    <div class="wall dark">
+      <img class="ios" src="png/icon.png" width="64"><div class="android" style="width:64px;height:64px"><img src="png/android-icon-background.png"><img src="png/android-icon-foreground.png"></div>
+    </div>
+  </div>
+
+  <h2>Açılış ekranı (splash) ve favicon</h2>
+  <div class="row">
+    <div class="cell"><div class="phone" style="background:#FFFFFF"><img src="png/splash-icon.png"></div><span>Açık tema (#FFFFFF)</span></div>
+    <div class="cell"><div class="phone" style="background:#F8F7F4"><img src="png/splash-icon.png"></div><span>Uygulama zemini (#F8F7F4)</span></div>
+    <div class="cell"><div class="phone" style="background:#000000"><img src="png/splash-icon.png"></div><span>Koyu tema (#000000)</span></div>
+    <div class="cell"><img src="png/favicon.png" width="48"><img src="png/favicon.png" width="16"><span>favicon 48 / 16</span></div>
+  </div>
+</body></html>
