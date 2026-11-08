@@ -16,6 +16,8 @@ const docs = join(root, '..', 'docs', 'store');
 const src = join(root, 'src');
 const dist = join(root, 'dist');
 const strict = process.argv.includes('--strict');
+const siteUrl = 'https://cansayno.com';
+const urls = [];
 
 const layout = readFileSync(join(src, 'layout.html'), 'utf8');
 
@@ -49,8 +51,9 @@ marked.use({
 const placeholder = /\[(?:[A-ZÇĞİÖŞÜ][A-ZÇĞİÖŞÜ0-9 /:.,'-]*|\d+)\](?!\()/g;
 const missing = [];
 
-function render({ title, description, lang, content, bodyClass = '' }) {
+function render({ title, description, lang, content, bodyClass = '', path = '' }) {
   return layout
+    .replaceAll('{{url}}', `${siteUrl}/${path ? `${path}/` : ''}`)
     .replaceAll('{{lang}}', lang)
     .replaceAll('{{title}}', escapeHtml(title))
     .replaceAll('{{description}}', escapeHtml(description))
@@ -63,6 +66,7 @@ function escapeHtml(text) {
 }
 
 function write(path, html) {
+  urls.push(`${siteUrl}/${path ? `${path}/` : ''}`);
   const file = join(dist, path, 'index.html');
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, html);
@@ -76,6 +80,7 @@ for (const file of ['robots.txt', 'favicon.svg']) cpSync(join(src, file), join(d
 
 // Ana sayfa
 write('', render({
+  path: '',
   title: 'CanSayNo: Hayır Demeyi Öğren',
   description: 'Zor insanlara "hayır" demeyi yapay zekâ karakterlerle güvenle pratik et. Patron, aile, arkadaş, satıcı: 8 bağlamda 65+ gerçekçi senaryo.',
   lang: 'tr',
@@ -90,6 +95,7 @@ for (const page of legalPages) {
   const body = marked.parse(markdown);
   write(page.path, render({
     ...page,
+    path: page.path,
     title: `${page.title} · CanSayNo`,
     bodyClass: 'legal',
     content: `<main class="legal-body container">${body}</main>`,
@@ -104,6 +110,11 @@ writeFileSync(join(dist, '404.html'), render({
   bodyClass: 'legal',
   content: '<main class="legal-body container"><h1>Sayfa bulunamadı</h1><p>Bu sayfaya "hayır" dedik. <a href="/">Ana sayfaya dön</a>.</p></main>',
 }));
+
+// Arama motorları için site haritası (robots.txt'te belirtilir).
+const sitemapEntries = urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n');
+writeFileSync(join(dist, 'sitemap.xml'),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries}\n</urlset>\n`);
 
 const unique = [...new Set(missing)];
 if (unique.length > 0) {

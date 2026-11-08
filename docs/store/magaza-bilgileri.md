@@ -13,10 +13,10 @@ Karakter sınırları parantez içinde. Uygulama şu an **yalnızca Türkçe**; 
 | Birincil kategori | Eğitim (Education) |
 | İkincil kategori (Apple) | Yaşam Tarzı (Lifestyle) |
 | Destek e-postası | info@factech.app |
-| Gizlilik politikası URL | `https://[ALAN ADI]/gizlilik` |
-| Kullanım şartları URL | `https://[ALAN ADI]/kullanim-sartlari` |
-| Hesap silme URL (Google) | `https://[ALAN ADI]/hesap-silme` |
-| Destek / pazarlama URL | `https://[ALAN ADI]` |
+| Gizlilik politikası URL | `https://cansayno.com/gizlilik` |
+| Kullanım şartları URL | `https://cansayno.com/kullanim-sartlari` |
+| Hesap silme URL (Google) | `https://cansayno.com/hesap-silme` |
+| Destek / pazarlama URL | `https://cansayno.com` |
 | Fiyatlandırma | Ücretsiz + uygulama içi abonelik |
 
 ## 2. Türkçe listeleme
@@ -54,8 +54,8 @@ Karakter sınırları parantez içinde. Uygulama şu an **yalnızca Türkçe**; 
 >
 > CanSayNo bir terapi ya da psikolojik danışmanlık hizmeti değildir; iletişim becerilerini pratik etmen için tasarlanmış bir araçtır.
 >
-> Kullanım Şartları: https://[ALAN ADI]/kullanim-sartlari
-> Gizlilik Politikası: https://[ALAN ADI]/gizlilik
+> Kullanım Şartları: https://cansayno.com/kullanim-sartlari
+> Gizlilik Politikası: https://cansayno.com/gizlilik
 
 **Apple "Bu sürümde yenilikler":** İlk sürüm. Hayır demeye hazır mısın?
 
@@ -78,7 +78,7 @@ Uzun açıklama: Türkçe metnin çevirisi. Uygulama İngilizceye çevrilirken b
 | Ücretsiz deneme | Yok (karar 2026-11-08) | |
 
 - **RevenueCat:** entitlement `premium`. Offering `default` (current), paketler `$rc_monthly` ve `$rc_annual`; uygulama bu iki paketi okuyor.
-- **Webhook:** `https://[API ALAN ADI]/api/Webhooks/revenuecat`. Authorization değeri sunucuda `RevenueCat__WebhookAuthorization` ile aynı olmalı.
+- **Webhook:** `https://api.cansayno.com/api/Webhooks/revenuecat`. Authorization değeri sunucuda `RevenueCat__WebhookAuthorization` ile aynı olmalı.
 - Abonelik adı/açıklaması (Apple, her dil için): "Premium: tüm bağlamlar ve günlük sınırsız pratik"
 
 ## 5. Google Play "Veri güvenliği" formu
@@ -120,7 +120,7 @@ Toplanmayan: konum, kişiler, fotoğraf/video, ses, sağlık, mesajlar (SMS/e-po
 
 ## 8. İnceleme notları (Apple App Review / Google)
 
-- **Demo hesap:** `review@[ALAN ADI]` / [ŞİFRE]. Premium açık olsun ki inceleyen tüm bağlamları görebilsin.
+- **Demo hesap:** `review@cansayno.com` / [ŞİFRE]. Premium açık olsun ki inceleyen tüm bağlamları görebilsin.
 - **Not:** "Uygulama yapay zekâ ile rol yapma pratiği sunar. Ücretsiz kullanıcı İş & Kariyer bağlamını kullanır; diğer bağlamlar abonelikle açılır. Hesap silme: Profil › Hesap bilgileri › Hesabımı sil."
 
 ## 9. Görseller

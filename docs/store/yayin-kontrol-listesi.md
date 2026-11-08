@@ -35,7 +35,7 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
 - [ ] Gizlilik politikası ve kullanım şartları taslaklarını (`docs/store/`) gözden geçir; avukat kontrolü önerilir.
 
 ### Kararlar
-- [ ] **Alan adı:** `cansayno.factech.app` (hemen, ücretsiz) mi, ayrı bir marka alanı mı (`cansayno.com` / `.app`)? Adres mağaza listesine ve uygulamaya yazılacağı için baştan karar vermek iyi. Web uygulaması da ileride aynı alan altında olacak.
+- [x] **Alan adı:** `cansayno.com` alındı (2026-11-08). Site `cansayno.com`, API `api.cansayno.com`, ileride web uygulaması `app.cansayno.com`.
 - [x] **Yaş sınırı:** 16+ (karar 2026-11-08).
 - [x] **Ücretsiz deneme:** yok (karar 2026-11-08).
 - [ ] **Fiyatlar:** ₺79 aylık / ₺499 yıllık. Diğer ülkelerin fiyatları mağazada otomatik ya da elle belirlenir.
@@ -44,10 +44,10 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
 
 ### Yayından önce zorunlu
 - [ ] **Canlı sunucu:**
-  - API + Postgres, HTTPS, alan adı (`api.[ALAN ADI]`).
+  - API + Postgres, HTTPS, alan adı (`api.cansayno.com`).
   - Ayarlar: JWT secret, Anthropic anahtarı, RevenueCat webhook secret, CORS.
   - Otomatik yedek ve log saklama süresi.
-- [ ] **E-posta gönderimi:** Doğrulama ve şifre kodları için bir SMTP sağlayıcı (SPF/DKIM ayarlı). Gönderen adresi `noreply@[ALAN ADI]` olabilir.
+- [ ] **E-posta gönderimi:** Doğrulama ve şifre kodları için bir SMTP sağlayıcı (SPF/DKIM ayarlı). Gönderen adresi `noreply@cansayno.com` olabilir.
 - [ ] **Web sitesi** (`Web/`, içerik `docs/store/`'dan üretilir; `/hesap-silme` Google'ın istediği silme bağlantısı, uygulama kurulmadan açılabilmeli):
   - Tanıtım sayfası + `/gizlilik` + `/kullanim-sartlari` + `/hesap-silme`.
   - İçerik `docs/store/` belgelerinden. Statik site; ücretsiz barındırılabilir.
