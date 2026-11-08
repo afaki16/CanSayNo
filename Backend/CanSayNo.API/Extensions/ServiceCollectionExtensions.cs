@@ -1,3 +1,4 @@
+using CanSayNo.Application.Common.Settings;
 using CanSayNo.Domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 namespace CanSayNo.API.Extensions
@@ -193,6 +195,24 @@ namespace CanSayNo.API.Extensions
                         factory: _ => new SlidingWindowRateLimiterOptions
                         {
                             PermitLimit = sensitiveLimit,
+                            Window = TimeSpan.FromMinutes(1),
+                            SegmentsPerWindow = 6,
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        }));
+
+                // LLM'e giden uçlar (pratik mesajı, değerlendirme): KULLANICI başına — aynı IP'deki
+                // (ör. aynı Wi-Fi) kullanıcılar birbirini kısıtlamasın, IP değiştiren betik de kaçamasın.
+                // Kullanıcı kimliği için UseRateLimiter, UseAuthentication'dan sonra çalışır.
+                options.AddPolicy("ai", httpContext =>
+                    RateLimitPartition.GetSlidingWindowLimiter(
+                        partitionKey: httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value is { } userId
+                            ? $"user:{userId}"
+                            : $"ip:{GetClientIp(httpContext)}",
+                        factory: _ => new SlidingWindowRateLimiterOptions
+                        {
+                            PermitLimit = httpContext.RequestServices
+                                .GetRequiredService<HayirciSettings>().AiRequestsPerMinute,
                             Window = TimeSpan.FromMinutes(1),
                             SegmentsPerWindow = 6,
                             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,

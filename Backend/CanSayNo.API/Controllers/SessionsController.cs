@@ -7,6 +7,7 @@ using CanSayNo.Application.Features.Sessions.Queries.GetSessionById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CanSayNo.API.Controllers
 {
@@ -47,6 +48,7 @@ namespace CanSayNo.API.Controllers
         /// 429 sessionTokenLimitReached, 503 aiUnavailable — bu üçünde raunt ilerlemez.
         /// </summary>
         [HttpPost("{id:guid}/messages")]
+        [EnableRateLimiting("ai")]
         [ProducesResponseType(typeof(SessionDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
@@ -71,6 +73,7 @@ namespace CanSayNo.API.Controllers
         /// LLM'e gitmeden döner. 409 sessionNotCompleted, 503 aiUnavailable.
         /// </summary>
         [HttpPost("{id:guid}/evaluate")]
+        [EnableRateLimiting("ai")]
         [ProducesResponseType(typeof(SessionDto), 200)]
         [ProducesResponseType(401)]
         [ProducesResponseType(404)]

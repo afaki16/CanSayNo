@@ -10,7 +10,14 @@ const SESSION = 'Oturumun sona ermiş, tekrar giriş yap';
 const DAILY_LIMIT =
   'Bugünkü ücretsiz pratik hakkını kullandın. Yarın tekrar gel ya da premium ile sınırsız pratik yap.';
 
-export type StartSessionErrorKind = 'premiumRequired' | 'dailyLimitReached' | 'other';
+// Kullanıcı başına dakikalık istek sınırı (backend "ai" rate limit politikası; gövdesi kodsuz).
+const TOO_FAST = 'Çok hızlı gidiyorsun. Birkaç saniye bekleyip tekrar dene.';
+
+export type StartSessionErrorKind =
+  | 'premiumRequired'
+  | 'dailyLimitReached'
+  | 'fairUseLimitReached'
+  | 'other';
 
 export interface StartSessionError {
   kind: StartSessionErrorKind;
@@ -23,6 +30,10 @@ export function toStartSessionError(error: unknown): StartSessionError {
   }
   if (error.code === API_ERROR_CODE.PREMIUM_REQUIRED || error.status === 403) {
     return { kind: 'premiumRequired', message: error.message };
+  }
+  // Premium adil kullanım sınırı da 429 — premium kullanıcıya paywall önerilmesin diye önce bakılır.
+  if (error.code === API_ERROR_CODE.FAIR_USE_LIMIT_REACHED) {
+    return { kind: 'fairUseLimitReached', message: error.message };
   }
   if (error.code === API_ERROR_CODE.DAILY_LIMIT_REACHED || error.status === 429) {
     return { kind: 'dailyLimitReached', message: DAILY_LIMIT };
@@ -65,6 +76,9 @@ export function toSendMessageErrorMessage(error: unknown): string {
   if (error.status === 400 && error.errors.length > 0) {
     return error.errors.join('\n');
   }
+  if (error.status === 429) {
+    return TOO_FAST;
+  }
   return 'Mesaj gönderilemedi, lütfen tekrar dene';
 }
 
@@ -88,6 +102,9 @@ export function toEvaluateErrorMessage(error: unknown): string {
     error.code === API_ERROR_CODE.SESSION_BUSY
   ) {
     return error.message;
+  }
+  if (error.status === 429) {
+    return TOO_FAST;
   }
   return 'Değerlendirme yüklenemedi';
 }

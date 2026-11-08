@@ -104,6 +104,7 @@
     "scenarioNotFound": "Senaryo bulunamadı",
     "premiumRequired": "Bu senaryo premium üyelere özel. Premium'a geçerek tüm bağlamların kilidini açabilirsin.",
     "dailyLimitReached": "Bugünkü ücretsiz pratik hakkını kullandın. Yarın tekrar gel ya da premium ile sınırsız pratik yap.",
+    "fairUseLimitReached": "Bugün çok pratik yaptın! Günlük adil kullanım sınırına ulaştın, yarın devam edebilirsin.",
     "notActive": "Bu pratik sona erdi, yeni mesaj gönderilemez.",
     "tokenLimitReached": "Bu pratik için mesaj sınırına ulaşıldı. Yeni bir pratik başlatabilirsin.",
     "aiUnavailable": "Karakter şu an cevap veremiyor. Birkaç saniye sonra tekrar dene.",

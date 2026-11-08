@@ -44,7 +44,8 @@ public class Error
             ErrorCode.Forbidden
             or ErrorCode.PremiumRequired => 403,
             ErrorCode.DailyLimitReached
-            or ErrorCode.SessionTokenLimitReached => 429,
+            or ErrorCode.SessionTokenLimitReached
+            or ErrorCode.FairUseLimitReached => 429,
             ErrorCode.AiUnavailable => 503,
             ErrorCode.AiResponseRefused => 422,
             ErrorCode.SessionNotActive

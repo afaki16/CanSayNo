@@ -133,12 +133,12 @@ app.UseSecurityHeaders();
 // Add CORS middleware (must be before authentication)
 app.UseCors("DefaultCorsPolicy");
 
-// Rate limiting runs before authentication so unauthenticated traffic
-// (login, register, forgot-password) is also throttled.
-app.UseRateLimiter();
-
-// Authentication and Authorization (order is important)
+// Authentication and Authorization (order is important).
+// Rate limiting sits between them: authentication only reads the token (it rejects nothing),
+// so unauthenticated traffic (login, register, forgot-password) is still throttled, while the
+// per-user "ai" policy can see the user id.
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();
@@ -168,3 +168,6 @@ using (var scope = app.Services.CreateScope())
 await CanSayNo.Infrastructure.Persistence.Seeding.HayirciSeedData.SeedScenariosAsync(app.Services);
 
 app.Run();
+
+// Entegrasyon testleri (WebApplicationFactory<Program>) için görünür kılınır.
+public partial class Program;

@@ -17,4 +17,13 @@ public interface IDailyUsageRepository
     Task<DailyUsage?> GetAsync(int userId, DateOnly date, CancellationToken cancellationToken = default);
 
     Task AddAsync(DailyUsage dailyUsage, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Var olan kaydın oturum sayacını tek bir UPDATE ile artırır, yalnızca sayaç
+    /// <paramref name="limit"/>'in altındaysa. Eşzamanlı istekler sınırı aşamaz
+    /// (oku-artır-yaz'da hepsi aynı değeri okuyup geçebiliyordu). Artırdıysa true.
+    /// Change tracker'ı atlar; anında DB'ye yazılır.
+    /// </summary>
+    Task<bool> TryIncrementSessionsAsync(
+        int userId, DateOnly date, int limit, CancellationToken cancellationToken = default);
 }

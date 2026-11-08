@@ -16,6 +16,18 @@ public class HayirciSettings
     public int FreeDailySessionLimit { get; set; } = 1;
 
     /// <summary>
+    /// Premium "adil kullanım" sınırı: günde başlatılabilecek pratik sayısı. Normal kullanım
+    /// buna ulaşmaz; betikle LLM maliyeti şişirilmesini (pratik başına ~$0.03) engeller.
+    /// </summary>
+    public int PremiumDailySessionLimit { get; set; } = 30;
+
+    /// <summary>
+    /// Kullanıcı başına dakikada LLM'e giden istek (mesaj + değerlendirme) sayısı.
+    /// "ai" rate limit politikası bunu kullanır (API katmanı).
+    /// </summary>
+    public int AiRequestsPerMinute { get; set; } = 10;
+
+    /// <summary>
     /// "Gün" sınırının hesaplandığı UTC ofseti. Türkiye UTC+3 (2016'dan beri yaz saati yok),
     /// böylece limit gece yarısı TR saatiyle sıfırlanır.
     /// </summary>

@@ -67,23 +67,25 @@ public class StartSessionCommandHandler : IRequestHandler<StartSessionCommand, R
         if (unstarted is not null)
             return Result<SessionDto>.Success(_mapper.Map<SessionDto>(unstarted));
 
-        // Kullanım herkes için sayılır (analitik); limit yalnızca premium olmayana uygulanır.
+        // Ücretsiz: günlük limit. Premium: daha yüksek "adil kullanım" sınırı (LLM maliyetini
+        // betikle şişirmeye karşı). Kullanım herkes için DailyUsage'a yazılır.
         var usageDate = _settings.GetUsageDate(utcNow);
+        var limit = isPremium ? _settings.PremiumDailySessionLimit : _settings.FreeDailySessionLimit;
         var usage = await _unitOfWork.DailyUsage.GetAsync(userId, usageDate, cancellationToken);
-
-        if (!isPremium && usage is not null && usage.SessionsCount >= _settings.FreeDailySessionLimit)
-            return Result<SessionDto>.Failure(
-                Error.Failure(ErrorCode.DailyLimitReached, _localizer["sessions.dailyLimitReached"]));
 
         if (usage is null)
         {
+            // Günün ilk pratiği; eşzamanlı ikinci INSERT composite PK'ye çarpar.
             await _unitOfWork.DailyUsage.AddAsync(
                 new DailyUsage { UserId = userId, Date = usageDate, SessionsCount = 1 },
                 cancellationToken);
         }
-        else
+        else if (!await _unitOfWork.DailyUsage.TryIncrementSessionsAsync(
+                     userId, usageDate, limit, cancellationToken))
         {
-            usage.SessionsCount++;
+            return Result<SessionDto>.Failure(isPremium
+                ? Error.Failure(ErrorCode.FairUseLimitReached, _localizer["sessions.fairUseLimitReached"])
+                : Error.Failure(ErrorCode.DailyLimitReached, _localizer["sessions.dailyLimitReached"]));
         }
 
         var session = new Session

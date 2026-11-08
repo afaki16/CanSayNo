@@ -28,4 +28,15 @@ public class DailyUsageRepository : IDailyUsageRepository
     {
         await _context.DailyUsage.AddAsync(dailyUsage, cancellationToken);
     }
+
+    public async Task<bool> TryIncrementSessionsAsync(
+        int userId, DateOnly date, int limit, CancellationToken cancellationToken = default)
+    {
+        var updated = await _context.DailyUsage
+            .Where(du => du.UserId == userId && du.Date == date && du.SessionsCount < limit)
+            .ExecuteUpdateAsync(
+                s => s.SetProperty(du => du.SessionsCount, du => du.SessionsCount + 1),
+                cancellationToken);
+        return updated == 1;
+    }
 }

@@ -27,4 +27,5 @@ public enum ErrorCode
     SessionTokenLimitReached = 1103, // Oturum token tavanına ulaştı (429)
     SessionNotCompleted = 1104, // Değerlendirme için oturum henüz tamamlanmadı (409)
     SessionBusy = 1105,         // Aynı oturumda başka bir istek işleniyor (409); raunt ilerlemez
+    FairUseLimitReached = 1106, // Premium günlük adil kullanım sınırı doldu (429)
 }

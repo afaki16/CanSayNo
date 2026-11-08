@@ -49,6 +49,11 @@ export function useStartPractice() {
           return;
         }
 
+        if (kind === 'fairUseLimitReached') {
+          Alert.alert('Bugünlük bu kadar 🌙', message);
+          return;
+        }
+
         Alert.alert('Pratik başlatılamadı', message);
       }
     },
