@@ -6,6 +6,8 @@
 // yenilenir; kullanıcı uygulamayı bir hafta açmazsa hatırlatmalar kendiliğinden
 // susar (ısrarcı olmasın diye bilerek).
 
+import { t } from '@/lib/i18n';
+
 export const REMINDER_DAYS = 7;
 
 export interface ReminderPrefs {
@@ -28,26 +30,34 @@ export interface PlannedReminder {
 }
 
 // Sonraki günler için dönen metinler. O günün serisini bilemeyiz (uygulama
-// açılmadıysa veri yok), bu yüzden sayı içermezler.
-const LATER_MESSAGES: { title: string; body: string }[] = [
-  { title: 'Bugünkü pratiğin hazır', body: '5 dakikanı ayır, bir sınır daha koy. 💪' },
-  { title: 'Hayır demek bir kas', body: 'Kısa bir senaryoyla bugün de çalıştır.' },
-  { title: 'Seri zamanı 🔥', body: 'Bugünkü pratiğini yaptın mı? Seni bir senaryo bekliyor.' },
-  { title: 'Bir dakikan var mı?', body: 'Zor bir isteğe nazikçe "hayır" demeyi dene.' },
-];
+// açılmadıysa veri yok), bu yüzden sayı içermezler. Metinler planlama anındaki
+// dilde çözülür; dil değişince plan yeniden kurulur (useReminderSync).
+const LATER_MESSAGES = ['ready', 'muscle', 'streakTime', 'minute'] as const;
+
+type LaterMessageId = (typeof LATER_MESSAGES)[number];
+
+function laterMessage(id: LaterMessageId): { title: string; body: string } {
+  return {
+    title: t(`account.reminders.later.${id}.title`),
+    body: t(`account.reminders.later.${id}.body`),
+  };
+}
 
 function firstMessage(stats: ReminderStatsInput | null): { title: string; body: string } {
   const streak = stats?.currentStreak ?? 0;
   if (streak >= 2) {
     return {
-      title: `Serin ${streak} gün 🔥`,
-      body: 'Bugünkü pratiğini yapıp serini koru.',
+      title: t('account.reminders.streak.title', { count: streak }),
+      body: t('account.reminders.streak.body'),
     };
   }
   if (streak === 1) {
-    return { title: 'Dün harikaydın 🔥', body: 'Bugün de yaparsan serin başlıyor.' };
+    return {
+      title: t('account.reminders.yesterday.title'),
+      body: t('account.reminders.yesterday.body'),
+    };
   }
-  return LATER_MESSAGES[0];
+  return laterMessage(LATER_MESSAGES[0]);
 }
 
 export function planReminders(
@@ -68,7 +78,9 @@ export function planReminders(
     const date = new Date(todayAt);
     date.setDate(todayAt.getDate() + offset);
     const message =
-      plan.length === 0 ? firstMessage(stats) : LATER_MESSAGES[(offset + 1) % LATER_MESSAGES.length];
+      plan.length === 0
+        ? firstMessage(stats)
+        : laterMessage(LATER_MESSAGES[(offset + 1) % LATER_MESSAGES.length]);
     plan.push({ date, ...message });
   }
   return plan;

@@ -4,6 +4,7 @@
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
 import { Text } from './Text';
@@ -74,11 +75,12 @@ function TypingDot({ delay }: { delay: number }) {
 }
 
 function TypingIndicator() {
+  const { t } = useTranslation();
   return (
     <View
       style={styles.dotsRow}
       accessibilityRole="text"
-      accessibilityLabel="Yazıyor"
+      accessibilityLabel={t('practice.chat.typing')}
     >
       <TypingDot delay={0} />
       <TypingDot delay={DOT_STAGGER_MS} />

@@ -12,6 +12,7 @@ import type {
 } from 'axios';
 
 import { env } from '@/lib/config/env';
+import { t } from '@/lib/i18n';
 import { useAuthStore } from '@/stores/authStore';
 import type { AuthResponse, RefreshTokenRequest } from '@/types/api/auth';
 
@@ -102,7 +103,7 @@ apiClient.interceptors.response.use(
         await useAuthStore.getState().clearAuth();
         return Promise.reject(
           new ApiError(
-            'Oturumun sona erdi, lütfen tekrar giriş yap',
+            t('auth.api.sessionExpired'),
             401,
             [],
             'sessionExpired',
@@ -135,14 +136,14 @@ apiClient.interceptors.response.use(
         // geçersiz değildir — oturumu silme, bağlantı gelince tekrar denenir.
         if (isAxiosError(refreshError) && !refreshError.response) {
           return Promise.reject(
-            new ApiError('Bağlantı kurulamadı', 0, [], undefined, refreshError),
+            new ApiError(t('auth.api.connectionFailed'), 0, [], undefined, refreshError),
           );
         }
 
         await useAuthStore.getState().clearAuth();
         return Promise.reject(
           new ApiError(
-            'Oturumun sona erdi, lütfen tekrar giriş yap',
+            t('auth.api.sessionExpired'),
             401,
             [],
             'sessionExpired',

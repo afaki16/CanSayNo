@@ -2,6 +2,7 @@
 // Senaryo ekranlarının üçü de aynı görünümü paylaşsın diye ayrı bileşen.
 
 import { CloudWarning } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
 import { Text } from './Text';
@@ -18,17 +19,18 @@ export interface ErrorStateProps {
 }
 
 export function ErrorState({ message, onRetry, isRetrying }: ErrorStateProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
       <View style={styles.icon}>
         <CloudWarning size={48} color={Colors.error} weight="duotone" />
       </View>
-      <Text style={styles.title}>Bir sorun çıktı</Text>
+      <Text style={styles.title}>{t('practice.errorState.title')}</Text>
       <Text style={styles.message}>{message}</Text>
       {/* Button tam genişlik değilken alignSelf: 'flex-start' alır; sarmalayıcı onu ortalar. */}
       <View>
         <Button variant="primary" onPress={onRetry} loading={isRetrying}>
-          Tekrar Dene
+          {t('common.retry')}
         </Button>
       </View>
     </View>

@@ -5,6 +5,7 @@
 import { router } from 'expo-router';
 import { ArrowLeft, BellRinging } from 'phosphor-react-native';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppState, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -29,6 +30,7 @@ const TIME_OPTIONS = [
 ];
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const prefs = useReminderStore((state) => state.prefs);
   const setPrefs = useReminderStore((state) => state.setPrefs);
   const [permission, setPermission] = useState<ReminderPermission | null>(null);
@@ -68,14 +70,14 @@ export default function NotificationsScreen() {
             icon={ArrowLeft}
             bordered
             onPress={() => router.back()}
-            accessibilityLabel="Geri"
+            accessibilityLabel={t('common.back')}
           />
         </View>
 
         <View style={styles.header}>
-          <Text style={styles.title}>Bildirimler</Text>
+          <Text style={styles.title}>{t('account.notifications.title')}</Text>
           <Text style={styles.subtitle}>
-            Her gün seçtiğin saatte kısa bir hatırlatma. O gün pratik yaptıysan susar.
+            {t('account.notifications.subtitle')}
           </Text>
         </View>
 
@@ -85,9 +87,11 @@ export default function NotificationsScreen() {
               <BellRinging size={20} color={Colors.primary} weight="fill" />
             </View>
             <View style={styles.flex}>
-              <Text style={styles.rowTitle}>Günlük pratik hatırlatması</Text>
+              <Text style={styles.rowTitle}>{t('account.notifications.dailyReminder')}</Text>
               <Text style={styles.rowText}>
-                {prefs.enabled && !blocked ? `Her gün ${formatReminderTime(prefs)}` : 'Kapalı'}
+                {prefs.enabled && !blocked
+                  ? t('account.notifications.everyDay', { time: formatReminderTime(prefs) })
+                  : t('account.notifications.off')}
               </Text>
             </View>
             <Switch
@@ -96,7 +100,7 @@ export default function NotificationsScreen() {
               disabled={blocked}
               trackColor={{ true: Colors.primary, false: Colors.chip }}
               thumbColor="#FFFFFF"
-              accessibilityLabel="Günlük pratik hatırlatması"
+              accessibilityLabel={t('account.notifications.dailyReminder')}
             />
           </View>
         </View>
@@ -104,18 +108,17 @@ export default function NotificationsScreen() {
         {blocked ? (
           <View style={styles.blockedBox}>
             <Text style={styles.blockedText}>
-              Bildirim izni kapalı. Hatırlatma alabilmek için telefonunun ayarlarından CanSayNo
-              bildirimlerine izin ver.
+              {t('account.notifications.blocked')}
             </Text>
             <Pressable onPress={openNotificationSettings} hitSlop={8} accessibilityRole="button">
-              <Text style={styles.blockedLink}>Ayarları aç</Text>
+              <Text style={styles.blockedLink}>{t('account.notifications.openSettings')}</Text>
             </Pressable>
           </View>
         ) : null}
 
         {prefs.enabled && !blocked ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Saat</Text>
+            <Text style={styles.sectionTitle}>{t('account.notifications.timeTitle')}</Text>
             <View style={styles.chips}>
               {TIME_OPTIONS.map((option) => {
                 const selected = option.hour === prefs.hour && option.minute === prefs.minute;

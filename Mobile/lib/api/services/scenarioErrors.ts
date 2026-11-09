@@ -1,26 +1,24 @@
-// Senaryo isteklerinin kullanıcıya gösterilecek Türkçe karşılıkları.
+// Senaryo isteklerinin kullanıcıya gösterilecek karşılıkları (çağrı anındaki dilde).
 // authErrors ile aynı kural: teknik detay (status, stack, endpoint) sızmaz.
 
 import { API_ERROR_CODE, ApiError } from '../client';
 
-const NETWORK = 'Bağlantı kurulamadı, internet bağlantını kontrol et';
-const GENERIC = 'Senaryolar yüklenemedi, lütfen tekrar dene';
-const SESSION = 'Oturumun sona ermiş, tekrar giriş yap';
+import { t } from '@/lib/i18n';
 
 export function toScenarioErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) {
-    return GENERIC;
+    return t('practice.errors.scenariosFailed');
   }
   if (error.isNetworkError) {
-    return NETWORK;
+    return t('common.errors.network');
   }
   if (error.status === 401) {
-    return SESSION;
+    return t('common.errors.session');
   }
   if (error.code === API_ERROR_CODE.NOT_FOUND || error.status === 404) {
-    return 'Senaryo bulunamadı';
+    return t('practice.errors.scenarioNotFound');
   }
-  return GENERIC;
+  return t('practice.errors.scenariosFailed');
 }
 
 // 404'ü ekranlar ayrı ele alıyor (detay sayfasında "Geri Dön"lü boş state).

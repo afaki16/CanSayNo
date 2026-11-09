@@ -4,6 +4,7 @@
 // Primary varyant marka geçişiyle (mor→mavi, Gradients.brand) boyanır ve renkli gölge taşır.
 
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -111,6 +112,7 @@ export function Button({
   leftIcon,
   rightIcon,
 }: ButtonProps) {
+  const { t } = useTranslation();
   const variantStyle = VARIANT_STYLES[variant];
   const sizeStyle = SIZE_STYLES[size];
   const isInteractive = !disabled && !loading;
@@ -149,7 +151,7 @@ export function Button({
         <ActivityIndicator
           size="small"
           color={variantStyle.textColor}
-          accessibilityLabel="Yükleniyor"
+          accessibilityLabel={t('common.loading')}
         />
       ) : (
         <>

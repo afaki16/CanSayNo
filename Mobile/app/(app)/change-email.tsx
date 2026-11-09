@@ -12,8 +12,9 @@ import {
   LockSimple,
   ShieldCheck,
 } from 'phosphor-react-native';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Trans, useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,20 +24,34 @@ import { Button, FormError, FormField, IconButton, Text } from '@/components/ui'
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useMe } from '@/hooks/queries/useProfile';
 import { EMAIL_CHANGE_RESEND_SECONDS, useEmailChange } from '@/hooks/useEmailChange';
+import { t } from '@/lib/i18n';
 
-const requestSchema = z.object({
-  newEmail: z.string().trim().min(1, 'E-posta gerekli').email('Geçerli bir e-posta gir'),
-  currentPassword: z.string().min(1, 'Şifren gerekli'),
-});
+// Mesajlar şemanın kurulduğu andaki dilde (dil değişince yeniden kurulur).
+const createRequestSchema = () =>
+  z.object({
+    newEmail: z
+      .string()
+      .trim()
+      .min(1, t('account.changeEmail.validation.emailRequired'))
+      .email(t('account.changeEmail.validation.emailInvalid')),
+    currentPassword: z.string().min(1, t('account.changeEmail.validation.passwordRequired')),
+  });
 
-const codeSchema = z.object({
-  code: z.string().regex(/^\d{6}$/, 'Kod 6 haneli olmalı'),
-});
+const createCodeSchema = () =>
+  z.object({
+    code: z.string().regex(/^\d{6}$/, t('account.changeEmail.validation.codeLength')),
+  });
 
-type RequestForm = z.infer<typeof requestSchema>;
-type CodeForm = z.infer<typeof codeSchema>;
+type RequestForm = z.infer<ReturnType<typeof createRequestSchema>>;
+type CodeForm = z.infer<ReturnType<typeof createCodeSchema>>;
 
 export default function ChangeEmailScreen() {
+  const { t, i18n } = useTranslation();
+  // Dil değişince doğrulama mesajları yeni dilde kurulsun.
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const requestSchema = useMemo(() => createRequestSchema(), [i18n.language]);
+  const codeSchema = useMemo(() => createCodeSchema(), [i18n.language]);
+  /* eslint-enable react-hooks/exhaustive-deps */
   const { data: me } = useMe();
   const { sendCode, isSendingCode, sendCodeError, confirm, isConfirming, confirmError } =
     useEmailChange();
@@ -84,7 +99,10 @@ export default function ChangeEmailScreen() {
       await sendCode(pending);
       setCooldown(EMAIL_CHANGE_RESEND_SECONDS);
     } catch {
-      Alert.alert('Kod gönderilemedi', 'Lütfen biraz sonra tekrar dene.');
+      Alert.alert(
+        t('account.changeEmail.resendFailedTitle'),
+        t('account.changeEmail.resendFailedBody'),
+      );
     }
   };
 
@@ -93,8 +111,10 @@ export default function ChangeEmailScreen() {
       await confirm(code);
       // Yerel oturum temizlendi; route guard giriş ekranına götürür. Native Alert yönlendirmeden etkilenmez.
       Alert.alert(
-        'E-postan güncellendi',
-        `Güvenliğin için tüm cihazlardan çıkış yapıldı. ${pending?.newEmail ?? 'Yeni adresin'} ile tekrar giriş yap.`,
+        t('account.changeEmail.updatedTitle'),
+        pending?.newEmail
+          ? t('account.changeEmail.updatedBody', { email: pending.newEmail })
+          : t('account.changeEmail.updatedBodyFallback'),
       );
     } catch {
       // Hata confirmError üzerinden gösteriliyor.
@@ -114,7 +134,7 @@ export default function ChangeEmailScreen() {
               icon={ArrowLeft}
               bordered
               onPress={() => (pending ? setPending(null) : router.back())}
-              accessibilityLabel="Geri"
+              accessibilityLabel={t('common.back')}
             />
           </View>
 
@@ -123,15 +143,16 @@ export default function ChangeEmailScreen() {
             // Controller'ını yeniden kullanır ve kod alanı eski forma bağlı kalır (yazılamaz).
             <Fragment key="request">
               <View style={styles.header}>
-                <Text style={styles.title}>E-postanı değiştir</Text>
+                <Text style={styles.title}>{t('account.changeEmail.title')}</Text>
                 <Text style={styles.subtitle}>
                   {me?.email ? (
-                    <>
-                      Şu anki adresin <Text style={styles.email}>{me.email}</Text>. Yeni adresine
-                      6 haneli bir doğrulama kodu göndereceğiz.
-                    </>
+                    <Trans
+                      i18nKey="account.changeEmail.subtitleWithEmail"
+                      values={{ email: me.email }}
+                      components={{ bold: <Text style={styles.email} /> }}
+                    />
                   ) : (
-                    'Yeni adresine 6 haneli bir doğrulama kodu göndereceğiz.'
+                    t('account.changeEmail.subtitle')
                   )}
                 </Text>
               </View>
@@ -140,8 +161,8 @@ export default function ChangeEmailScreen() {
                 <FormField<RequestForm>
                   name="newEmail"
                   control={requestForm.control}
-                  label="Yeni e-posta"
-                  placeholder="ornek@eposta.com"
+                  label={t('account.changeEmail.newEmailLabel')}
+                  placeholder={t('account.changeEmail.emailPlaceholder')}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
@@ -152,8 +173,8 @@ export default function ChangeEmailScreen() {
                 <FormField<RequestForm>
                   name="currentPassword"
                   control={requestForm.control}
-                  label="Mevcut şifre"
-                  placeholder="Şifren"
+                  label={t('account.changeEmail.currentPasswordLabel')}
+                  placeholder={t('account.changeEmail.passwordPlaceholder')}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   autoComplete="current-password"
@@ -164,7 +185,11 @@ export default function ChangeEmailScreen() {
                       onPress={() => setShowPassword((prev) => !prev)}
                       hitSlop={8}
                       accessibilityRole="button"
-                      accessibilityLabel={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
+                      accessibilityLabel={
+                        showPassword
+                          ? t('account.changeEmail.hidePassword')
+                          : t('account.changeEmail.showPassword')
+                      }
                     >
                       {showPassword ? (
                         <EyeSlash size={19} color={Colors.textMuted} />
@@ -186,16 +211,19 @@ export default function ChangeEmailScreen() {
                 loading={isSendingCode}
                 onPress={requestForm.handleSubmit(onRequest)}
               >
-                Kod gönder
+                {t('account.changeEmail.sendCode')}
               </Button>
             </Fragment>
           ) : (
             <Fragment key="code">
               <View style={styles.header}>
-                <Text style={styles.title}>Kodu gir</Text>
+                <Text style={styles.title}>{t('account.changeEmail.codeTitle')}</Text>
                 <Text style={styles.subtitle}>
-                  <Text style={styles.email}>{pending.newEmail}</Text> adresine 6 haneli bir kod
-                  gönderdik. Kod 10 dakika geçerli.
+                  <Trans
+                    i18nKey="account.changeEmail.codeSubtitle"
+                    values={{ email: pending.newEmail }}
+                    components={{ bold: <Text style={styles.email} /> }}
+                  />
                 </Text>
               </View>
 
@@ -203,7 +231,7 @@ export default function ChangeEmailScreen() {
                 <FormField<CodeForm>
                   name="code"
                   control={codeForm.control}
-                  label="Doğrulama kodu"
+                  label={t('account.changeEmail.codeLabel')}
                   placeholder="123456"
                   keyboardType="number-pad"
                   maxLength={6}
@@ -223,12 +251,11 @@ export default function ChangeEmailScreen() {
                 loading={isConfirming}
                 onPress={codeForm.handleSubmit(onConfirm)}
               >
-                E-postayı güncelle
+                {t('account.changeEmail.confirm')}
               </Button>
 
               <Text style={styles.note}>
-                Güncellemeden sonra tüm cihazlardan çıkış yapılır; yeni adresinle tekrar giriş
-                yaparsın.
+                {t('account.changeEmail.note')}
               </Text>
 
               <Pressable
@@ -238,7 +265,7 @@ export default function ChangeEmailScreen() {
                 accessibilityRole="button"
               >
                 <Text style={styles.bottomLinkText}>
-                  Kod gelmedi mi?{' '}
+                  {t('account.changeEmail.noCode')}{' '}
                   <Text
                     style={
                       cooldown > 0 || isSendingCode
@@ -246,7 +273,9 @@ export default function ChangeEmailScreen() {
                         : styles.bottomLinkAccent
                     }
                   >
-                    {cooldown > 0 ? `Tekrar gönder (${cooldown} sn)` : 'Tekrar gönder'}
+                    {cooldown > 0
+                      ? t('account.changeEmail.resendIn', { seconds: cooldown })
+                      : t('account.changeEmail.resend')}
                   </Text>
                 </Text>
               </Pressable>

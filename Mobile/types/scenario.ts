@@ -57,10 +57,6 @@ export function getDifficultyLevel(stars: DifficultyStars): DifficultyLevel {
   return 'zor';
 }
 
-export function getDifficultyLabel(level: DifficultyLevel): string {
-  return level === 'kolay' ? 'Kolay' : level === 'orta' ? 'Orta' : 'Zor';
-}
-
 // Tema renk anahtarı döner ('success' | 'warning' | 'error'); component'te Colors ile birleştirilir.
 export function getDifficultyColor(
   level: DifficultyLevel,

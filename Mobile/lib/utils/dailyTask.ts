@@ -5,7 +5,8 @@
 // Premium olmayan kullanıcıya yalnızca ücretsiz senaryolar önerilir (paywall'a
 // göndermemek için); premium kullanıcıya hepsi.
 
-import type { ApiContextId, ApiScenarioListItem } from '@/types/api/scenario';
+import { t } from '@/lib/i18n';
+import type { ApiScenarioListItem } from '@/types/api/scenario';
 
 export type DailyTaskReason = 'new' | 'unfinished' | 'improve';
 
@@ -16,17 +17,8 @@ export interface DailyTask {
   reason: DailyTaskReason;
 }
 
-// Bağlama göre görev başlığı — tasarımdaki "İş baskısıyla pratik yap" kalıbı.
-const CONTEXT_TASK_TITLES: Record<ApiContextId, string> = {
-  is: 'İş baskısıyla pratik yap',
-  aile: 'Aile baskısıyla pratik yap',
-  arkadas: 'Arkadaş baskısıyla pratik yap',
-  romantik: 'İlişki baskısıyla pratik yap',
-  satici: 'Satıcı ısrarıyla pratik yap',
-  komsu: 'Komşu ricasıyla pratik yap',
-  okul: 'Okul baskısıyla pratik yap',
-  dijital: 'Dijital baskıyla pratik yap',
-};
+// Bağlama göre görev başlığı (tasarımdaki "İş baskısıyla pratik yap" kalıbı) çeviride:
+// practice.dailyTask.titles.<bağlam>. Metinler çağrı anındaki dilde.
 
 function pick(scenarios: ApiScenarioListItem[], isPremium: boolean): {
   scenario: ApiScenarioListItem;
@@ -56,16 +48,20 @@ export function getDailyTask(
   if (!choice) return null;
 
   const { scenario, reason } = choice;
-  const duration = `${scenario.estimatedDurationMinutes} dk`;
+  const duration = t('practice.minutes', { count: scenario.estimatedDurationMinutes });
+  const subtitle = t('practice.dailyTask.subtitle', { title: scenario.title, duration });
 
   if (reason === 'improve') {
     return {
       scenarioId: scenario.id,
-      title: 'Skorunu yükselt',
+      title: t('practice.dailyTask.improve'),
       subtitle:
         scenario.bestScore !== null
-          ? `${scenario.title} · en iyi: ${scenario.bestScore}`
-          : `${scenario.title} · ${duration}`,
+          ? t('practice.dailyTask.subtitleBest', {
+              title: scenario.title,
+              score: scenario.bestScore,
+            })
+          : subtitle,
       reason,
     };
   }
@@ -74,9 +70,9 @@ export function getDailyTask(
     scenarioId: scenario.id,
     title:
       reason === 'unfinished'
-        ? 'Yarım kalanı bitir'
-        : CONTEXT_TASK_TITLES[scenario.contextId],
-    subtitle: `${scenario.title} · ${duration}`,
+        ? t('practice.dailyTask.unfinished')
+        : t(`practice.dailyTask.titles.${scenario.contextId}`),
+    subtitle,
     reason,
   };
 }

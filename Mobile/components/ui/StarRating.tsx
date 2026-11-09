@@ -2,6 +2,7 @@
 // Senaryo kartı, liste başlıkları ve detay ekranında ortak kullanılır.
 
 import { Star } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
 import { Colors } from '@/constants/theme';
@@ -21,8 +22,12 @@ export function StarRating({
   emptyColor = '#D8D5CE',
   total = 5,
 }: StarRatingProps) {
+  const { t } = useTranslation();
   return (
-    <View style={styles.row} accessibilityLabel={`Zorluk ${count}/${total}`}>
+    <View
+      style={styles.row}
+      accessibilityLabel={t('practice.difficulty.a11y', { value: count, total })}
+    >
       {Array.from({ length: total }).map((_, i) => (
         <Star
           key={i}

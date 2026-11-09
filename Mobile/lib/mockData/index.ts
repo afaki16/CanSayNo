@@ -2,4 +2,9 @@
 // yok, kalıcı — mock değil; ileride lib/constants/'a taşınabilir. Senaryolar,
 // oturumlar, chat, değerlendirme ve istatistikler API'den geliyor.
 
-export { contexts } from './contexts';
+export {
+  getContextDescription,
+  getContextName,
+  getContexts,
+  useContexts,
+} from './contexts';

@@ -6,6 +6,7 @@
 // API'den gelen listeden hesaplanır.
 
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,11 +16,13 @@ import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme
 import { useScenarios } from '@/hooks/queries/useScenarios';
 import { useMySubscription } from '@/hooks/queries/useSubscription';
 import { toScenarioErrorMessage } from '@/lib/api';
-import { contexts } from '@/lib/mockData';
+import { useContexts } from '@/lib/mockData';
 import { buildContextProgress, progressFor } from '@/lib/scenarios/contextProgress';
 import type { Context } from '@/types/scenario';
 
 export default function ScenariosScreen() {
+  const { t } = useTranslation();
+  const contexts = useContexts();
   const { data, isPending, isError, error, refetch, isFetching } = useScenarios();
 
   const { data: subscription } = useMySubscription();
@@ -46,8 +49,8 @@ export default function ScenariosScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Senaryolar</Text>
-          <Text style={styles.subtitle}>Pratik yapmak istediğin alanı seç</Text>
+          <Text style={styles.title}>{t('practice.scenarios.title')}</Text>
+          <Text style={styles.subtitle}>{t('practice.scenarios.subtitle')}</Text>
         </View>
 
         {isPending ? (
@@ -79,6 +82,7 @@ export default function ScenariosScreen() {
 
 // Kartlarla aynı grid düzeni ve aynı minHeight — veri gelince layout kaymaz.
 function GridSkeleton() {
+  const contexts = useContexts();
   return (
     <View style={styles.grid}>
       {contexts.map((context) => (

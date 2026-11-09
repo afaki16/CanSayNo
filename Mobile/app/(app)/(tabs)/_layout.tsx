@@ -4,12 +4,14 @@
 
 import { Tabs } from 'expo-router';
 import { CardsThree, House, User } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors, Fonts } from '@/constants/theme';
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   // Android'de tab bar daha kısa; iOS'ta home indicator için inset eklenir.
   const baseHeight = Platform.OS === 'android' ? 62 : 64;
@@ -39,7 +41,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Ana Sayfa',
+          title: t('account.tabs.home'),
           tabBarIcon: ({ color, focused }) => (
             <House size={24} color={color} weight={focused ? 'fill' : 'regular'} />
           ),
@@ -48,7 +50,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="scenarios"
         options={{
-          title: 'Senaryolar',
+          title: t('account.tabs.scenarios'),
           tabBarIcon: ({ color, focused }) => (
             <CardsThree size={24} color={color} weight={focused ? 'fill' : 'regular'} />
           ),
@@ -57,7 +59,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profil',
+          title: t('account.tabs.profile'),
           tabBarIcon: ({ color, focused }) => (
             <User size={24} color={color} weight={focused ? 'fill' : 'regular'} />
           ),

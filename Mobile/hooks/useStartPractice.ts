@@ -4,6 +4,7 @@
 
 import { router } from 'expo-router';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 
 import { useStartSession } from '@/hooks/queries/useSessions';
@@ -15,6 +16,7 @@ interface StartPracticeOptions {
 }
 
 export function useStartPractice() {
+  const { t } = useTranslation();
   const { mutateAsync, isPending } = useStartSession();
 
   const startPractice = useCallback(
@@ -39,10 +41,10 @@ export function useStartPractice() {
         }
 
         if (kind === 'dailyLimitReached') {
-          Alert.alert('Bugünlük bu kadar 🌙', message, [
-            { text: 'Tamam', style: 'cancel' },
+          Alert.alert(t('practice.startAlert.limitTitle'), message, [
+            { text: t('common.ok'), style: 'cancel' },
             {
-              text: "Premium'a geç",
+              text: t('practice.startAlert.goPremium'),
               onPress: () => router.push('/(app)/paywall'),
             },
           ]);
@@ -50,14 +52,14 @@ export function useStartPractice() {
         }
 
         if (kind === 'fairUseLimitReached') {
-          Alert.alert('Bugünlük bu kadar 🌙', message);
+          Alert.alert(t('practice.startAlert.limitTitle'), message);
           return;
         }
 
-        Alert.alert('Pratik başlatılamadı', message);
+        Alert.alert(t('practice.startAlert.failedTitle'), message);
       }
     },
-    [mutateAsync],
+    [mutateAsync, t],
   );
 
   return { startPractice, isStarting: isPending };

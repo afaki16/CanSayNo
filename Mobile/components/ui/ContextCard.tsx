@@ -3,6 +3,7 @@
 // "Premium" chip'i, ücretsizlerde "tamamlanan/toplam" ilerleme chip'i.
 
 import { LockSimple } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from './Text';
@@ -29,6 +30,7 @@ export interface ContextCardProps {
 export const CONTEXT_CARD_MIN_HEIGHT = 190;
 
 export function ContextCard({ context, progress, isLocked, onPress }: ContextCardProps) {
+  const { t } = useTranslation();
   const Icon = getContextIcon(context.iconName);
 
   return (
@@ -52,12 +54,15 @@ export function ContextCard({ context, progress, isLocked, onPress }: ContextCar
       {isLocked ? (
         <View style={styles.chip}>
           <LockSimple size={13} color={Colors.textMuted} weight="fill" />
-          <Text style={styles.chipText}>Premium</Text>
+          <Text style={styles.chipText}>{t('practice.scenarios.premium')}</Text>
         </View>
       ) : (
         <View style={[styles.chip, { backgroundColor: context.softColor }]}>
           <Text style={[styles.chipText, { color: context.color }]}>
-            {progress.completedCount}/{progress.scenariosCount} tamamlandı
+            {t('practice.scenarios.cardProgress', {
+              completed: progress.completedCount,
+              total: progress.scenariosCount,
+            })}
           </Text>
         </View>
       )}

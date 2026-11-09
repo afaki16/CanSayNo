@@ -12,6 +12,8 @@ export const STORAGE_KEYS = {
   USER: 'auth.user',
   // Hatırlatma tercihi cihaza aittir; çıkışta silinmez.
   REMINDER_PREFS: 'prefs.reminder',
+  // Uygulama dili ("tr" | "en"); cihaza aittir, çıkışta silinmez. Yoksa cihaz dili kullanılır.
+  LANGUAGE: 'prefs.language',
 } as const;
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

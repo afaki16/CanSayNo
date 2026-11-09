@@ -16,8 +16,10 @@ import {
   Medal,
   SignOut,
   Star,
+  Translate,
   UserCircle,
 } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -35,6 +37,7 @@ import { useMySessions } from '@/hooks/queries/useSessions';
 import { EMPTY_STATS, useMyStats } from '@/hooks/queries/useStats';
 import { useMySubscription } from '@/hooks/queries/useSubscription';
 import { useAuth } from '@/hooks/useAuth';
+import { currentLocale, type AppLanguage } from '@/lib/i18n';
 import { formatReminderTime } from '@/lib/notifications/reminderPlan';
 import { getInitials } from '@/lib/utils/initials';
 import { useReminderStore } from '@/stores/reminderStore';
@@ -42,44 +45,62 @@ import type { ApiBadge } from '@/types/api/stats';
 import type { ApiMySubscription } from '@/types/api/subscription';
 
 // Seviye unvanları (UI metadata; seviye backend'den gelir, 500 XP'de bir artar).
-const LEVEL_TITLES: Record<number, string> = {
-  1: 'Başlangıç',
-  2: 'Kararlı',
-  3: 'Net',
-  4: 'Sınır Ustası',
-};
+// Değerler çeviri anahtarı; metin render anında çözülür.
+const LEVEL_TITLES = {
+  1: 'account.profile.levelTitles.level1',
+  2: 'account.profile.levelTitles.level2',
+  3: 'account.profile.levelTitles.level3',
+  4: 'account.profile.levelTitles.level4',
+} as const;
+
+function levelTitleKey(level: number) {
+  return LEVEL_TITLES[level as keyof typeof LEVEL_TITLES] ?? LEVEL_TITLES[4];
+}
 
 const AVERAGE_SAMPLE_SIZE = 50;
 
 interface BadgeDef {
-  id: ApiBadge;
-  label: string;
+  id: ApiBadge & keyof typeof BADGE_LABEL_KEYS;
   icon: Icon;
   color: string;
   softColor: string;
 }
 
+const BADGE_LABEL_KEYS = {
+  firstNo: 'account.profile.badges.firstNo',
+  threeDayStreak: 'account.profile.badges.threeDayStreak',
+  sevenDayStreak: 'account.profile.badges.sevenDayStreak',
+  persistent: 'account.profile.badges.persistent',
+} as const;
+
 // Profilde gösterilen rozetler; id'ler backend'in Badge enum'unun camelCase hali.
 // "Usta" = 50 pratik tamamlama (persistent).
 const BADGES: BadgeDef[] = [
-  { id: 'firstNo', label: 'İlk Hayır', icon: HandPalm, color: Colors.primary, softColor: Colors.primarySoft },
-  { id: 'threeDayStreak', label: '3 Gün Seri', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
-  { id: 'sevenDayStreak', label: '7 Gün Seri', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
-  { id: 'persistent', label: 'Usta', icon: Medal, color: Colors.amber, softColor: Colors.amberSoft },
+  { id: 'firstNo', icon: HandPalm, color: Colors.primary, softColor: Colors.primarySoft },
+  { id: 'threeDayStreak', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
+  { id: 'sevenDayStreak', icon: Fire, color: Colors.secondary, softColor: Colors.secondarySoft },
+  { id: 'persistent', icon: Medal, color: Colors.amber, softColor: Colors.amberSoft },
 ];
 
 // Premium bandının alt satırı: yenilenecekse/bitecekse tarih.
-function premiumSubtitle(sub: ApiMySubscription | undefined): string {
-  if (!sub?.expiresAt) return 'Tüm bağlamlar açık';
-  const date = new Date(sub.expiresAt).toLocaleDateString('tr-TR', {
+function premiumSubtitle(
+  sub: ApiMySubscription | undefined,
+  t: ReturnType<typeof useTranslation>['t'],
+): string {
+  if (!sub?.expiresAt) return t('account.profile.premium.allContexts');
+  const date = new Date(sub.expiresAt).toLocaleDateString(currentLocale(), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
-  return sub.willRenew ? `Yenileme: ${date}` : `Bitiş: ${date}`;
+  return sub.willRenew
+    ? t('account.profile.premium.renews', { date })
+    : t('account.profile.premium.ends', { date });
 }
 
 export default function ProfileScreen() {
+  const { t, i18n } = useTranslation();
+  const language: AppLanguage = i18n.language === 'en' ? 'en' : 'tr';
   const { user, logout, isLoggingOut } = useAuth();
   const { data } = useMyStats();
   const stats = data ?? EMPTY_STATS;
@@ -95,7 +116,7 @@ export default function ProfileScreen() {
   };
 
   const fullName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Kullanıcı';
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') || t('account.profile.defaultName');
   // Son 50 oturumun skorlu olanlarının ortalaması; hiç skor yoksa "–".
   const { data: sessions } = useMySessions(AVERAGE_SAMPLE_SIZE);
   const scores = (sessions?.items ?? [])
@@ -104,7 +125,7 @@ export default function ProfileScreen() {
   const averageScore = scores.length
     ? Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length)
     : '–';
-  const levelTitle = LEVEL_TITLES[stats.level] ?? 'Sınır Ustası';
+  const levelTitle = t(levelTitleKey(stats.level));
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -129,20 +150,20 @@ export default function ProfileScreen() {
           <View style={styles.levelPill}>
             <Star size={14} color={Colors.amber} weight="fill" />
             <Text style={styles.levelPillText}>
-              Seviye {stats.level} · {levelTitle}
+              {t('account.profile.levelPill', { level: stats.level, title: levelTitle })}
             </Text>
           </View>
         </View>
 
         {/* İstatistik üçlüsü */}
         <View style={styles.statsRow}>
-          <StatBox value={stats.currentStreak} label="Güncel seri" color={Colors.secondary} />
-          <StatBox value={stats.totalCompletedSessions} label="Pratik" color={Colors.primary} />
-          <StatBox value={averageScore} label="Ort. skor" color={Colors.success} />
+          <StatBox value={stats.currentStreak} label={t('account.profile.stats.streak')} color={Colors.secondary} />
+          <StatBox value={stats.totalCompletedSessions} label={t('account.profile.stats.practices')} color={Colors.primary} />
+          <StatBox value={averageScore} label={t('account.profile.stats.averageScore')} color={Colors.success} />
         </View>
 
         {/* Rozetler */}
-        <Text style={styles.sectionTitle}>Rozetlerin</Text>
+        <Text style={styles.sectionTitle}>{t('account.profile.badgesTitle')}</Text>
         <View style={styles.badgeRow}>
           {BADGES.map((badge) => {
             const earned = stats.unlockedBadges.includes(badge.id);
@@ -165,7 +186,7 @@ export default function ProfileScreen() {
                   style={[styles.badgeLabel, !earned && styles.badgeLabelLocked]}
                   numberOfLines={2}
                 >
-                  {badge.label}
+                  {t(BADGE_LABEL_KEYS[badge.id])}
                 </Text>
               </View>
             );
@@ -177,7 +198,9 @@ export default function ProfileScreen() {
           onPress={isPremium ? undefined : () => router.push('/(app)/paywall')}
           disabled={isPremium}
           accessibilityRole={isPremium ? 'summary' : 'button'}
-          accessibilityLabel={isPremium ? 'Premium aktif' : "Premium'a geç"}
+          accessibilityLabel={
+            isPremium ? t('account.profile.premium.active') : t('account.profile.premium.upgrade')
+          }
         >
           <LinearGradient
             colors={[Colors.ink, '#2B2F3A']}
@@ -190,10 +213,14 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.flex}>
               <Text style={styles.premiumTitle}>
-                {isPremium ? 'Premium aktif' : "Premium'a geç"}
+                {isPremium
+                  ? t('account.profile.premium.active')
+                  : t('account.profile.premium.upgrade')}
               </Text>
               <Text style={styles.premiumSub}>
-                {isPremium ? premiumSubtitle(subscription) : 'Tüm bağlamların kilidini aç'}
+                {isPremium
+                  ? premiumSubtitle(subscription, t)
+                  : t('account.profile.premium.upgradeSubtitle')}
               </Text>
             </View>
             {!isPremium && <ArrowRight size={18} color="#FFFFFF" weight="bold" />}
@@ -212,7 +239,7 @@ export default function ProfileScreen() {
             ]}
           >
             <UserCircle size={21} color={Colors.textSecondary} />
-            <Text style={styles.settingText}>Hesap bilgileri</Text>
+            <Text style={styles.settingText}>{t('account.profile.settings.account')}</Text>
             <CaretRight size={16} color={Colors.textDisabled} />
           </Pressable>
 
@@ -227,10 +254,27 @@ export default function ProfileScreen() {
             ]}
           >
             <Bell size={21} color={Colors.textSecondary} />
-            <Text style={styles.settingText}>Bildirimler</Text>
+            <Text style={styles.settingText}>{t('account.profile.settings.notifications')}</Text>
             <Text style={styles.settingValue}>
-              {reminderPrefs.enabled ? formatReminderTime(reminderPrefs) : 'Kapalı'}
+              {reminderPrefs.enabled
+                ? formatReminderTime(reminderPrefs)
+                : t('account.profile.settings.off')}
             </Text>
+            <CaretRight size={16} color={Colors.textDisabled} />
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push('/(app)/language')}
+            accessibilityRole="button"
+            style={({ pressed }) => [
+              styles.settingRow,
+              styles.settingRowDivider,
+              pressed && styles.pressed,
+            ]}
+          >
+            <Translate size={21} color={Colors.textSecondary} />
+            <Text style={styles.settingText}>{t('common.language.title')}</Text>
+            <Text style={styles.settingValue}>{t(`common.language.${language}`)}</Text>
             <CaretRight size={16} color={Colors.textDisabled} />
           </Pressable>
 
@@ -246,7 +290,7 @@ export default function ProfileScreen() {
               <SignOut size={21} color={Colors.error} />
             )}
             <Text style={[styles.settingText, { color: Colors.error }]}>
-              Çıkış yap
+              {t('account.profile.settings.logout')}
             </Text>
           </Pressable>
         </View>

@@ -20,6 +20,7 @@ import Purchases, {
 } from 'react-native-purchases';
 
 import { env } from '@/lib/config/env';
+import { t } from '@/lib/i18n';
 
 export type { PurchasesOffering, PurchasesPackage };
 
@@ -106,18 +107,18 @@ export function isPurchaseCancelled(error: unknown): boolean {
 export function toPurchaseErrorMessage(error: unknown): string {
   switch (purchasesErrorCode(error)) {
     case PURCHASES_ERROR_CODE.NETWORK_ERROR:
-      return 'İnternet bağlantını kontrol edip tekrar dene.';
+      return t('account.purchases.errors.network');
     case PURCHASES_ERROR_CODE.PAYMENT_PENDING_ERROR:
-      return 'Ödemen onay bekliyor. Onaylanınca Premium otomatik açılacak.';
+      return t('account.purchases.errors.paymentPending');
     case PURCHASES_ERROR_CODE.PRODUCT_ALREADY_PURCHASED_ERROR:
-      return 'Bu abonelik zaten hesabına tanımlı. "Satın alımı geri yükle"yi dene.';
+      return t('account.purchases.errors.alreadyPurchased');
     case PURCHASES_ERROR_CODE.RECEIPT_ALREADY_IN_USE_ERROR:
-      return 'Bu mağaza aboneliği başka bir CanSayNo hesabına bağlı.';
+      return t('account.purchases.errors.receiptInUse');
     case PURCHASES_ERROR_CODE.PURCHASE_NOT_ALLOWED_ERROR:
-      return 'Bu cihazda satın alma yapılamıyor.';
+      return t('account.purchases.errors.notAllowed');
     case PURCHASES_ERROR_CODE.STORE_PROBLEM_ERROR:
-      return 'Mağazaya ulaşılamadı. Biraz sonra tekrar dene.';
+      return t('account.purchases.errors.storeProblem');
     default:
-      return 'Satın alma tamamlanamadı. Lütfen tekrar dene.';
+      return t('account.purchases.errors.generic');
   }
 }

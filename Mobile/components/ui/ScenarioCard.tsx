@@ -2,17 +2,14 @@
 // zorluk + süre meta'sı; sağda tamamlanmışsa en iyi skor, değilse oynat butonu.
 
 import { Clock, Play } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from './Text';
 
 import { Colors, FontSize, FontWeight, Radius } from '@/constants/theme';
 import type { Context, Scenario } from '@/types/scenario';
-import {
-  getDifficultyColor,
-  getDifficultyLabel,
-  getDifficultyLevel,
-} from '@/types/scenario';
+import { getDifficultyColor, getDifficultyLevel } from '@/types/scenario';
 
 export interface ScenarioCardProps {
   scenario: Scenario;
@@ -31,6 +28,7 @@ function scoreColors(score: number) {
 }
 
 export function ScenarioCard({ scenario, context, onPress }: ScenarioCardProps) {
+  const { t } = useTranslation();
   const level = getDifficultyLevel(scenario.difficulty);
   const sc =
     scenario.isCompleted && scenario.bestScore !== null
@@ -59,12 +57,12 @@ export function ScenarioCard({ scenario, context, onPress }: ScenarioCardProps) 
                 { backgroundColor: Colors[getDifficultyColor(level)] },
               ]}
             />
-            <Text style={styles.levelText}>{getDifficultyLabel(level)}</Text>
+            <Text style={styles.levelText}>{t(`practice.difficulty.${level}`)}</Text>
           </View>
           <View style={styles.duration}>
             <Clock size={13} color={Colors.textMuted} />
             <Text style={styles.durationText}>
-              {scenario.estimatedDurationMinutes} dk
+              {t('practice.minutes', { count: scenario.estimatedDurationMinutes })}
             </Text>
           </View>
         </View>
@@ -77,7 +75,7 @@ export function ScenarioCard({ scenario, context, onPress }: ScenarioCardProps) 
               {scenario.bestScore}
             </Text>
           </View>
-          <Text style={styles.scoreLabel}>en iyi</Text>
+          <Text style={styles.scoreLabel}>{t('practice.list.best')}</Text>
         </View>
       ) : (
         <View style={[styles.circle, { backgroundColor: context.softColor }]}>

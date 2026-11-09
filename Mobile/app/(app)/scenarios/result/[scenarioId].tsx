@@ -18,6 +18,7 @@ import {
   ThumbsUp,
 } from 'phosphor-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
@@ -27,17 +28,16 @@ import { Colors, FontSize, FontWeight, Gradients, Radius, Spacing } from '@/cons
 import { useEvaluateSession } from '@/hooks/queries/useSessions';
 import { useStartPractice } from '@/hooks/useStartPractice';
 import { toEvaluateErrorMessage } from '@/lib/api';
-import { EVALUATION_AXES, EVALUATION_AXIS_LABELS } from '@/lib/constants/evaluation';
-
+import { EVALUATION_AXES, getEvaluationAxisLabel } from '@/lib/constants/evaluation';
 const RING_SIZE = 140;
 const RING_STROKE = 11;
 const RING_RADIUS = 62;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
-function headlineFor(score: number): string {
-  if (score >= 80) return 'Harika iş çıkardın! 🎉';
-  if (score >= 60) return 'İyi gidiyorsun! 💪';
-  return 'Güzel bir başlangıç! 🌱';
+function headlineKeyFor(score: number) {
+  if (score >= 80) return 'practice.result.headlineGreat' as const;
+  if (score >= 60) return 'practice.result.headlineGood' as const;
+  return 'practice.result.headlineStart' as const;
 }
 
 function axisColor(value: number): string {
@@ -47,6 +47,7 @@ function axisColor(value: number): string {
 }
 
 export default function ResultScreen() {
+  const { t } = useTranslation();
   const { scenarioId, sessionId } = useLocalSearchParams<{
     scenarioId: string;
     sessionId?: string;
@@ -64,9 +65,9 @@ export default function ResultScreen() {
   if (!sessionId) {
     return (
       <View style={[styles.root, styles.centered, { paddingTop: insets.top }]}>
-        <Text style={styles.loadingTitle}>Pratik bulunamadı</Text>
+        <Text style={styles.loadingTitle}>{t('practice.result.notFound')}</Text>
         <Button variant="primary" onPress={backToScenarios}>
-          Senaryolara dön
+          {t('practice.result.backToScenarios')}
         </Button>
       </View>
     );
@@ -76,10 +77,8 @@ export default function ResultScreen() {
     return (
       <View style={[styles.root, styles.centered, { paddingTop: insets.top }]}>
         <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingTitle}>Değerlendirmen hazırlanıyor</Text>
-        <Text style={styles.loadingText}>
-          Cevaplarını beş açıdan inceliyoruz, birkaç saniye sürebilir.
-        </Text>
+        <Text style={styles.loadingTitle}>{t('practice.result.loadingTitle')}</Text>
+        <Text style={styles.loadingText}>{t('practice.result.loadingText')}</Text>
       </View>
     );
   }
@@ -97,7 +96,7 @@ export default function ResultScreen() {
         </View>
         <View style={[styles.errorFooter, { paddingBottom: insets.bottom + Spacing.md }]}>
           <Button variant="outline" size="lg" fullWidth onPress={backToScenarios}>
-            Senaryolara dön
+            {t('practice.result.backToScenarios')}
           </Button>
         </View>
       </View>
@@ -125,7 +124,7 @@ export default function ResultScreen() {
           <View style={[styles.confetti, styles.confettiB]} />
           <View style={[styles.confetti, styles.confettiC]} />
 
-          <Text style={styles.heroLabel}>PRATİK TAMAMLANDI</Text>
+          <Text style={styles.heroLabel}>{t('practice.result.label')}</Text>
 
           <View style={styles.ring}>
             <Svg
@@ -155,20 +154,24 @@ export default function ResultScreen() {
             </Svg>
             <View style={styles.ringCenter}>
               <Text style={styles.score}>{evaluation.totalScore}</Text>
-              <Text style={styles.scoreUnit}>/ 100 puan</Text>
+              <Text style={styles.scoreUnit}>{t('practice.result.scoreUnit')}</Text>
             </View>
           </View>
 
-          <Text style={styles.headline}>{headlineFor(evaluation.totalScore)}</Text>
+          <Text style={styles.headline}>{t(headlineKeyFor(evaluation.totalScore))}</Text>
 
           <View style={styles.pillRow}>
             <View style={styles.pill}>
               <Star size={14} color="#FFC93C" weight="fill" />
-              <Text style={styles.pillText}>+{evaluation.xpEarned} XP</Text>
+              <Text style={styles.pillText}>
+                {t('practice.result.xp', { xp: evaluation.xpEarned })}
+              </Text>
             </View>
             <View style={styles.pill}>
               <Fire size={14} color={Colors.secondary} weight="fill" />
-              <Text style={styles.pillText}>Seri: {evaluation.streakAfter} gün</Text>
+              <Text style={styles.pillText}>
+                {t('practice.result.streak', { count: evaluation.streakAfter })}
+              </Text>
             </View>
           </View>
         </LinearGradient>
@@ -176,7 +179,7 @@ export default function ResultScreen() {
         <View style={[styles.body, { paddingBottom: insets.bottom + 24 }]}>
           {/* Beceri kırılımı */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Beceri kırılımı</Text>
+            <Text style={styles.cardTitle}>{t('practice.result.skills')}</Text>
             <View style={styles.axisList}>
               {EVALUATION_AXES.map((axis) => {
                 const value = evaluation.scores[axis] ?? 0;
@@ -184,7 +187,7 @@ export default function ResultScreen() {
                   <View key={axis}>
                     <View style={styles.axisHeader}>
                       <Text style={styles.axisLabel}>
-                        {EVALUATION_AXIS_LABELS[axis]}
+                        {getEvaluationAxisLabel(axis)}
                       </Text>
                       <Text style={styles.axisValue}>{value}</Text>
                     </View>
@@ -208,7 +211,7 @@ export default function ResultScreen() {
               <View style={styles.listHeader}>
                 <ThumbsUp size={17} color={Colors.success} weight="fill" />
                 <Text style={[styles.listTitle, { color: '#0E7A52' }]}>
-                  İyi yaptıkların
+                  {t('practice.result.strengths')}
                 </Text>
               </View>
               {evaluation.strengths.map((item) => (
@@ -226,7 +229,7 @@ export default function ResultScreen() {
               <View style={styles.listHeader}>
                 <ArrowUpRight size={17} color={Colors.secondary} weight="fill" />
                 <Text style={[styles.listTitle, { color: '#B85427' }]}>
-                  Bir dahakine dene
+                  {t('practice.result.improvements')}
                 </Text>
               </View>
               {evaluation.improvements.map((item) => (
@@ -242,7 +245,7 @@ export default function ResultScreen() {
           <View style={styles.coachCard}>
             <View style={styles.coachHeader}>
               <BrandMark size={26} />
-              <Text style={styles.coachTitle}>Koç notu</Text>
+              <Text style={styles.coachTitle}>{t('practice.result.coachNote')}</Text>
             </View>
             <Text style={styles.coachText}>{evaluation.coachNote}</Text>
           </View>
@@ -252,7 +255,7 @@ export default function ResultScreen() {
             <View style={styles.coachCard}>
               <View style={styles.coachHeader}>
                 <ChatCircleText size={22} color={Colors.primary} weight="fill" />
-                <Text style={styles.coachTitle}>Şöyle de diyebilirdin</Text>
+                <Text style={styles.coachTitle}>{t('practice.result.idealResponse')}</Text>
               </View>
               <Text style={styles.coachText}>“{evaluation.idealResponseExample}”</Text>
             </View>
@@ -268,12 +271,12 @@ export default function ResultScreen() {
                 loading={isStarting}
                 onPress={retry}
               >
-                Tekrar dene
+                {t('common.retry')}
               </Button>
             </View>
             <View style={styles.ctaPrimary}>
               <Button variant="primary" size="md" fullWidth onPress={backToScenarios}>
-                Senaryolara dön
+                {t('practice.result.backToScenarios')}
               </Button>
             </View>
           </View>

@@ -4,6 +4,8 @@
 
 import type { UseMutationOptions, UseQueryOptions } from '@tanstack/react-query';
 
+import { t } from '@/lib/i18n';
+
 import { apiClient, ApiError, parseApiErrorBody } from './client';
 import type { ApiResponse } from './client';
 
@@ -17,7 +19,7 @@ function assertSuccess(response: {
   }
   const { message, errors, code } = parseApiErrorBody(
     response.data,
-    'İstek başarısız oldu',
+    t('auth.api.requestFailed'),
   );
   throw new ApiError(message, response.status, errors, code);
 }
@@ -31,7 +33,7 @@ export async function apiGet<T>(
   const response = await apiClient.get<ApiResponse<T>>(url, { params });
   assertSuccess(response);
   if (response.data.data === undefined) {
-    throw new ApiError('Sunucu beklenen veriyi döndürmedi', response.status);
+    throw new ApiError(t('auth.api.unexpectedResponse'), response.status);
   }
   return response.data.data;
 }
@@ -49,7 +51,7 @@ export async function apiPost<TResponse, TBody = unknown>(
   );
   assertSuccess(response);
   if (response.data.data === undefined) {
-    throw new ApiError('Sunucu beklenen veriyi döndürmedi', response.status);
+    throw new ApiError(t('auth.api.unexpectedResponse'), response.status);
   }
   return response.data.data;
 }

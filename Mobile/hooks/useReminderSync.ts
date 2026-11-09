@@ -4,6 +4,7 @@
 // değişmiş olabilir). (app) grubundan çıkınca (çıkış) hepsi iptal edilir.
 
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppState } from 'react-native';
 
 import { useMyStats } from '@/hooks/queries/useStats';
@@ -15,6 +16,9 @@ export function useReminderSync() {
   const isLoaded = useReminderStore((state) => state.isLoaded);
   const load = useReminderStore((state) => state.load);
   const { data: stats } = useMyStats();
+  // Bildirim metinleri planlama anındaki dilde; dil değişince plan yeni dilde kurulur.
+  const { i18n } = useTranslation();
+  const language = i18n.language;
 
   const currentStreak = stats?.currentStreak;
   const practicedToday = stats?.practicedToday;
@@ -39,7 +43,8 @@ export function useReminderSync() {
       }
     });
     return () => subscription.remove();
-  }, [isLoaded, prefs, currentStreak, practicedToday]);
+    // language: effect içinde okunmuyor ama dil değişince plan yeni dilde kurulmalı.
+  }, [isLoaded, prefs, currentStreak, practicedToday, language]);
 
   // Çıkışta (app) grubu kalkar: önceki hesabın hatırlatmaları kalmasın.
   useEffect(() => {

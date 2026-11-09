@@ -2,6 +2,7 @@
 // Üstte marka, ortada "NO" balonu + başlık, altta tek net aksiyon.
 
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +10,7 @@ import { BrandMark, Button, NoBubble, Text } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 
 export default function WelcomeScreen() {
+  const { t } = useTranslation();
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -19,11 +21,8 @@ export default function WelcomeScreen() {
         <View style={styles.hero}>
           <NoBubble />
           <View style={styles.textBlock}>
-            <Text style={styles.title}>Hayır demek{'\n'}bir beceridir.</Text>
-            <Text style={styles.subtitle}>
-              Güvenli senaryolarda pratik yap, gerçek hayatta sınırını rahatça
-              koru.
-            </Text>
+            <Text style={styles.title}>{t('auth.welcome.title')}</Text>
+            <Text style={styles.subtitle}>{t('auth.welcome.subtitle')}</Text>
           </View>
         </View>
 
@@ -34,7 +33,7 @@ export default function WelcomeScreen() {
             fullWidth
             onPress={() => router.push('/register')}
           >
-            Hadi başlayalım
+            {t('auth.welcome.start')}
           </Button>
 
           <Pressable
@@ -42,7 +41,7 @@ export default function WelcomeScreen() {
             style={styles.loginLink}
             accessibilityRole="link"
           >
-            <Text style={styles.loginLinkText}>Zaten hesabım var</Text>
+            <Text style={styles.loginLinkText}>{t('auth.welcome.haveAccount')}</Text>
           </Pressable>
         </View>
       </View>

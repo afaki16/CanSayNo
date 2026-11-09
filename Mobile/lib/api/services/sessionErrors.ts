@@ -1,17 +1,13 @@
-// Pratik oturumu isteklerinin kullanıcıya gösterilecek Türkçe karşılıkları.
+// Pratik oturumu isteklerinin kullanıcıya gösterilecek karşılıkları (çağrı anındaki dilde).
 // Premium ve günlük limit hataları ayrı "kind" olarak döner — ekranlar bunlara
 // özel aksiyon gösterir (paywall'a yönlendirme gibi).
 
 import { API_ERROR_CODE, ApiError } from '../client';
 
-const NETWORK = 'Bağlantı kurulamadı, internet bağlantını kontrol et';
-const GENERIC = 'Pratik başlatılamadı, lütfen tekrar dene';
-const SESSION = 'Oturumun sona ermiş, tekrar giriş yap';
-const DAILY_LIMIT =
-  'Bugünkü ücretsiz pratik hakkını kullandın. Yarın tekrar gel ya da premium ile her gün daha çok pratik yap.';
+import { t } from '@/lib/i18n';
 
-// Kullanıcı başına dakikalık istek sınırı (backend "ai" rate limit politikası; gövdesi kodsuz).
-const TOO_FAST = 'Çok hızlı gidiyorsun. Birkaç saniye bekleyip tekrar dene.';
+// Kullanıcı başına dakikalık istek sınırı (backend "ai" rate limit politikası; gövdesi kodsuz)
+// → common.errors.tooFast.
 
 export type StartSessionErrorKind =
   | 'premiumRequired'
@@ -26,7 +22,7 @@ export interface StartSessionError {
 
 export function toStartSessionError(error: unknown): StartSessionError {
   if (!(error instanceof ApiError)) {
-    return { kind: 'other', message: GENERIC };
+    return { kind: 'other', message: t('practice.errors.startFailed') };
   }
   if (error.code === API_ERROR_CODE.PREMIUM_REQUIRED || error.status === 403) {
     return { kind: 'premiumRequired', message: error.message };
@@ -36,32 +32,32 @@ export function toStartSessionError(error: unknown): StartSessionError {
     return { kind: 'fairUseLimitReached', message: error.message };
   }
   if (error.code === API_ERROR_CODE.DAILY_LIMIT_REACHED || error.status === 429) {
-    return { kind: 'dailyLimitReached', message: DAILY_LIMIT };
+    return { kind: 'dailyLimitReached', message: t('practice.errors.dailyLimit') };
   }
   if (error.isNetworkError) {
-    return { kind: 'other', message: NETWORK };
+    return { kind: 'other', message: t('common.errors.network') };
   }
   if (error.status === 401) {
-    return { kind: 'other', message: SESSION };
+    return { kind: 'other', message: t('common.errors.session') };
   }
   if (error.code === API_ERROR_CODE.NOT_FOUND || error.status === 404) {
-    return { kind: 'other', message: 'Senaryo bulunamadı' };
+    return { kind: 'other', message: t('practice.errors.scenarioNotFound') };
   }
-  return { kind: 'other', message: GENERIC };
+  return { kind: 'other', message: t('practice.errors.startFailed') };
 }
 
 // Pratikte mesaj gönderme hataları. Hepsinde raunt ilerlemez; kullanıcı mesajı
-// input'a geri konur. Backend mesajları Türkçe ve kullanıcıya yönelik — güvendiğimiz
-// kodlarda olduğu gibi gösterilir.
+// input'a geri konur. Backend mesajları kullanıcıya yönelik (Accept-Language'a göre) —
+// güvendiğimiz kodlarda olduğu gibi gösterilir.
 export function toSendMessageErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) {
-    return 'Mesaj gönderilemedi, lütfen tekrar dene';
+    return t('practice.errors.sendFailed');
   }
   if (error.isNetworkError) {
-    return NETWORK;
+    return t('common.errors.network');
   }
   if (error.status === 401) {
-    return SESSION;
+    return t('common.errors.session');
   }
   const userFacing: readonly string[] = [
     API_ERROR_CODE.AI_UNAVAILABLE,
@@ -77,24 +73,24 @@ export function toSendMessageErrorMessage(error: unknown): string {
     return error.errors.join('\n');
   }
   if (error.status === 429) {
-    return TOO_FAST;
+    return t('common.errors.tooFast');
   }
-  return 'Mesaj gönderilemedi, lütfen tekrar dene';
+  return t('practice.errors.sendFailed');
 }
 
 // Sonuç ekranının değerlendirme hataları.
 export function toEvaluateErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) {
-    return 'Değerlendirme yüklenemedi';
+    return t('practice.errors.evaluateFailed');
   }
   if (error.isNetworkError) {
-    return NETWORK;
+    return t('common.errors.network');
   }
   if (error.status === 401) {
-    return SESSION;
+    return t('common.errors.session');
   }
   if (error.status === 404) {
-    return 'Pratik bulunamadı';
+    return t('practice.errors.sessionNotFound');
   }
   if (
     error.code === API_ERROR_CODE.AI_UNAVAILABLE ||
@@ -104,24 +100,24 @@ export function toEvaluateErrorMessage(error: unknown): string {
     return error.message;
   }
   if (error.status === 429) {
-    return TOO_FAST;
+    return t('common.errors.tooFast');
   }
-  return 'Değerlendirme yüklenemedi';
+  return t('practice.errors.evaluateFailed');
 }
 
 // Liste/detay okuma hataları (Son pratikler, oturum detayı).
 export function toSessionErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) {
-    return 'Pratikler yüklenemedi';
+    return t('practice.errors.sessionsFailed');
   }
   if (error.isNetworkError) {
-    return NETWORK;
+    return t('common.errors.network');
   }
   if (error.status === 401) {
-    return SESSION;
+    return t('common.errors.session');
   }
   if (error.status === 404) {
-    return 'Pratik bulunamadı';
+    return t('practice.errors.sessionNotFound');
   }
-  return 'Pratikler yüklenemedi';
+  return t('practice.errors.sessionsFailed');
 }

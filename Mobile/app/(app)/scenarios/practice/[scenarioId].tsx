@@ -12,6 +12,7 @@ import { usePreventRemove } from '@react-navigation/native';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { PaperPlaneTilt, User, X } from 'phosphor-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   FlatList,
@@ -49,7 +50,7 @@ import {
   toSendMessageErrorMessage,
   toSessionErrorMessage,
 } from '@/lib/api';
-import { contexts } from '@/lib/mockData';
+import { useContexts } from '@/lib/mockData';
 import { getInitials } from '@/lib/utils/initials';
 import type { ApiSessionMessage } from '@/types/api/session';
 
@@ -63,6 +64,8 @@ const MAX_MESSAGE_LENGTH = 500;
 const PENDING_MESSAGE_ID = 'pending-user-message';
 
 export default function PracticeScreen() {
+  const { t } = useTranslation();
+  const contexts = useContexts();
   const { scenarioId, sessionId } = useLocalSearchParams<{
     scenarioId: string;
     sessionId?: string;
@@ -142,12 +145,12 @@ export default function PracticeScreen() {
   const navigation = useNavigation();
   usePreventRemove(!!session && !isCompleted, ({ data }) => {
     Alert.alert(
-      'Pratiği bırak',
-      'Pratiği bırakmak istediğine emin misin? İlerlemen kaybolacak.',
+      t('practice.chat.leaveTitle'),
+      t('practice.chat.leaveMessage'),
       [
-        { text: 'Vazgeç', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Çık',
+          text: t('practice.chat.leaveConfirm'),
           style: 'destructive',
           onPress: () => navigation.dispatch(data.action),
         },
@@ -172,12 +175,10 @@ export default function PracticeScreen() {
           <View style={[styles.fallbackIcon, { backgroundColor: contextSoftColor }]}>
             <User size={48} color={contextColor} weight="fill" />
           </View>
-          <Text style={styles.fallbackTitle}>Pratik başlatılamadı</Text>
-          <Text style={styles.fallbackText}>
-            Senaryo sayfasına dönüp pratiği yeniden başlat.
-          </Text>
+          <Text style={styles.fallbackTitle}>{t('practice.chat.startFailedTitle')}</Text>
+          <Text style={styles.fallbackText}>{t('practice.chat.startFailedText')}</Text>
           <Button variant="primary" onPress={() => router.back()}>
-            Geri dön
+            {t('practice.detail.goBack')}
           </Button>
         </View>
       </SafeAreaView>
@@ -266,7 +267,7 @@ export default function PracticeScreen() {
           icon={X}
           size={38}
           onPress={confirmExit}
-          accessibilityLabel="Pratiği bırak"
+          accessibilityLabel={t('practice.chat.leaveTitle')}
         />
 
         <View style={styles.headerCenter}>
@@ -322,11 +323,9 @@ export default function PracticeScreen() {
         {/* Alt alan: tamamlandıysa sonuca geçiş, değilse input */}
         {isCompleted ? (
           <View style={styles.completedBar}>
-            <Text style={styles.completedText}>
-              🎉 Pratik tamamlandı! Bakalım nasıl geçti.
-            </Text>
+            <Text style={styles.completedText}>{t('practice.chat.completed')}</Text>
             <Button variant="primary" size="lg" fullWidth onPress={goToResult}>
-              Sonucunu gör
+              {t('practice.chat.seeResult')}
             </Button>
           </View>
         ) : (
@@ -344,7 +343,7 @@ export default function PracticeScreen() {
                   setInputText(text);
                   if (sendError) setSendError(null);
                 }}
-                placeholder="Cevabını yaz..."
+                placeholder={t('practice.chat.placeholder')}
                 placeholderTextColor={Colors.textMuted}
                 multiline
                 editable={!isAITyping}
@@ -354,7 +353,7 @@ export default function PracticeScreen() {
                 onPress={handleSend}
                 disabled={sendDisabled}
                 accessibilityRole="button"
-                accessibilityLabel="Gönder"
+                accessibilityLabel={t('practice.chat.send')}
                 accessibilityState={{ disabled: sendDisabled }}
                 style={[
                   styles.sendButton,

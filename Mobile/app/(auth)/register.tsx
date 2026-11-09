@@ -15,6 +15,7 @@ import {
 } from 'phosphor-react-native';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Pressable,
   ScrollView,
@@ -34,19 +35,26 @@ import {
 } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { t as translate } from '@/lib/i18n';
 import { openLegalPage } from '@/lib/utils/openLegalPage';
 import { newPasswordSchema } from '@/lib/validation/password';
 
+// Mesajlar fonksiyon: doğrulama anındaki dil kullanılır.
 const registerSchema = z.object({
-  firstName: z.string().min(2, 'Ad en az 2 karakter olmalı'),
-  lastName: z.string().min(2, 'Soyad en az 2 karakter olmalı'),
-  email: z.string().email('Geçerli bir e-posta girin'),
+  firstName: z
+    .string()
+    .min(2, { error: () => translate('auth.validation.firstNameMin') }),
+  lastName: z
+    .string()
+    .min(2, { error: () => translate('auth.validation.lastNameMin') }),
+  email: z.string().email({ error: () => translate('auth.validation.email') }),
   password: newPasswordSchema,
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
+  const { t } = useTranslation();
   const { register, isRegistering, registerError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -101,14 +109,14 @@ export default function RegisterScreen() {
               icon={ArrowLeft}
               bordered
               onPress={() => router.back()}
-              accessibilityLabel="Geri"
+              accessibilityLabel={t('common.back')}
             />
           </View>
 
           {/* Başlık */}
           <View style={styles.header}>
-            <Text style={styles.title}>Hesabını oluştur</Text>
-            <Text style={styles.subtitle}>Bugün ilk “hayır”ını söyle.</Text>
+            <Text style={styles.title}>{t('auth.register.title')}</Text>
+            <Text style={styles.subtitle}>{t('auth.register.subtitle')}</Text>
           </View>
 
           {/* Form */}
@@ -116,16 +124,16 @@ export default function RegisterScreen() {
             <FormField<RegisterForm>
               name="firstName"
               control={control}
-              label="Ad"
-              placeholder="Adın"
+              label={t('auth.fields.firstName')}
+              placeholder={t('auth.fields.firstNamePlaceholder')}
               autoCapitalize="words"
               leftIcon={<User size={19} color={Colors.textMuted} />}
             />
             <FormField<RegisterForm>
               name="lastName"
               control={control}
-              label="Soyad"
-              placeholder="Soyadın"
+              label={t('auth.fields.lastName')}
+              placeholder={t('auth.fields.lastNamePlaceholder')}
               autoCapitalize="words"
               leftIcon={<User size={19} color={Colors.textMuted} />}
             />
@@ -133,8 +141,8 @@ export default function RegisterScreen() {
             <FormField<RegisterForm>
               name="email"
               control={control}
-              label="E-posta"
-              placeholder="ornek@email.com"
+              label={t('auth.fields.email')}
+              placeholder={t('auth.fields.emailPlaceholder')}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -144,8 +152,8 @@ export default function RegisterScreen() {
             <FormField<RegisterForm>
               name="password"
               control={control}
-              label="Şifre"
-              placeholder="En az 8 karakter"
+              label={t('auth.fields.password')}
+              placeholder={t('auth.fields.newPasswordPlaceholder')}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
               leftIcon={<LockSimple size={19} color={Colors.textMuted} />}
@@ -155,7 +163,9 @@ export default function RegisterScreen() {
                   hitSlop={8}
                   accessibilityRole="button"
                   accessibilityLabel={
-                    showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'
+                    showPassword
+                      ? t('auth.fields.hidePassword')
+                      : t('auth.fields.showPassword')
                   }
                 >
                   {showPassword ? (
@@ -180,28 +190,29 @@ export default function RegisterScreen() {
             loading={isRegistering}
             onPress={handleSubmit(onSubmit)}
           >
-            Hesap oluştur
+            {t('auth.register.submit')}
           </Button>
 
           <Text style={styles.terms}>
-            Devam ederek{' '}
-            <Text
-              style={styles.termsAccent}
-              onPress={() => openLegalPage('terms')}
-              accessibilityRole="link"
-            >
-              Kullanım Şartları
-            </Text>{' '}
-            ve{' '}
-            <Text
-              style={styles.termsAccent}
-              onPress={() => openLegalPage('privacy')}
-              accessibilityRole="link"
-            >
-              Gizlilik Politikası
-            </Text>
-            &apos;nı
-            kabul edersin.
+            <Trans
+              i18nKey="auth.register.terms"
+              components={{
+                terms: (
+                  <Text
+                    style={styles.termsAccent}
+                    onPress={() => openLegalPage('terms')}
+                    accessibilityRole="link"
+                  />
+                ),
+                privacy: (
+                  <Text
+                    style={styles.termsAccent}
+                    onPress={() => openLegalPage('privacy')}
+                    accessibilityRole="link"
+                  />
+                ),
+              }}
+            />
           </Text>
 
           {/* Alt link */}
@@ -211,8 +222,10 @@ export default function RegisterScreen() {
             accessibilityRole="link"
           >
             <Text style={styles.bottomLinkText}>
-              Zaten hesabın var mı?{' '}
-              <Text style={styles.bottomLinkAccent}>Giriş yap</Text>
+              {t('auth.register.haveAccount')}{' '}
+              <Text style={styles.bottomLinkAccent}>
+                {t('auth.register.signIn')}
+              </Text>
             </Text>
           </Pressable>
         </ScrollView>

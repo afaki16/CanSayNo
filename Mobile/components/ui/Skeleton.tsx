@@ -4,6 +4,7 @@
 // Nabız animasyonu Reanimated ile UI thread'de döner (JS bridge trafiği yok).
 
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { DimensionValue, ViewStyle } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -30,6 +31,7 @@ export function Skeleton({
   borderRadius = Radius.sm,
   style,
 }: SkeletonProps) {
+  const { t } = useTranslation();
   const opacity = useSharedValue(PULSE_MIN_OPACITY);
 
   useEffect(() => {
@@ -46,7 +48,7 @@ export function Skeleton({
   return (
     <Animated.View
       accessibilityRole="progressbar"
-      accessibilityLabel="Yükleniyor"
+      accessibilityLabel={t('common.loading')}
       style={[
         { width, height, borderRadius, backgroundColor: Colors.border },
         style,

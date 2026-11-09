@@ -16,8 +16,9 @@ import {
   Trash,
   User,
 } from 'phosphor-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Pressable,
@@ -47,24 +48,31 @@ import {
   useExportData,
 } from '@/hooks/useAccountData';
 import { toAccountErrorMessage, toProfileErrorMessage } from '@/lib/api';
+import { t } from '@/lib/i18n';
 
 // Backend: ad/soyad zorunlu, en fazla 50 karakter. Kayıttaki 2 karakter alt sınırıyla aynı.
-const accountSchema = z.object({
-  firstName: z
-    .string()
-    .trim()
-    .min(2, 'Ad en az 2 karakter olmalı')
-    .max(50, 'Ad en fazla 50 karakter olabilir'),
-  lastName: z
-    .string()
-    .trim()
-    .min(2, 'Soyad en az 2 karakter olmalı')
-    .max(50, 'Soyad en fazla 50 karakter olabilir'),
-});
+// Mesajlar şemanın kurulduğu andaki dilde (dil değişince yeniden kurulur).
+const createAccountSchema = () =>
+  z.object({
+    firstName: z
+      .string()
+      .trim()
+      .min(2, t('account.details.validation.firstNameMin'))
+      .max(50, t('account.details.validation.firstNameMax')),
+    lastName: z
+      .string()
+      .trim()
+      .min(2, t('account.details.validation.lastNameMin'))
+      .max(50, t('account.details.validation.lastNameMax')),
+  });
 
-type AccountForm = z.infer<typeof accountSchema>;
+type AccountForm = z.infer<ReturnType<typeof createAccountSchema>>;
 
 export default function AccountScreen() {
+  const { t, i18n } = useTranslation();
+  // Dil değişince doğrulama mesajları yeni dilde kurulsun.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const accountSchema = useMemo(() => createAccountSchema(), [i18n.language]);
   const { data: me, isPending, isError, error, refetch, isFetching } = useMe();
   const updateProfile = useUpdateProfile();
   const exportData = useExportData();
@@ -96,8 +104,8 @@ export default function AccountScreen() {
         lastName: data.lastName,
         phoneNumber: me.phoneNumber,
       });
-      Alert.alert('Kaydedildi', 'Bilgilerin güncellendi.', [
-        { text: 'Tamam', onPress: () => router.back() },
+      Alert.alert(t('account.details.savedTitle'), t('account.details.savedBody'), [
+        { text: t('common.ok'), onPress: () => router.back() },
       ]);
     } catch {
       // Hata mesajı formun altında gösteriliyor.
@@ -109,9 +117,9 @@ export default function AccountScreen() {
       await exportData.mutateAsync();
     } catch (e) {
       Alert.alert(
-        'Veriler indirilemedi',
+        t('account.details.exportFailedTitle'),
         e instanceof SharingUnavailableError
-          ? 'Bu cihazda dosya paylaşımı kullanılamıyor.'
+          ? t('account.details.sharingUnavailable')
           : toAccountErrorMessage(e),
       );
     }
@@ -121,7 +129,7 @@ export default function AccountScreen() {
     try {
       await deleteAccount.mutateAsync(deletePassword);
       // Oturum temizlendi; route guard karşılama ekranına götürüyor.
-      Alert.alert('Hesabın silindi', 'Hesabın ve tüm verilerin kalıcı olarak silindi.');
+      Alert.alert(t('account.details.deletedTitle'), t('account.details.deletedBody'));
     } catch {
       // Hata mesajı şifre alanının altında gösteriliyor.
     }
@@ -133,7 +141,7 @@ export default function AccountScreen() {
         icon={ArrowLeft}
         bordered
         onPress={() => router.back()}
-        accessibilityLabel="Geri"
+        accessibilityLabel={t('common.back')}
       />
     </View>
   );
@@ -165,8 +173,8 @@ export default function AccountScreen() {
           {header}
 
           <View style={styles.header}>
-            <Text style={styles.title}>Hesap bilgileri</Text>
-            <Text style={styles.subtitle}>Adın ve soyadın uygulamada böyle görünür.</Text>
+            <Text style={styles.title}>{t('account.details.title')}</Text>
+            <Text style={styles.subtitle}>{t('account.details.subtitle')}</Text>
           </View>
 
           {isPending ? (
@@ -180,8 +188,8 @@ export default function AccountScreen() {
               <FormField<AccountForm>
                 name="firstName"
                 control={control}
-                label="Ad"
-                placeholder="Adın"
+                label={t('account.details.firstNameLabel')}
+                placeholder={t('account.details.firstNamePlaceholder')}
                 autoCapitalize="words"
                 autoComplete="given-name"
                 maxLength={50}
@@ -190,8 +198,8 @@ export default function AccountScreen() {
               <FormField<AccountForm>
                 name="lastName"
                 control={control}
-                label="Soyad"
-                placeholder="Soyadın"
+                label={t('account.details.lastNameLabel')}
+                placeholder={t('account.details.lastNamePlaceholder')}
                 autoCapitalize="words"
                 autoComplete="family-name"
                 maxLength={50}
@@ -199,7 +207,7 @@ export default function AccountScreen() {
               />
               <View>
                 <Input
-                  label="E-posta"
+                  label={t('account.details.emailLabel')}
                   value={me?.email ?? ''}
                   editable={false}
                   leftIcon={<EnvelopeSimple size={19} color={Colors.textMuted} />}
@@ -210,7 +218,7 @@ export default function AccountScreen() {
                   accessibilityRole="button"
                   style={styles.hintLink}
                 >
-                  <Text style={styles.hintLinkText}>E-postayı değiştir</Text>
+                  <Text style={styles.hintLinkText}>{t('account.details.changeEmail')}</Text>
                 </Pressable>
               </View>
             </View>
@@ -228,15 +236,14 @@ export default function AccountScreen() {
             loading={updateProfile.isPending}
             onPress={handleSubmit(onSubmit)}
           >
-            Kaydet
+            {t('common.save')}
           </Button>
 
           {/* Verilerin (KVKK) */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Verilerin</Text>
+            <Text style={styles.sectionTitle}>{t('account.details.dataTitle')}</Text>
             <Text style={styles.sectionText}>
-              Pratiklerin, değerlendirmelerin, istatistiklerin ve profil bilgilerin tek bir
-              JSON dosyası olarak.
+              {t('account.details.dataText')}
             </Text>
             <Button
               variant="outline"
@@ -246,13 +253,13 @@ export default function AccountScreen() {
               onPress={onExport}
               leftIcon={<DownloadSimple size={18} color={Colors.text} />}
             >
-              Verilerimi indir
+              {t('account.details.exportButton')}
             </Button>
           </View>
 
           {/* Hesabı sil — iki adımlı */}
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, styles.dangerTitle]}>Hesabı sil</Text>
+            <Text style={[styles.sectionTitle, styles.dangerTitle]}>{t('account.details.deleteTitle')}</Text>
             {!deleteOpen ? (
               <Button
                 variant="ghost"
@@ -261,26 +268,24 @@ export default function AccountScreen() {
                 onPress={() => setDeleteOpen(true)}
                 leftIcon={<Trash size={18} color={Colors.error} />}
               >
-                <Text style={styles.dangerLink}>Hesabımı sil</Text>
+                <Text style={styles.dangerLink}>{t('account.details.deleteButton')}</Text>
               </Button>
             ) : (
               <View style={styles.dangerBox}>
                 <Text style={styles.dangerText}>
-                  Hesabın ve tüm verilerin (pratikler, değerlendirmeler, istatistikler)
-                  kalıcı olarak silinir. Bu işlem geri alınamaz.
+                  {t('account.details.deleteWarning')}
                 </Text>
                 <Text style={styles.dangerText}>
-                  Aktif bir aboneliğin varsa App Store ya da Google Play üzerinden ayrıca
-                  iptal etmelisin; hesabı silmek aboneliği iptal etmez.
+                  {t('account.details.deleteSubscriptionNote')}
                 </Text>
                 <Input
-                  label="Onaylamak için şifreni gir"
+                  label={t('account.details.deletePasswordLabel')}
                   value={deletePassword}
                   onChangeText={(text) => {
                     setDeletePassword(text);
                     if (deleteAccount.isError) deleteAccount.reset();
                   }}
-                  placeholder="Şifren"
+                  placeholder={t('account.details.deletePasswordPlaceholder')}
                   secureTextEntry
                   autoCapitalize="none"
                   leftIcon={<LockSimple size={19} color={Colors.textMuted} />}
@@ -296,7 +301,7 @@ export default function AccountScreen() {
                   loading={deleteAccount.isPending}
                   onPress={onDelete}
                 >
-                  Hesabımı kalıcı olarak sil
+                  {t('account.details.deleteConfirm')}
                 </Button>
                 <Button
                   variant="ghost"
@@ -308,7 +313,7 @@ export default function AccountScreen() {
                     deleteAccount.reset();
                   }}
                 >
-                  Vazgeç
+                  {t('common.cancel')}
                 </Button>
               </View>
             )}

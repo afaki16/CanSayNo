@@ -16,6 +16,7 @@ import {
   X,
 } from 'phosphor-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -23,45 +24,42 @@ import { Button, LegalLinks, Text } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Radius, Spacing } from '@/constants/theme';
 import { useMySubscription } from '@/hooks/queries/useSubscription';
 import { usePremiumPurchase } from '@/hooks/usePremiumPurchase';
+import { currentLocale } from '@/lib/i18n';
 import { toPurchaseErrorMessage, type PurchasesPackage } from '@/lib/purchases/purchases';
 
+// Metinler render anında çözülür: id → account.paywall.benefits.<id>.title/description
 interface Benefit {
+  id: 'contexts' | 'morePractice' | 'feedback' | 'voice';
   icon: Icon;
   color: string;
   bg: string;
-  title: string;
-  description: string;
   soon?: boolean;
 }
 
 const BENEFITS: Benefit[] = [
   {
+    id: 'contexts',
     icon: LockKeyOpen,
     color: Colors.primaryLight,
     bg: 'rgba(45,127,249,0.18)',
-    title: '8 bağlamın tamamı',
-    description: 'Aile, ilişki, okul, komşu, dijital ve daha fazlası',
   },
   {
+    id: 'morePractice',
     icon: InfinityIcon,
     color: '#3DD68C',
     bg: 'rgba(31,169,113,0.18)',
-    title: 'Her gün daha çok pratik',
-    description: 'Günde 30 pratiğe kadar, dilediğin senaryoda',
   },
   {
+    id: 'feedback',
     icon: ChartLineUp,
     color: '#FF8A5B',
     bg: 'rgba(255,112,67,0.18)',
-    title: 'Detaylı geri bildirim',
-    description: 'Beceri kırılımı + kişisel koç notları',
   },
   {
+    id: 'voice',
     icon: Microphone,
     color: '#FFD166',
     bg: 'rgba(247,181,0,0.18)',
-    title: 'Sesli pratik',
-    description: 'Gerçek konuşma temposunda alıştırma',
     soon: true,
   },
 ];
@@ -88,7 +86,7 @@ function twelveMonthsPrice(monthly: PurchasesPackage | null): string | null {
     return null;
   }
   try {
-    return new Intl.NumberFormat('tr-TR', {
+    return new Intl.NumberFormat(currentLocale(), {
       style: 'currency',
       currency: monthly.product.currencyCode,
       maximumFractionDigits: 0,
@@ -99,6 +97,7 @@ function twelveMonthsPrice(monthly: PurchasesPackage | null): string | null {
 }
 
 export default function PaywallScreen() {
+  const { t } = useTranslation();
   const [plan, setPlan] = useState<PlanId>('yearly');
   const { data: subscription } = useMySubscription();
   const {
@@ -130,17 +129,21 @@ export default function PaywallScreen() {
     try {
       const outcome = await purchase(selectedPackage);
       if (outcome === 'premium') {
-        Alert.alert('Premium aktif', 'Tüm bağlamların kilidi açıldı.', [
-          { text: 'Harika', onPress: () => router.back() },
-        ]);
+        Alert.alert(
+          t('account.paywall.alerts.premiumActiveTitle'),
+          t('account.paywall.alerts.premiumActiveBody'),
+          [{ text: t('account.paywall.alerts.great'), onPress: () => router.back() }],
+        );
       } else if (outcome === 'pending') {
-        Alert.alert('Satın alma alındı', 'Premium birkaç dakika içinde hesabında aktif olacak.', [
-          { text: 'Tamam', onPress: () => router.back() },
-        ]);
+        Alert.alert(
+          t('account.paywall.alerts.pendingTitle'),
+          t('account.paywall.alerts.pendingBody'),
+          [{ text: t('common.ok'), onPress: () => router.back() }],
+        );
       }
       // 'cancelled': kullanıcı vazgeçti, ekranda kal.
     } catch (e) {
-      Alert.alert('Satın alma tamamlanamadı', toPurchaseErrorMessage(e));
+      Alert.alert(t('account.paywall.alerts.purchaseFailed'), toPurchaseErrorMessage(e));
     }
   };
 
@@ -148,17 +151,19 @@ export default function PaywallScreen() {
     try {
       const outcome = await restore();
       if (outcome === 'premium') {
-        Alert.alert('Geri yüklendi', 'Premium aboneliğin bu hesapta aktif.', [
-          { text: 'Tamam', onPress: () => router.back() },
-        ]);
+        Alert.alert(
+          t('account.paywall.alerts.restoredTitle'),
+          t('account.paywall.alerts.restoredBody'),
+          [{ text: t('common.ok'), onPress: () => router.back() }],
+        );
       } else {
         Alert.alert(
-          'Aktif abonelik bulunamadı',
-          'Bu mağaza hesabında aktif bir CanSayNo aboneliği görünmüyor.',
+          t('account.paywall.alerts.notFoundTitle'),
+          t('account.paywall.alerts.notFoundBody'),
         );
       }
     } catch (e) {
-      Alert.alert('Geri yüklenemedi', toPurchaseErrorMessage(e));
+      Alert.alert(t('account.paywall.alerts.restoreFailed'), toPurchaseErrorMessage(e));
     }
   };
 
@@ -176,7 +181,7 @@ export default function PaywallScreen() {
             style={styles.closeButton}
             hitSlop={8}
             accessibilityRole="button"
-            accessibilityLabel="Kapat"
+            accessibilityLabel={t('account.paywall.close')}
           >
             <X size={16} color="rgba(255,255,255,0.7)" weight="bold" />
           </Pressable>
@@ -194,8 +199,7 @@ export default function PaywallScreen() {
           </LinearGradient>
           <Text style={styles.title}>CanSayNo Premium</Text>
           <Text style={styles.subtitle}>
-            Her ilişkide sınırını koymayı pratik et. Tek seferlik değil, ömür boyu
-            beceri.
+            {t('account.paywall.subtitle')}
           </Text>
         </View>
 
@@ -204,20 +208,24 @@ export default function PaywallScreen() {
           {BENEFITS.map((benefit) => {
             const BenefitIcon = benefit.icon;
             return (
-              <View key={benefit.title} style={styles.benefitRow}>
+              <View key={benefit.id} style={styles.benefitRow}>
                 <View style={[styles.benefitIcon, { backgroundColor: benefit.bg }]}>
                   <BenefitIcon size={20} color={benefit.color} weight="fill" />
                 </View>
                 <View style={styles.flex}>
                   <View style={styles.benefitTitleRow}>
-                    <Text style={styles.benefitTitle}>{benefit.title}</Text>
+                    <Text style={styles.benefitTitle}>
+                      {t(`account.paywall.benefits.${benefit.id}.title`)}
+                    </Text>
                     {benefit.soon ? (
                       <View style={styles.soonTag}>
-                        <Text style={styles.soonTagText}>YAKINDA</Text>
+                        <Text style={styles.soonTagText}>{t('account.paywall.soon')}</Text>
                       </View>
                     ) : null}
                   </View>
-                  <Text style={styles.benefitDescription}>{benefit.description}</Text>
+                  <Text style={styles.benefitDescription}>
+                    {t(`account.paywall.benefits.${benefit.id}.description`)}
+                  </Text>
                 </View>
               </View>
             );
@@ -226,12 +234,12 @@ export default function PaywallScreen() {
 
         {isPremium ? (
           <View style={styles.premiumBox}>
-            <Text style={styles.premiumTitle}>Premium zaten aktif</Text>
+            <Text style={styles.premiumTitle}>{t('account.paywall.alreadyActiveTitle')}</Text>
             <Text style={styles.premiumText}>
-              Tüm bağlamlar hesabında açık.
+              {t('account.paywall.alreadyActiveText')}
             </Text>
             <Button variant="primary" size="lg" fullWidth onPress={() => router.back()}>
-              Pratiğe dön
+              {t('account.paywall.backToPractice')}
             </Button>
           </View>
         ) : (
@@ -244,17 +252,17 @@ export default function PaywallScreen() {
                 </View>
               ) : !enabled ? (
                 <View style={styles.plansState}>
-                  <Text style={styles.stateText}>Satın alma bu sürümde kapalı.</Text>
+                  <Text style={styles.stateText}>{t('account.paywall.disabled')}</Text>
                 </View>
               ) : offeringError || !hasPlans ? (
                 <View style={styles.plansState}>
-                  <Text style={styles.stateText}>Planlar yüklenemedi.</Text>
+                  <Text style={styles.stateText}>{t('account.paywall.plansFailed')}</Text>
                   <Pressable
                     onPress={() => refetchOffering()}
                     hitSlop={8}
                     accessibilityRole="button"
                   >
-                    <Text style={styles.retryText}>Tekrar dene</Text>
+                    <Text style={styles.retryText}>{t('common.retry')}</Text>
                   </Pressable>
                 </View>
               ) : (
@@ -269,16 +277,18 @@ export default function PaywallScreen() {
                       {discount !== null ? (
                         <View style={styles.planBadge}>
                           <Text style={styles.planBadgeText}>
-                            EN POPÜLER · %{discount} İNDİRİM
+                            {t('account.paywall.popularBadge', { discount })}
                           </Text>
                         </View>
                       ) : null}
                       <View style={styles.planRow}>
                         <View>
-                          <Text style={styles.planName}>Yıllık</Text>
+                          <Text style={styles.planName}>{t('account.paywall.yearly')}</Text>
                           {yearly.product.pricePerMonthString ? (
                             <Text style={styles.planNote}>
-                              {yearly.product.pricePerMonthString} / ay olarak faturalanır
+                              {t('account.paywall.billedMonthly', {
+                                price: yearly.product.pricePerMonthString,
+                              })}
                             </Text>
                           ) : null}
                         </View>
@@ -304,8 +314,8 @@ export default function PaywallScreen() {
                     >
                       <View style={styles.planRow}>
                         <View>
-                          <Text style={styles.planName}>Aylık</Text>
-                          <Text style={styles.planNote}>İstediğin zaman iptal et</Text>
+                          <Text style={styles.planName}>{t('account.paywall.monthly')}</Text>
+                          <Text style={styles.planNote}>{t('account.paywall.cancelAnytime')}</Text>
                         </View>
                         <Text style={styles.planPrice}>{monthly.product.priceString}</Text>
                       </View>
@@ -325,14 +335,13 @@ export default function PaywallScreen() {
                 loading={isPurchasing}
                 onPress={onPurchase}
               >
-                Premium&apos;a geç
+                {t('account.paywall.cta')}
               </Button>
               {isPurchasing ? (
-                <Text style={styles.soonNote}>Satın alma doğrulanıyor…</Text>
+                <Text style={styles.soonNote}>{t('account.paywall.verifying')}</Text>
               ) : null}
               <Text style={styles.footer}>
-                Abonelik, iptal edilmediği sürece dönem sonunda otomatik yenilenir. İptal,
-                mağaza hesabının abonelik ayarlarından yapılır.
+                {t('account.paywall.footer')}
               </Text>
               {enabled ? (
                 <Pressable
@@ -343,7 +352,7 @@ export default function PaywallScreen() {
                   style={styles.restoreButton}
                 >
                   <Text style={styles.restoreText}>
-                    {isRestoring ? 'Geri yükleniyor…' : 'Satın alımı geri yükle'}
+                    {isRestoring ? t('account.paywall.restoring') : t('account.paywall.restore')}
                   </Text>
                 </Pressable>
               ) : null}

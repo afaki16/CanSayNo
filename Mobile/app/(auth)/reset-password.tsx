@@ -14,6 +14,7 @@ import {
 } from 'phosphor-react-native';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Alert,
   Pressable,
@@ -37,16 +38,21 @@ import {
   RESEND_COOLDOWN_SECONDS,
   usePasswordReset,
 } from '@/hooks/usePasswordReset';
+import { t as translate } from '@/lib/i18n';
 import { newPasswordSchema } from '@/lib/validation/password';
 
 const resetSchema = z.object({
-  code: z.string().regex(/^\d{6}$/, 'Kod 6 haneli olmalı'),
+  // Mesaj fonksiyon: doğrulama anındaki dil kullanılır.
+  code: z
+    .string()
+    .regex(/^\d{6}$/, { error: () => translate('auth.validation.codeLength') }),
   newPassword: newPasswordSchema,
 });
 
 type ResetForm = z.infer<typeof resetSchema>;
 
 export default function ResetPasswordScreen() {
+  const { t } = useTranslation();
   const { email = '' } = useLocalSearchParams<{ email?: string }>();
   const {
     sendCode,
@@ -82,7 +88,10 @@ export default function ResetPasswordScreen() {
       await sendCode(email);
       setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch {
-      Alert.alert('Kod gönderilemedi', 'Lütfen biraz sonra tekrar dene.');
+      Alert.alert(
+        t('auth.resetPassword.resendFailedTitle'),
+        t('auth.resetPassword.resendFailedMessage'),
+      );
     }
   };
 
@@ -90,9 +99,14 @@ export default function ResetPasswordScreen() {
     try {
       await resetPassword({ email, ...data });
       Alert.alert(
-        'Şifren güncellendi',
-        'Yeni şifrenle giriş yapabilirsin.',
-        [{ text: 'Giriş yap', onPress: () => router.dismissTo('/(auth)/login') }],
+        t('auth.resetPassword.successTitle'),
+        t('auth.resetPassword.successMessage'),
+        [
+          {
+            text: t('auth.resetPassword.successAction'),
+            onPress: () => router.dismissTo('/(auth)/login'),
+          },
+        ],
         { cancelable: false },
       );
     } catch {
@@ -116,20 +130,21 @@ export default function ResetPasswordScreen() {
               icon={ArrowLeft}
               bordered
               onPress={() => router.back()}
-              accessibilityLabel="Geri"
+              accessibilityLabel={t('common.back')}
             />
           </View>
 
           <View style={styles.header}>
-            <Text style={styles.title}>Kodu gir</Text>
+            <Text style={styles.title}>{t('auth.resetPassword.title')}</Text>
             <Text style={styles.subtitle}>
               {email ? (
-                <>
-                  <Text style={styles.email}>{email}</Text> adresi kayıtlıysa
-                  6 haneli bir kod gönderdik. Kod 10 dakika geçerli.
-                </>
+                <Trans
+                  i18nKey="auth.resetPassword.subtitleWithEmail"
+                  values={{ email }}
+                  components={{ bold: <Text style={styles.email} /> }}
+                />
               ) : (
-                'E-posta adresine 6 haneli bir kod gönderdik. Kod 10 dakika geçerli.'
+                t('auth.resetPassword.subtitle')
               )}
             </Text>
           </View>
@@ -138,7 +153,7 @@ export default function ResetPasswordScreen() {
             <FormField<ResetForm>
               name="code"
               control={control}
-              label="Doğrulama kodu"
+              label={t('auth.fields.code')}
               placeholder="123456"
               keyboardType="number-pad"
               maxLength={6}
@@ -150,8 +165,8 @@ export default function ResetPasswordScreen() {
             <FormField<ResetForm>
               name="newPassword"
               control={control}
-              label="Yeni şifre"
-              placeholder="En az 8 karakter"
+              label={t('auth.fields.newPassword')}
+              placeholder={t('auth.fields.newPasswordPlaceholder')}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
               autoComplete="new-password"
@@ -163,7 +178,9 @@ export default function ResetPasswordScreen() {
                   hitSlop={8}
                   accessibilityRole="button"
                   accessibilityLabel={
-                    showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'
+                    showPassword
+                      ? t('auth.fields.hidePassword')
+                      : t('auth.fields.showPassword')
                   }
                 >
                   {showPassword ? (
@@ -186,7 +203,7 @@ export default function ResetPasswordScreen() {
             loading={isResetting}
             onPress={handleSubmit(onSubmit)}
           >
-            Şifreyi güncelle
+            {t('auth.resetPassword.submit')}
           </Button>
 
           <Pressable
@@ -196,7 +213,7 @@ export default function ResetPasswordScreen() {
             accessibilityRole="button"
           >
             <Text style={styles.bottomLinkText}>
-              Kod gelmedi mi?{' '}
+              {t('auth.resetPassword.noCode')}{' '}
               <Text
                 style={
                   cooldown > 0 || isSendingCode
@@ -205,8 +222,10 @@ export default function ResetPasswordScreen() {
                 }
               >
                 {cooldown > 0
-                  ? `Tekrar gönder (${cooldown} sn)`
-                  : 'Tekrar gönder'}
+                  ? t('auth.resetPassword.resendCountdown', {
+                      seconds: cooldown,
+                    })
+                  : t('auth.resetPassword.resend')}
               </Text>
             </Text>
           </Pressable>

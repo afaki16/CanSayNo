@@ -17,6 +17,7 @@ export default function AppLayout() {
       <Stack.Screen name="account" />
       <Stack.Screen name="change-email" />
       <Stack.Screen name="notifications" />
+      <Stack.Screen name="language" />
       <Stack.Screen name="scenarios/[id]" />
       <Stack.Screen name="scenarios/detail/[scenarioId]" />
       <Stack.Screen name="scenarios/practice/[scenarioId]" />

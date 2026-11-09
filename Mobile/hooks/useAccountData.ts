@@ -12,11 +12,12 @@ import * as Sharing from 'expo-sharing';
 
 import { accountService } from '@/lib/api';
 import type { ApiError } from '@/lib/api';
+import { t } from '@/lib/i18n';
 import { useAuthStore } from '@/stores/authStore';
 
 export class SharingUnavailableError extends Error {
   constructor() {
-    super('Bu cihazda paylaşım kullanılamıyor');
+    super(t('account.details.export.sharingUnavailable'));
     this.name = 'SharingUnavailableError';
   }
 }
@@ -27,7 +28,7 @@ export function useExportData() {
       const data = await accountService.exportData();
 
       const date = new Date().toISOString().slice(0, 10);
-      const file = new File(Paths.cache, `cansayno-verilerim-${date}.json`);
+      const file = new File(Paths.cache, t('account.details.export.fileName', { date }));
       file.create({ overwrite: true });
       file.write(JSON.stringify(data, null, 2));
 
@@ -37,7 +38,7 @@ export function useExportData() {
       await Sharing.shareAsync(file.uri, {
         mimeType: 'application/json',
         UTI: 'public.json',
-        dialogTitle: 'Verilerini kaydet ya da paylaş',
+        dialogTitle: t('account.details.export.dialogTitle'),
       });
     },
   });

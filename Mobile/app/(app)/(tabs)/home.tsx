@@ -14,6 +14,7 @@ import {
   Trophy,
   User,
 } from 'phosphor-react-native';
+import { Trans, useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -34,11 +35,12 @@ import { EMPTY_STATS, useMyStats } from '@/hooks/queries/useStats';
 import { useAuth } from '@/hooks/useAuth';
 import { toSessionErrorMessage } from '@/lib/api';
 import { getContextIcon } from '@/lib/icons';
-import { contexts } from '@/lib/mockData';
+import { useContexts } from '@/lib/mockData';
 import { getDailyTask } from '@/lib/utils/dailyTask';
 import { formatRelativeTime } from '@/lib/utils/datetime';
 
-const WEEK_DAYS = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+// Pzt..Paz — kısa adlar çeviride (practice.home.weekDays).
+const WEEK_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 
 
 // Skora göre badge renk eşlemesi (soft bg + text).
@@ -63,6 +65,7 @@ function buildWeek(weekActivity: boolean[], todayIndex: number): DayState[] {
 }
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   // Yüklenirken/hata durumunda sıfırlarla çizilir; kartlar kaybolmaz.
   const { data } = useMyStats();
@@ -72,17 +75,19 @@ export default function HomeScreen() {
   const { data: subscription } = useMySubscription();
   const dailyTask = scenarios ? getDailyTask(scenarios, subscription?.isPremium ?? false) : null;
 
-  const firstName = user?.firstName ?? 'dostum';
+  const firstName = user?.firstName ?? t('practice.home.defaultName');
   const xpRatio = Math.min(stats.xpInLevel / stats.xpPerLevel, 1);
   const xpRemaining = Math.max(stats.xpPerLevel - stats.xpInLevel, 0);
   const week = buildWeek(stats.weekActivity, stats.todayIndex);
   const streakTitle =
-    stats.currentStreak > 0 ? `${stats.currentStreak} günlük seri 🔥` : 'Serini başlat 🔥';
+    stats.currentStreak > 0
+      ? t('practice.home.streakTitle', { count: stats.currentStreak })
+      : t('practice.home.streakStart');
   const streakSub = stats.practicedToday
-    ? 'Bugünü tamamladın, harika!'
+    ? t('practice.home.streakDoneToday')
     : stats.currentStreak > 0
-      ? 'Bugün de pratik yap, kaybetme!'
-      : 'İlk pratiğini yap, serin başlasın.';
+      ? t('practice.home.streakKeepGoing')
+      : t('practice.home.streakFirst');
 
   const goScenarios = () => router.push('/(app)/(tabs)/scenarios');
   const goProfile = () => router.push('/(app)/(tabs)/profile');
@@ -101,16 +106,16 @@ export default function HomeScreen() {
         {/* Başlık — selamlama + avatar */}
         <View style={styles.header}>
           <View style={styles.headerText}>
-            <Text style={styles.greeting}>Selam, {firstName} 👋</Text>
-            <Text style={styles.greetingSub}>
-              Bugün hangi sınırını koyacaksın?
+            <Text style={styles.greeting}>
+              {t('practice.home.greeting', { name: firstName })}
             </Text>
+            <Text style={styles.greetingSub}>{t('practice.home.greetingSub')}</Text>
           </View>
           <Pressable
             onPress={goProfile}
             style={styles.avatar}
             accessibilityRole="button"
-            accessibilityLabel="Profil"
+            accessibilityLabel={t('practice.home.profileA11y')}
           >
             <User size={22} color={Colors.primary} weight="fill" />
           </Pressable>
@@ -148,7 +153,9 @@ export default function HomeScreen() {
                       state === 'future' && styles.dayLabelFuture,
                     ]}
                   >
-                    {state === 'today' ? 'Bugün' : WEEK_DAYS[i]}
+                    {state === 'today'
+                      ? t('practice.home.today')
+                      : t(`practice.home.weekDays.${WEEK_DAYS[i]}`)}
                   </Text>
                 </View>
               ))}
@@ -171,7 +178,7 @@ export default function HomeScreen() {
               pointerEvents="none"
             />
             <View style={styles.flex}>
-              <Text style={styles.taskLabel}>BUGÜNKÜ GÖREV</Text>
+              <Text style={styles.taskLabel}>{t('practice.home.dailyTaskLabel')}</Text>
               <Text style={styles.taskTitle}>{dailyTask.title}</Text>
               <Text style={styles.taskSub} numberOfLines={1}>
                 {dailyTask.subtitle}
@@ -188,29 +195,31 @@ export default function HomeScreen() {
           <StatCard
             icon={<Trophy size={24} color={Colors.primary} weight="fill" />}
             value={`${stats.totalCompletedSessions}`}
-            label="Toplam Pratik"
+            label={t('practice.home.stats.total')}
           />
           <StatCard
             icon={<Flame size={24} color={Colors.secondary} weight="fill" />}
-            value={`${stats.longestStreak} gün`}
-            label="En Uzun Seri"
+            value={t('practice.home.stats.longestStreakValue', { count: stats.longestStreak })}
+            label={t('practice.home.stats.longestStreak')}
           />
           <StatCard
             icon={<Target size={24} color={Colors.success} weight="fill" />}
             value={`${stats.weeklyProgress}/${stats.weeklyGoal}`}
-            label="Bu Hafta"
+            label={t('practice.home.stats.thisWeek')}
           />
           <StatCard
             icon={<Star size={24} color={Colors.amber} weight="fill" />}
             value={`${stats.level}`}
-            label="Seviye"
+            label={t('practice.home.stats.level')}
           />
         </View>
 
         {/* XP ilerlemesi */}
         <View style={styles.card}>
           <View style={styles.xpHeader}>
-            <Text style={styles.xpLevel}>Seviye {stats.level}</Text>
+            <Text style={styles.xpLevel}>
+              {t('practice.home.levelTitle', { level: stats.level })}
+            </Text>
             <Text style={styles.xpValue}>
               {stats.xpInLevel} / {stats.xpPerLevel} XP
             </Text>
@@ -224,16 +233,20 @@ export default function HomeScreen() {
             />
           </View>
           <Text style={styles.xpRemaining}>
-            Sonraki seviyeye{' '}
-            <Text style={styles.xpRemainingAccent}>{xpRemaining} XP</Text>
+            {/* Vurgulu kısmın cümledeki yeri dile göre değişir (<accent>). */}
+            <Trans
+              i18nKey="practice.home.xpToNext"
+              values={{ xp: xpRemaining }}
+              components={{ accent: <Text style={styles.xpRemainingAccent} /> }}
+            />
           </Text>
         </View>
 
         {/* Son pratikler */}
         <View style={styles.activityHeader}>
-          <Text style={styles.sectionTitle}>Son Pratiklerin</Text>
+          <Text style={styles.sectionTitle}>{t('practice.home.recentTitle')}</Text>
           <Pressable onPress={goScenarios} accessibilityRole="link">
-            <Text style={styles.seeAll}>Tümü →</Text>
+            <Text style={styles.seeAll}>{t('practice.home.seeAll')}</Text>
           </Pressable>
         </View>
 
@@ -257,6 +270,8 @@ function RecentSessions({
   onOpenScenario: (scenarioId: string) => void;
   onBrowse: () => void;
 }) {
+  const { t } = useTranslation();
+  const contexts = useContexts();
   const { data, isPending, isError, error } = useMySessions(RECENT_SESSIONS_COUNT);
 
   if (isPending) {
@@ -280,10 +295,8 @@ function RecentSessions({
         style={styles.emptyActivity}
         accessibilityRole="button"
       >
-        <Text style={styles.emptyActivityTitle}>Henüz pratik yapmadın</Text>
-        <Text style={styles.emptyActivityText}>
-          İlk senaryonu seç, ilk “hayır”ını söyle →
-        </Text>
+        <Text style={styles.emptyActivityTitle}>{t('practice.home.emptyTitle')}</Text>
+        <Text style={styles.emptyActivityText}>{t('practice.home.emptyText')}</Text>
       </Pressable>
     );
   }
@@ -322,13 +335,13 @@ function RecentSessions({
                 {session.scenarioTitle}
               </Text>
               <Text style={styles.activityMeta} numberOfLines={1}>
-                {context?.name ?? 'Senaryo'} ·{' '}
+                {context?.name ?? t('practice.scenarioFallback')} ·{' '}
                 {formatRelativeTime(session.completedAt ?? session.startedAt)}
               </Text>
             </View>
             <View style={[styles.scoreBadge, { backgroundColor: badge.bg }]}>
               <Text style={[styles.scoreText, { color: badge.text }]}>
-                {score ?? 'Devam'}
+                {score ?? t('practice.home.inProgress')}
               </Text>
             </View>
           </Pressable>

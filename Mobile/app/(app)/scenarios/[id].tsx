@@ -5,6 +5,7 @@
 
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, LockSimple } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,10 +28,12 @@ import {
 import { useScenariosByContext } from '@/hooks/queries/useScenarios';
 import { toScenarioErrorMessage } from '@/lib/api';
 import { getContextIcon } from '@/lib/icons';
-import { contexts } from '@/lib/mockData';
+import { useContexts } from '@/lib/mockData';
 import type { Context, ContextId, Scenario } from '@/types/scenario';
 
 export default function ScenarioListScreen() {
+  const { t } = useTranslation();
+  const contexts = useContexts();
   const { id } = useLocalSearchParams<{ id: string }>();
   const context = contexts.find((c) => c.id === (id as ContextId));
   const insets = useSafeAreaInsets();
@@ -44,9 +47,9 @@ export default function ScenarioListScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.notFound}>
-          <Text style={styles.notFoundText}>Bağlam bulunamadı.</Text>
+          <Text style={styles.notFoundText}>{t('practice.list.notFound')}</Text>
           <Button variant="ghost" onPress={() => router.back()}>
-            Geri
+            {t('common.back')}
           </Button>
         </View>
       </SafeAreaView>
@@ -74,7 +77,7 @@ export default function ScenarioListScreen() {
             <IconButton
               icon={ArrowLeft}
               onPress={() => router.back()}
-              accessibilityLabel="Geri"
+              accessibilityLabel={t('common.back')}
             />
             <View style={[styles.headerIcon, { backgroundColor: context.color }]}>
               <Icon size={25} color={Colors.surface} weight="fill" />
@@ -85,7 +88,10 @@ export default function ScenarioListScreen() {
               </Text>
               {isPending || isError ? null : (
                 <Text style={[styles.headerProgress, { color: context.color }]}>
-                  {completedCount} / {scenarios.length} tamamlandı
+                  {t('practice.list.progress', {
+                    completed: completedCount,
+                    total: scenarios.length,
+                  })}
                 </Text>
               )}
             </View>
@@ -164,21 +170,20 @@ function ListSkeleton() {
 }
 
 function EmptyState() {
+  const { t } = useTranslation();
   return (
     <View style={styles.empty}>
       <View style={styles.emptyIcon}>
         <LockSimple size={52} color={Colors.primary} weight="fill" />
       </View>
-      <Text style={styles.emptyTitle}>Premium üyelik ile erişebilirsin</Text>
-      <Text style={styles.emptySubtitle}>
-        Bu bağlamdaki senaryolar premium üyelere özel.
-      </Text>
+      <Text style={styles.emptyTitle}>{t('practice.list.lockedTitle')}</Text>
+      <Text style={styles.emptySubtitle}>{t('practice.list.lockedSubtitle')}</Text>
       <Button
         variant="primary"
         size="lg"
         onPress={() => router.push('/(app)/paywall')}
       >
-        Premium&apos;a geç
+        {t('practice.list.goPremium')}
       </Button>
     </View>
   );

@@ -4,6 +4,7 @@
 
 import { router, useLocalSearchParams } from 'expo-router';
 import { EnvelopeSimple } from 'phosphor-react-native';
+import { Trans, useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -17,6 +18,7 @@ import {
 } from '@/constants/theme';
 
 export default function VerifyEmailScreen() {
+  const { t } = useTranslation();
   const { email } = useLocalSearchParams<{ email?: string }>();
 
   return (
@@ -27,23 +29,21 @@ export default function VerifyEmailScreen() {
             <EnvelopeSimple size={56} color={Colors.primary} weight="fill" />
           </View>
 
-          <Text style={styles.title}>E-postanı kontrol et</Text>
+          <Text style={styles.title}>{t('auth.verifyEmail.title')}</Text>
 
           <Text style={styles.description}>
             {email ? (
-              <>
-                <Text style={styles.email}>{email}</Text> adresine bir doğrulama
-                bağlantısı gönderdik. Bağlantıya tıkladıktan sonra giriş
-                yapabilirsin.
-              </>
+              <Trans
+                i18nKey="auth.verifyEmail.descriptionWithEmail"
+                values={{ email }}
+                components={{ bold: <Text style={styles.email} /> }}
+              />
             ) : (
-              'E-posta adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıkladıktan sonra giriş yapabilirsin.'
+              t('auth.verifyEmail.description')
             )}
           </Text>
 
-          <Text style={styles.hint}>
-            Gelen kutunda göremiyorsan spam klasörüne bakmayı unutma.
-          </Text>
+          <Text style={styles.hint}>{t('auth.verifyEmail.hint')}</Text>
         </View>
 
         <Button
@@ -52,7 +52,7 @@ export default function VerifyEmailScreen() {
           fullWidth
           onPress={() => router.replace('/(auth)/login')}
         >
-          Giriş yap
+          {t('auth.verifyEmail.submit')}
         </Button>
       </View>
     </SafeAreaView>

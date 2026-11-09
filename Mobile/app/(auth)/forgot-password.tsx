@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, EnvelopeSimple } from 'phosphor-react-native';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   ScrollView,
   StyleSheet,
@@ -25,14 +26,20 @@ import {
 } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { usePasswordReset } from '@/hooks/usePasswordReset';
+import { t as translate } from '@/lib/i18n';
 
 const forgotSchema = z.object({
-  email: z.string().trim().email('Geçerli bir e-posta girin'),
+  // Mesaj fonksiyon: doğrulama anındaki dil kullanılır.
+  email: z
+    .string()
+    .trim()
+    .email({ error: () => translate('auth.validation.email') }),
 });
 
 type ForgotForm = z.infer<typeof forgotSchema>;
 
 export default function ForgotPasswordScreen() {
+  const { t } = useTranslation();
   // Login ekranında yazılmış e-posta varsa taşınır, kullanıcı tekrar yazmaz.
   const { email: initialEmail } = useLocalSearchParams<{ email?: string }>();
   const { sendCode, isSendingCode, sendCodeError } = usePasswordReset();
@@ -72,15 +79,14 @@ export default function ForgotPasswordScreen() {
               icon={ArrowLeft}
               bordered
               onPress={() => router.back()}
-              accessibilityLabel="Geri"
+              accessibilityLabel={t('common.back')}
             />
           </View>
 
           <View style={styles.header}>
-            <Text style={styles.title}>Şifreni mi unuttun?</Text>
+            <Text style={styles.title}>{t('auth.forgotPassword.title')}</Text>
             <Text style={styles.subtitle}>
-              E-posta adresini yaz, sana 6 haneli bir doğrulama kodu
-              gönderelim.
+              {t('auth.forgotPassword.subtitle')}
             </Text>
           </View>
 
@@ -88,8 +94,8 @@ export default function ForgotPasswordScreen() {
             <FormField<ForgotForm>
               name="email"
               control={control}
-              label="E-posta"
-              placeholder="ornek@email.com"
+              label={t('auth.fields.email')}
+              placeholder={t('auth.fields.emailPlaceholder')}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -107,7 +113,7 @@ export default function ForgotPasswordScreen() {
             loading={isSendingCode}
             onPress={handleSubmit(onSubmit)}
           >
-            Kod gönder
+            {t('auth.forgotPassword.submit')}
           </Button>
         </ScrollView>
       </KeyboardAvoidingView>

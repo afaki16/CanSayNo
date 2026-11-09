@@ -12,6 +12,7 @@ import {
 } from 'phosphor-react-native';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   Pressable,
   ScrollView,
@@ -31,15 +32,20 @@ import {
 } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { t as translate } from '@/lib/i18n';
 
+// Mesajlar fonksiyon: doğrulama anındaki dil kullanılır.
 const loginSchema = z.object({
-  email: z.string().email('Geçerli bir e-posta girin'),
-  password: z.string().min(6, 'Şifre en az 6 karakter olmalı'),
+  email: z.string().email({ error: () => translate('auth.validation.email') }),
+  password: z
+    .string()
+    .min(6, { error: () => translate('auth.validation.passwordMin6') }),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const { login, isLoggingIn, loginError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -80,14 +86,14 @@ export default function LoginScreen() {
               icon={ArrowLeft}
               bordered
               onPress={() => router.back()}
-              accessibilityLabel="Geri"
+              accessibilityLabel={t('common.back')}
             />
           </View>
 
           {/* Başlık */}
           <View style={styles.header}>
-            <Text style={styles.title}>Tekrar hoş geldin 👋</Text>
-            <Text style={styles.subtitle}>Kaldığın yerden devam et.</Text>
+            <Text style={styles.title}>{t('auth.login.title')}</Text>
+            <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
           </View>
 
           {/* Form */}
@@ -95,8 +101,8 @@ export default function LoginScreen() {
             <FormField<LoginForm>
               name="email"
               control={control}
-              label="E-posta"
-              placeholder="ornek@email.com"
+              label={t('auth.fields.email')}
+              placeholder={t('auth.fields.emailPlaceholder')}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -106,8 +112,8 @@ export default function LoginScreen() {
             <FormField<LoginForm>
               name="password"
               control={control}
-              label="Şifre"
-              placeholder="Şifreni gir"
+              label={t('auth.fields.password')}
+              placeholder={t('auth.fields.passwordPlaceholder')}
               secureTextEntry={!showPassword}
               autoCapitalize="none"
               leftIcon={<LockSimple size={19} color={Colors.textMuted} />}
@@ -117,7 +123,9 @@ export default function LoginScreen() {
                   hitSlop={8}
                   accessibilityRole="button"
                   accessibilityLabel={
-                    showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'
+                    showPassword
+                      ? t('auth.fields.hidePassword')
+                      : t('auth.fields.showPassword')
                   }
                 >
                   {showPassword ? (
@@ -140,7 +148,7 @@ export default function LoginScreen() {
               style={styles.forgotLink}
               accessibilityRole="link"
             >
-              <Text style={styles.forgotLinkText}>Şifremi unuttum</Text>
+              <Text style={styles.forgotLinkText}>{t('auth.login.forgotPassword')}</Text>
             </Pressable>
           </View>
 
@@ -155,7 +163,7 @@ export default function LoginScreen() {
             loading={isLoggingIn}
             onPress={handleSubmit(onSubmit)}
           >
-            Giriş yap
+            {t('auth.login.submit')}
           </Button>
 
           {/* Alt link */}
@@ -165,8 +173,10 @@ export default function LoginScreen() {
             accessibilityRole="link"
           >
             <Text style={styles.bottomLinkText}>
-              Hesabın yok mu?{' '}
-              <Text style={styles.bottomLinkAccent}>Kayıt Ol</Text>
+              {t('auth.login.noAccount')}{' '}
+              <Text style={styles.bottomLinkAccent}>
+                {t('auth.login.signUp')}
+              </Text>
             </Text>
           </Pressable>
         </ScrollView>

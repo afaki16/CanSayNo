@@ -10,6 +10,7 @@ import type {
 } from 'axios';
 
 import { env } from '@/lib/config/env';
+import { currentLanguage } from '@/lib/i18n';
 import { useAuthStore } from '@/stores/authStore';
 
 // Backend'in başarılı Result zarfı.
@@ -151,6 +152,9 @@ apiClient.interceptors.request.use(
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+
+    // Backend senaryo listesini ve hata mesajlarını bu dilde döner (tr | en).
+    config.headers['Accept-Language'] = currentLanguage();
 
     if (env.isDev) {
       console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);

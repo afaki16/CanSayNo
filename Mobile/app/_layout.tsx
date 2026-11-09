@@ -12,7 +12,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
@@ -23,6 +23,7 @@ import { Fonts } from '@/constants/theme';
 import { usePurchasesIdentity } from '@/hooks/usePurchasesIdentity';
 import { useSessionValidation } from '@/hooks/useSessionValidation';
 import { queryClient } from '@/lib/api';
+import i18n, { loadStoredLanguage } from '@/lib/i18n';
 import { useAuthStore } from '@/stores/authStore';
 
 export default function RootLayout() {
@@ -58,7 +59,22 @@ export default function RootLayout() {
     rehydrate();
   }, [rehydrate]);
 
-  if (isRehydrating || (!fontsLoaded && !fontError)) {
+  // Kayıtlı dil tercihi ilk ekrandan önce uygulanır (yoksa cihaz dili; lib/i18n).
+  const [languageReady, setLanguageReady] = useState(false);
+  useEffect(() => {
+    loadStoredLanguage().finally(() => setLanguageReady(true));
+  }, []);
+
+  // Dil değişince sunucudan gelen her şey (senaryo listesi, hata metinleri) o dilde yeniden çekilir.
+  useEffect(() => {
+    const onLanguageChanged = () => {
+      queryClient.invalidateQueries();
+    };
+    i18n.on('languageChanged', onLanguageChanged);
+    return () => i18n.off('languageChanged', onLanguageChanged);
+  }, []);
+
+  if (isRehydrating || !languageReady || (!fontsLoaded && !fontError)) {
     return <LoadingScreen />;
   }
 

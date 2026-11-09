@@ -17,6 +17,7 @@ import {
   Trophy,
   User,
 } from 'phosphor-react-native';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -39,19 +40,21 @@ import { useScenarioDetail } from '@/hooks/queries/useScenarios';
 import { useStartPractice } from '@/hooks/useStartPractice';
 import { isNotFoundError, toScenarioErrorMessage } from '@/lib/api';
 import { getContextIcon } from '@/lib/icons';
-import { contexts } from '@/lib/mockData';
+import { useContexts } from '@/lib/mockData';
 import { getInitials } from '@/lib/utils/initials';
-import { getDifficultyLabel, getDifficultyLevel } from '@/types/scenario';
+import { getDifficultyLevel } from '@/types/scenario';
 
 // contextId metadata'da yoksa (backend yeni bir bağlam eklerse) ekran yine çizilsin.
+// İsmi render'da çevriden gelir (practice.scenarioFallback).
 const FALLBACK_CONTEXT = {
-  name: 'Senaryo',
   iconName: '',
   color: Colors.primary,
   softColor: Colors.primarySoft,
 };
 
 export default function ScenarioDetailScreen() {
+  const { t } = useTranslation();
+  const contexts = useContexts();
   const { scenarioId } = useLocalSearchParams<{ scenarioId: string }>();
   const insets = useSafeAreaInsets();
   const { startPractice, isStarting } = useStartPractice();
@@ -71,9 +74,9 @@ export default function ScenarioDetailScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.notFound}>
-          <Text style={styles.notFoundText}>Senaryo bulunamadı.</Text>
+          <Text style={styles.notFoundText}>{t('practice.detail.notFound')}</Text>
           <Button variant="primary" onPress={() => router.back()}>
-            Geri dön
+            {t('practice.detail.goBack')}
           </Button>
         </View>
       </SafeAreaView>
@@ -96,7 +99,7 @@ export default function ScenarioDetailScreen() {
 
   // Bağlam metadata'sı client'ta sabit; bilinmeyen contextId gelirse yine de
   // ekranı çizebilmek için nötr bir tema kullan.
-  const theme = context ?? FALLBACK_CONTEXT;
+  const theme = context ?? { ...FALLBACK_CONTEXT, name: t('practice.scenarioFallback') };
   const Icon = getContextIcon(theme.iconName);
   const hasHistory = scenario.attemptsCount > 0;
   const level = getDifficultyLevel(scenario.difficulty);
@@ -116,13 +119,13 @@ export default function ScenarioDetailScreen() {
             <IconButton
               icon={ArrowLeft}
               onPress={() => router.back()}
-              accessibilityLabel="Geri"
+              accessibilityLabel={t('common.back')}
             />
             {scenario.isCompleted && scenario.bestScore !== null ? (
               <View style={styles.bestPill}>
                 <Trophy size={14} color={Colors.success} weight="fill" />
                 <Text style={styles.bestPillText}>
-                  En iyi: {scenario.bestScore}
+                  {t('practice.detail.bestPill', { score: scenario.bestScore })}
                 </Text>
               </View>
             ) : null}
@@ -137,12 +140,12 @@ export default function ScenarioDetailScreen() {
           <View style={styles.metaRow}>
             <View style={styles.metaItem}>
               <StarRating count={scenario.difficulty} size={15} />
-              <Text style={styles.metaLevel}>{getDifficultyLabel(level)}</Text>
+              <Text style={styles.metaLevel}>{t(`practice.difficulty.${level}`)}</Text>
             </View>
             <View style={styles.metaItem}>
               <Clock size={15} color={Colors.textSecondary} />
               <Text style={styles.metaText}>
-                {scenario.estimatedDurationMinutes} dk
+                {t('practice.minutes', { count: scenario.estimatedDurationMinutes })}
               </Text>
             </View>
           </View>
@@ -152,7 +155,7 @@ export default function ScenarioDetailScreen() {
           {/* Sahne */}
           <View style={styles.card}>
             <CardLabel icon={<MapPin size={16} color={Colors.secondary} weight="fill" />}>
-              SAHNE
+              {t('practice.detail.scene')}
             </CardLabel>
             <Text style={styles.settingText}>{scenario.scene.setting}</Text>
             <Text style={styles.situationText}>{scenario.scene.situation}</Text>
@@ -161,7 +164,7 @@ export default function ScenarioDetailScreen() {
           {/* Karakter */}
           <View style={styles.card}>
             <CardLabel icon={<User size={16} color={Colors.primary} weight="fill" />}>
-              KARŞINDA
+              {t('practice.detail.opponent')}
             </CardLabel>
             <View style={styles.characterRow}>
               <View style={styles.avatar}>
@@ -185,7 +188,7 @@ export default function ScenarioDetailScreen() {
               icon={<Target size={16} color={Colors.primary} weight="fill" />}
               color={Colors.primary}
             >
-              SENİN HEDEFİN
+              {t('practice.detail.goal')}
             </CardLabel>
             <Text style={styles.goalText}>{scenario.scene.userGoal}</Text>
           </View>
@@ -205,13 +208,13 @@ export default function ScenarioDetailScreen() {
                 <Text style={[styles.statValue, { color: Colors.success }]}>
                   {scenario.bestScore ?? '-'}
                 </Text>
-                <Text style={styles.statLabel}>En iyi skorum</Text>
+                <Text style={styles.statLabel}>{t('practice.detail.bestScore')}</Text>
               </View>
               <View style={styles.statBox}>
                 <Text style={[styles.statValue, { color: Colors.primary }]}>
                   {scenario.attemptsCount}
                 </Text>
-                <Text style={styles.statLabel}>Deneme sayım</Text>
+                <Text style={styles.statLabel}>{t('practice.detail.attempts')}</Text>
               </View>
             </View>
           ) : null}
@@ -228,7 +231,7 @@ export default function ScenarioDetailScreen() {
           onPress={() => startPractice(scenario.id)}
           leftIcon={<Play size={19} color={Colors.surface} weight="fill" />}
         >
-          Pratiğe Başla
+          {t('practice.detail.start')}
         </Button>
       </View>
     </View>

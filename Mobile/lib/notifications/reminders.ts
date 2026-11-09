@@ -5,6 +5,7 @@
 import * as Notifications from 'expo-notifications';
 import { Linking, Platform } from 'react-native';
 
+import { t } from '@/lib/i18n';
 import {
   planReminders,
   type ReminderPrefs,
@@ -28,8 +29,8 @@ async function ensureChannel(): Promise<void> {
     return;
   }
   await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-    name: 'Pratik hatırlatmaları',
-    description: 'Günlük pratik ve seri hatırlatmaları',
+    name: t('account.reminders.channelName'),
+    description: t('account.reminders.channelDescription'),
     importance: Notifications.AndroidImportance.DEFAULT,
   });
 }
