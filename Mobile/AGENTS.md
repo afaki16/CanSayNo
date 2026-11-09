@@ -41,8 +41,8 @@ scripts/            Yardımcı scriptler (reset-project.js, vs.)
 
 ## Konvansiyonlar
 
-- **Türkçe içerik, İngilizce kod**: Kullanıcıya görünen tüm metinler (UI label, error
-  mesajı, vs.) Türkçe. Değişken/fonksiyon/dosya adları İngilizce.
+- **İki dilli içerik (tr/en), İngilizce kod**: Kullanıcıya görünen metinler `lib/i18n/locales/` altında, `t(...)` ile; koda metin gömme
+  (UI label, hata mesajı vs.). Değişken/fonksiyon/dosya adları İngilizce.
 - **TypeScript zorunlu**: Tüm component dosyaları `.tsx`.
 - **Inline style**: `StyleSheet.create` kullan, NativeWind yok.
 - **Route grupları**: Auth durumuna göre `(auth)` / `(app)` ayrımı; parantezli klasör
