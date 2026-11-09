@@ -53,7 +53,7 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
   2. [x] Ad soyad + il yazıldı (Alperen Faki, Bursa).
   3. [x] (2026-11-09, sürüm 3787832e) `cd Web && npm run deploy` — `cansayno.com` ve `www.cansayno.com` otomatik bağlanır (`wrangler.jsonc` routes, custom_domain); HTTPS birkaç dakikada aktif olur. Alan adında çakışan eski DNS kaydı varsa wrangler uyarır.
   4. [x] Doğrulandı (2026-11-09): tüm sayfalar 200, `/hesap-silme/` açık, güvenlik başlıkları (CSP, HSTS, X-Frame-Options) canlıda, `/privacy` ve `/delete-account` 301, olmayan adres 404, `www` açık.
-  5. [ ] Cloudflare panelinde SSL/TLS › Edge Certificates › **Always Use HTTPS** aç — şu an `http://cansayno.com` HTTPS'e yönlenmiyor.
+  5. [x] Always Use HTTPS açık (2026-11-09) — `http://` istekleri 301 ile HTTPS'e yönleniyor (doğrulandı).
 - [ ] **Hukuki takip:** KVKK yurt dışı aktarım (Anthropic, RevenueCat ABD) için standart sözleşme + Kurul bildirimi gerekip gerekmediğini avukata sor; Hetzner ve Brevo ile veri işleme sözleşmesini (DPA/AVV, panellerinden) imzala.
 - [ ] **Yedek süresi:** Gizlilik politikası "silinen veri yedeklerden en geç 30 günde çıkar" diyor — canlı sunucuda veritabanı yedeklerini en fazla 30 gün tutacak şekilde ayarla. Güvenlik kayıtlarının 90 günlük temizliği backend'de hazır (`SecurityLogCleanupService`, `DataRetention:SecurityLogDays`).
 - [x] **Uygulamaya yasal linkler** (Apple abonelik kuralı, 2026-11-08): paywall, kayıt ekranı ve Profil'de Gizlilik Politikası + Kullanım Şartları; uygulama içi tarayıcıda açılır (`lib/constants/legal.ts`, `components/ui/LegalLinks.tsx`). Site yayına girene kadar sayfa açılmaz (DNS yok).
