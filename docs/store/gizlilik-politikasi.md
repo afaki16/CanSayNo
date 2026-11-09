@@ -6,8 +6,8 @@ Bu metin, CanSayNo mobil uygulamasını ("Uygulama") kullanırken kişisel veril
 
 ## 1. Veri sorumlusu
 
-- **Veri sorumlusu:** [AD SOYAD] (bireysel geliştirici)
-- **İl:** [İL]
+- **Veri sorumlusu:** Alperen Faki (bireysel geliştirici)
+- **İl:** Bursa, Türkiye
 - **E-posta:** info@factech.app
 
 ## 2. Hangi verileri işliyoruz?

@@ -2,7 +2,7 @@
 
 _Last updated: 8 November 2026_
 
-By using CanSayNo (the "App") you agree to these terms. The App is developed by [FULL NAME] ("we") as an individual developer.
+By using CanSayNo (the "App") you agree to these terms. The App is developed by Alperen Faki ("we") as an individual developer.
 
 ## 1. What the App does
 

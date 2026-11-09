@@ -29,7 +29,7 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
 ### Hukuk ve vergi (uzmana kısa danışma önerilir)
 - [ ] **Vergi:** Türkiye'de uygulama mağazası geliri için **GVK 20/B istisnası** var (mobil uygulama geliştiricileri; özel banka hesabı ve stopaj şartlı). Mali müşavire danış, mağaza ödemelerini bu hesaba yönlendir.
 - [ ] **KVKK:**
-  - Gizlilik metnindeki `[AD SOYAD]` ve `[ADRES]` alanlarını doldur.
+  - [x] Gizlilik metninde veri sorumlusu: Alperen Faki, Bursa (açık adres yok).
   - Yurt dışına aktarım (Anthropic ve RevenueCat ABD'de) için standart sözleşme ve Kurul'a bildirim gerekip gerekmediğini teyit et.
   - VERBİS kaydının muafiyetini teyit et.
 - [ ] Gizlilik politikası ve kullanım şartları taslaklarını (`docs/store/`) gözden geçir; avukat kontrolü önerilir.
@@ -50,9 +50,10 @@ Ancak bundan sonra "üretime erişim" başvurusu yapılabiliyor; Google bunu ayr
 - [ ] **E-posta gönderimi:** Doğrulama ve şifre kodları için bir SMTP sağlayıcı (SPF/DKIM ayarlı). Gönderen adresi `noreply@cansayno.com` olabilir.
 - [ ] **Web sitesi → cansayno.com** (Cloudflare Workers statik site — wrangler artık Pages projesi oluşturmuyor, Workers'a yönlendiriyor). Site hazır (`Web/`, `wrangler.jsonc`, güvenlik başlıkları `_headers`, kısa adresler `_redirects`); `npm run deploy` önce `build:strict` çalıştırır, boşluk kalırsa yayınlamaz.
   1. [x] `npx wrangler@4.151.3 login` (2026-11-08, Cloudflare hesabı alperenfaki@gmail.com).
-  2. [ ] Ad soyad + il'i `docs/store/` belgelerine yaz (`[AD SOYAD]`, `[İL]`, `[FULL NAME]`, `[CITY]`).
-  3. [ ] `cd Web && npm run deploy` — `cansayno.com` ve `www.cansayno.com` otomatik bağlanır (`wrangler.jsonc` routes, custom_domain); HTTPS birkaç dakikada aktif olur. Alan adında çakışan eski DNS kaydı varsa wrangler uyarır.
-  4. [ ] Doğrula: `https://cansayno.com/hesap-silme/` uygulama kurulmadan açılıyor mu (Google şartı), güvenlik başlıkları, `/privacy` yönlendirmesi.
+  2. [x] Ad soyad + il yazıldı (Alperen Faki, Bursa).
+  3. [x] (2026-11-09, sürüm 3787832e) `cd Web && npm run deploy` — `cansayno.com` ve `www.cansayno.com` otomatik bağlanır (`wrangler.jsonc` routes, custom_domain); HTTPS birkaç dakikada aktif olur. Alan adında çakışan eski DNS kaydı varsa wrangler uyarır.
+  4. [x] Doğrulandı (2026-11-09): tüm sayfalar 200, `/hesap-silme/` açık, güvenlik başlıkları (CSP, HSTS, X-Frame-Options) canlıda, `/privacy` ve `/delete-account` 301, olmayan adres 404, `www` açık.
+  5. [ ] Cloudflare panelinde SSL/TLS › Edge Certificates › **Always Use HTTPS** aç — şu an `http://cansayno.com` HTTPS'e yönlenmiyor.
 - [ ] **Hukuki takip:** KVKK yurt dışı aktarım (Anthropic, RevenueCat ABD) için standart sözleşme + Kurul bildirimi gerekip gerekmediğini avukata sor; Hetzner ve Brevo ile veri işleme sözleşmesini (DPA/AVV, panellerinden) imzala.
 - [ ] **Yedek süresi:** Gizlilik politikası "silinen veri yedeklerden en geç 30 günde çıkar" diyor — canlı sunucuda veritabanı yedeklerini en fazla 30 gün tutacak şekilde ayarla. Güvenlik kayıtlarının 90 günlük temizliği backend'de hazır (`SecurityLogCleanupService`, `DataRetention:SecurityLogDays`).
 - [x] **Uygulamaya yasal linkler** (Apple abonelik kuralı, 2026-11-08): paywall, kayıt ekranı ve Profil'de Gizlilik Politikası + Kullanım Şartları; uygulama içi tarayıcıda açılır (`lib/constants/legal.ts`, `components/ui/LegalLinks.tsx`). Site yayına girene kadar sayfa açılmaz (DNS yok).

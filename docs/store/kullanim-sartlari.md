@@ -2,7 +2,7 @@
 
 _Son güncelleme: 8 Kasım 2026_
 
-CanSayNo'yu ("Uygulama") kullanarak bu şartları kabul etmiş olursun. Uygulama [AD SOYAD] ("biz") tarafından bireysel olarak geliştirilir.
+CanSayNo'yu ("Uygulama") kullanarak bu şartları kabul etmiş olursun. Uygulama Alperen Faki ("biz") tarafından bireysel olarak geliştirilir.
 
 ## 1. Uygulama ne yapar?
 

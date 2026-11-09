@@ -6,8 +6,8 @@ This policy explains how your personal data is processed when you use the CanSay
 
 ## 1. Controller
 
-- **Controller:** [FULL NAME] (individual developer)
-- **City:** [CITY], Türkiye
+- **Controller:** Alperen Faki (individual developer)
+- **City:** Bursa, Türkiye
 - **Email:** info@factech.app
 
 ## 2. Data we process

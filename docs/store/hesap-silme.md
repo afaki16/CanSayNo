@@ -1,7 +1,7 @@
 # CanSayNo: Hesap ve Veri Silme / Account and Data Deletion
 
 **Uygulama / App:** CanSayNo<br>
-**Geliştirici / Developer:** [AD SOYAD / FULL NAME]
+**Geliştirici / Developer:** Alperen Faki
 
 ---
 
