@@ -16,18 +16,19 @@ public record CreateAdminScenarioCommand(string Id, AdminScenarioUpsertDto Body)
 
 public class CreateAdminScenarioCommandValidator : AbstractValidator<CreateAdminScenarioCommand>
 {
-    // Örn. "romantik_011_yeni_konu": bağlam öneki + 3 haneli sıra + kısa konu.
-    private static readonly Regex IdPattern = new("^(is|aile|arkadas|romantik|satici|komsu|okul|dijital)_[0-9]{3}_[a-z0-9_]{2,60}$");
+    // Örn. "romantik_011_yeni_konu" (Türkçe) ya da "en_romantik_011_new_topic" (İngilizce):
+    // [dil öneki] + bağlam öneki + 3 haneli sıra + kısa konu.
+    private static readonly Regex IdPattern = new("^(en_)?(is|aile|arkadas|romantik|satici|komsu|okul|dijital)_[0-9]{3}_[a-z0-9_]{2,60}$");
 
     public CreateAdminScenarioCommandValidator()
     {
         RuleFor(x => x.Id)
             .NotEmpty()
             .Must(id => IdPattern.IsMatch(id ?? string.Empty))
-            .WithMessage("ID biçimi: <bağlam>_<3 hane>_<konu> (örn. romantik_011_yeni_konu), yalnızca küçük harf, rakam ve _.");
+            .WithMessage("ID biçimi: [en_]<bağlam>_<3 hane>_<konu> (örn. romantik_011_yeni_konu, en_romantik_011_new_topic), yalnızca küçük harf, rakam ve _.");
         RuleFor(x => x)
-            .Must(x => x.Id.StartsWith(AdminScenarioIds.Prefix(x.Body.ContextId) + "_", StringComparison.Ordinal))
-            .WithMessage("ID öneki senaryonun bağlamıyla aynı olmalı.")
+            .Must(x => x.Id.StartsWith(AdminScenarioIds.Prefix(x.Body.ContextId, x.Body.Language) + "_", StringComparison.Ordinal))
+            .WithMessage("ID öneki senaryonun diliyle ve bağlamıyla aynı olmalı (İngilizce için en_ ile başlar).")
             .When(x => x.Body != null && !string.IsNullOrEmpty(x.Id));
         RuleFor(x => x.Body).NotNull().SetValidator(new AdminScenarioUpsertValidator());
     }
@@ -88,6 +89,11 @@ public class UpdateAdminScenarioCommandHandler : IRequestHandler<UpdateAdminScen
             return Result<AdminScenarioDto>.Failure(Error.Failure(
                 ErrorCode.InvalidRequest, "Senaryonun bağlamı değiştirilemez; yeni bir senaryo oluştur."));
 
+        // Dil de ID önekine ve geçmiş oturumların prompt diline bağlı.
+        if (scenario.Language != ContentLanguages.Normalize(request.Body.Language))
+            return Result<AdminScenarioDto>.Failure(Error.Failure(
+                ErrorCode.InvalidRequest, "Senaryonun dili değiştirilemez; yeni bir senaryo oluştur."));
+
         request.Body.ApplyTo(scenario);
         _unitOfWork.Scenarios.Update(scenario);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -124,6 +130,12 @@ public class SetAdminScenarioActiveCommandHandler : IRequestHandler<SetAdminScen
 
 public static class AdminScenarioIds
 {
+    /// <summary>ID öneki: Türkçe "romantik", İngilizce "en_romantik".</summary>
+    public static string Prefix(ContextId context, string? language) =>
+        ContentLanguages.Normalize(language) == ContentLanguages.English
+            ? $"{ContentLanguages.English}_{Prefix(context)}"
+            : Prefix(context);
+
     public static string Prefix(ContextId context) => context switch
     {
         ContextId.Is => "is",

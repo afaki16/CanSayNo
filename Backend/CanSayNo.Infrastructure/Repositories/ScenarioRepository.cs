@@ -21,13 +21,14 @@ public class ScenarioRepository : RepositoryBase<Scenario, string>, IScenarioRep
     }
 
     public async Task<IReadOnlyList<Scenario>> GetActiveScenariosAsync(
+        string language,
         ContextId? contextId,
         bool? isFreeOnly,
         CancellationToken cancellationToken = default)
     {
         var query = _context.Scenarios
             .AsNoTracking()
-            .Where(s => s.IsActive);
+            .Where(s => s.IsActive && s.Language == language);
 
         if (contextId.HasValue)
             query = query.Where(s => s.ContextId == contextId.Value);

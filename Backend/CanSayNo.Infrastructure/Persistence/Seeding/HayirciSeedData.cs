@@ -24,7 +24,7 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
 
             try
             {
-                var seedScenarios = BuildScenarios().Concat(BuildCatalogScenarios()).Concat(BuildNewContextScenarios()).ToList();
+                var seedScenarios = GetSeedScenarios();
                 var seedIds = seedScenarios.Select(s => s.Id).ToList();
 
                 var existingIds = await context.Scenarios
@@ -264,7 +264,7 @@ namespace CanSayNo.Infrastructure.Persistence.Seeding
                 ContextId = ContextId.Is,
                 Difficulty = 4,
                 EstimatedDurationMinutes = 7,
-                IsFree = false,
+                IsFree = true, // İş bağlamı tamamen ücretsiz (dev DB 2026-10-14'te elle düzeltilmişti, seed geride kalmıştı)
                 IsActive = true,
                 SortOrder = 5,
                 Tags = new List<string> { "maas", "kariyer", "ertelemek" },

@@ -15,6 +15,10 @@ public class Scenario : BaseAuditableEntity
     public int Difficulty { get; set; }  // 1-5
     public int EstimatedDurationMinutes { get; set; }
 
+    // İçerik dili ("tr" | "en", bkz. ContentLanguages). Senaryo listesi kullanıcının diline göre
+    // filtrelenir; karakter ve değerlendirme prompt'u bu dilde kurulur.
+    public string Language { get; set; } = ContentLanguages.Turkish;
+
     // Access control
     public bool IsFree { get; set; }
     public bool IsActive { get; set; } = true;

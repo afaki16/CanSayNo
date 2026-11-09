@@ -17,6 +17,7 @@ public sealed record AdminScenarioDto(
     string Title,
     string ShortDescription,
     ContextId ContextId,
+    string Language,
     int Difficulty,
     int EstimatedDurationMinutes,
     bool IsFree,
@@ -31,7 +32,7 @@ public sealed record AdminScenarioDto(
     DateTime? UpdatedDate)
 {
     public static AdminScenarioDto From(Scenario s, AdminScenarioUsageDto usage) => new(
-        s.Id, s.Title, s.ShortDescription, s.ContextId, s.Difficulty, s.EstimatedDurationMinutes,
+        s.Id, s.Title, s.ShortDescription, s.ContextId, s.Language, s.Difficulty, s.EstimatedDurationMinutes,
         s.IsFree, s.IsActive, s.SortOrder, s.Tags.ToList(),
         new AdminScenarioSceneInput
         {
@@ -64,6 +65,8 @@ public class AdminScenarioUpsertDto
     public string Title { get; set; } = string.Empty;
     public string ShortDescription { get; set; } = string.Empty;
     public ContextId ContextId { get; set; }
+    /// <summary>İçerik dili ("tr" | "en"). Bağlam gibi oluşturulduktan sonra değiştirilemez.</summary>
+    public string Language { get; set; } = ContentLanguages.Turkish;
     public int Difficulty { get; set; }
     public int EstimatedDurationMinutes { get; set; }
     public bool IsFree { get; set; }
@@ -80,6 +83,7 @@ public class AdminScenarioUpsertDto
         s.Title = Title.Trim();
         s.ShortDescription = ShortDescription.Trim();
         s.ContextId = ContextId;
+        s.Language = ContentLanguages.Normalize(Language);
         s.Difficulty = Difficulty;
         s.EstimatedDurationMinutes = EstimatedDurationMinutes;
         s.IsFree = IsFree;

@@ -9,10 +9,11 @@ namespace CanSayNo.Domain.Common.Interfaces.Repositories;
 public interface IScenarioRepository : IRepository<Scenario, string>
 {
     /// <summary>
-    /// Aktif (IsActive) senaryoları opsiyonel filtrelerle, ContextId + SortOrder
+    /// Verilen dildeki aktif (IsActive) senaryoları opsiyonel filtrelerle, ContextId + SortOrder
     /// sırasında döndürür. Read-only (AsNoTracking).
     /// </summary>
     Task<IReadOnlyList<Scenario>> GetActiveScenariosAsync(
+        string language,
         ContextId? contextId,
         bool? isFreeOnly,
         CancellationToken cancellationToken = default);

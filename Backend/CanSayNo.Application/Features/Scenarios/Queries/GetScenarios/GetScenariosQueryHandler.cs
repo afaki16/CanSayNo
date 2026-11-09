@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using CanSayNo.Application.Common.Localization;
 using CanSayNo.Application.Common.Results;
 using CanSayNo.Application.Features.Scenarios.Common;
 using CanSayNo.Application.Interfaces;
@@ -32,9 +33,9 @@ public class GetScenariosQueryHandler
     public async Task<Result<List<ScenarioListItemDto>>> Handle(
         GetScenariosQuery request, CancellationToken cancellationToken)
     {
-        // 1) Aktif senaryoları filtrelerle, ContextId + SortOrder sırasında al.
+        // 1) İsteğin dilindeki aktif senaryoları filtrelerle, ContextId + SortOrder sırasında al.
         var scenarios = await _unitOfWork.Scenarios.GetActiveScenariosAsync(
-            request.ContextId, request.IsFreeOnly, cancellationToken);
+            RequestLanguage.Current, request.ContextId, request.IsFreeOnly, cancellationToken);
 
         // 2) User-spesifik agregaları TEK sorguda al (N+1 yok). Sadece bu senaryolarla sınırla.
         var userId = _currentUserService.UserId;

@@ -97,6 +97,13 @@ namespace CanSayNo.Infrastructure.Migrations
                     b.Property<bool>("IsFree")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasDefaultValue("tr");
+
                     b.Property<string>("PressureTactics")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -140,6 +147,8 @@ namespace CanSayNo.Infrastructure.Migrations
                     b.HasIndex("IsFree");
 
                     b.HasIndex("SortOrder");
+
+                    b.HasIndex("Language", "ContextId");
 
                     b.ToTable("Scenarios", (string)null);
                 });

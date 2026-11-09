@@ -1,3 +1,4 @@
+using CanSayNo.Domain.Enums;
 using FluentValidation;
 
 namespace CanSayNo.Application.Features.Admin.Hayirci.Scenarios;
@@ -13,6 +14,9 @@ public class AdminScenarioUpsertValidator : AbstractValidator<AdminScenarioUpser
         RuleFor(x => x.Title).NotEmpty().MaximumLength(80);
         RuleFor(x => x.ShortDescription).NotEmpty().MaximumLength(160);
         RuleFor(x => x.ContextId).IsInEnum();
+        RuleFor(x => x.Language)
+            .Must(ContentLanguages.IsSupported)
+            .WithMessage("Dil 'tr' ya da 'en' olmalı.");
         RuleFor(x => x.Difficulty).InclusiveBetween(1, 5);
         RuleFor(x => x.EstimatedDurationMinutes).InclusiveBetween(1, 30);
         RuleFor(x => x.SortOrder).InclusiveBetween(0, 10_000);
