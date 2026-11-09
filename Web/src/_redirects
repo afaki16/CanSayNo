@@ -1,6 +1,5 @@
 # Cloudflare yönlendirmeleri (Workers statik site) — kısa / İngilizce adresler
 /privacy          /en/privacy/      301
 /terms            /en/terms/        301
-/en               /en/privacy/      302
 /delete-account   /hesap-silme/     301
 /gizlilik-politikasi  /gizlilik/    301

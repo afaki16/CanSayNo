@@ -65,6 +65,13 @@ img, svg { display: block; max-width: 100%; }
 .header-nav a:hover { color: var(--text); }
 @media (min-width: 720px) { .header-nav { display: flex; } }
 .legal .header-nav { display: none; }
+.header-right { display: flex; align-items: center; gap: 28px; }
+/* Dil geçişi: her ekranda görünür (menü telefonda gizlenir) */
+.lang-switch {
+  font-size: 14px; font-weight: 700; color: var(--indigo-dark); text-decoration: none;
+  padding: 6px 12px; border-radius: 999px; background: var(--indigo-soft);
+}
+.lang-switch:hover { color: var(--indigo); }
 
 /* Hero */
 .hero { padding: 48px 0 64px; overflow: hidden; }

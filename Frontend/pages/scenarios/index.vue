@@ -33,6 +33,12 @@
       </div>
     </template>
 
+    <template #cell-language="{ value }">
+      <v-chip size="small" variant="tonal" :color="languageOf(value).color">
+        {{ value.toUpperCase() }}
+      </v-chip>
+    </template>
+
     <template #cell-contextId="{ value }">
       <v-chip size="small" variant="tonal" :color="contextOf(value).color">
         {{ contextOf(value).title }}
@@ -97,7 +103,7 @@ import ScenarioForm from '~/components/Scenarios/ScenarioForm.vue'
 import type { AdminScenario } from '~/types'
 import { useAuthStore } from '~/stores/auth'
 import { useToastStore } from '~/stores/toast'
-import { contextOf } from '~/utils/hayirciLabels'
+import { contextOf, languageOf } from '~/utils/hayirciLabels'
 
 definePageMeta({
   title: 'Senaryolar',
@@ -115,6 +121,7 @@ const canUpdate = computed(() => authStore.hasPermission('Scenarios.Update'))
 
 const tableColumns = [
   { label: 'Başlık', key: 'title', sortable: true, filterable: true, filterType: 'text', width: '320px' },
+  { label: 'Dil', key: 'language', sortable: true, filterable: true, filterType: 'select', width: '80px' },
   { label: 'Bağlam', key: 'contextId', sortable: true, filterable: true, filterType: 'select', width: '170px' },
   { label: 'Zorluk', key: 'difficulty', sortable: true, width: '130px' },
   { label: 'Erişim', key: 'isFree', sortable: true, filterable: true, filterType: 'select', width: '110px' },

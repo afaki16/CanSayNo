@@ -8,6 +8,23 @@
       <v-row>
         <v-col cols="12" sm="6">
           <v-select
+            v-model="formData.language"
+            :items="LANGUAGES"
+            item-title="title"
+            item-value="value"
+            label="Dil"
+            variant="outlined"
+            density="comfortable"
+            hide-details="auto"
+            :disabled="loading || isEdit"
+            :hint="isEdit ? 'Dil sonradan değiştirilemez' : 'Senaryo bu dili seçen kullanıcılara görünür'"
+            persistent-hint
+            prepend-inner-icon="mdi-translate"
+            class="modern-input"
+          />
+        </v-col>
+        <v-col cols="12" sm="6">
+          <v-select
             v-model="formData.contextId"
             :items="CONTEXTS"
             item-title="title"
@@ -314,7 +331,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import type { AdminScenario, AdminScenarioUpsert, CreateAdminScenarioRequest, PressureTactic } from '~/types'
-import { ARCHETYPES, CONTEXTS, contextOf, DIFFICULTY_LABELS, TACTICS } from '~/utils/hayirciLabels'
+import { ARCHETYPES, CONTEXTS, DIFFICULTY_LABELS, LANGUAGES, scenarioIdPrefix, TACTICS } from '~/utils/hayirciLabels'
 
 const props = defineProps<{
   scenario?: AdminScenario | null
@@ -338,11 +355,14 @@ const rounds = [
   { key: 'roundThree' as const, label: '3. raunt (son koz)' },
 ]
 
-const ID_PATTERN = /^(is|aile|arkadas|romantik|satici|komsu|okul|dijital)_[0-9]{3}_[a-z0-9_]{2,60}$/
-const idExample = computed(() => `${contextOf(formData.contextId).idPrefix}_011_yeni_konu`)
+// Backend CreateAdminScenarioCommandValidator ile aynı: [en_]<bağlam>_<3 hane>_<konu>
+const ID_PATTERN = /^(en_)?(is|aile|arkadas|romantik|satici|komsu|okul|dijital)_[0-9]{3}_[a-z0-9_]{2,60}$/
+const idPrefix = computed(() => scenarioIdPrefix(formData.contextId, formData.language))
+const idExample = computed(() =>
+  `${idPrefix.value}_011_${formData.language === 'en' ? 'new_topic' : 'yeni_konu'}`)
 const idRule = (v: string) => {
-  if (!ID_PATTERN.test(v ?? '')) return 'Biçim: <bağlam>_<3 hane>_<konu>; küçük harf, rakam ve _'
-  if (!v.startsWith(`${contextOf(formData.contextId).idPrefix}_`)) return 'ID öneki bağlamla aynı olmalı'
+  if (!ID_PATTERN.test(v ?? '')) return 'Biçim: [en_]<bağlam>_<3 hane>_<konu>; küçük harf, rakam ve _'
+  if (!v.startsWith(`${idPrefix.value}_`)) return 'ID öneki dil ve bağlamla aynı olmalı (İngilizce için en_ ile başlar)'
   return true
 }
 const rangeRule = (min: number, max: number) => (v: number) =>
@@ -354,6 +374,7 @@ const emptyForm = (): CreateAdminScenarioRequest => ({
   title: '',
   shortDescription: '',
   contextId: 'is',
+  language: 'tr',
   difficulty: 2,
   estimatedDurationMinutes: 5,
   isFree: true,
@@ -379,6 +400,7 @@ watch(
         title: s.title,
         shortDescription: s.shortDescription,
         contextId: s.contextId,
+        language: s.language,
         difficulty: s.difficulty,
         estimatedDurationMinutes: s.estimatedDurationMinutes,
         isFree: s.isFree,
@@ -408,6 +430,7 @@ const handleSubmit = async () => {
     title: formData.title,
     shortDescription: formData.shortDescription,
     contextId: formData.contextId,
+    language: formData.language,
     difficulty: formData.difficulty,
     estimatedDurationMinutes: formData.estimatedDurationMinutes,
     isFree: formData.isFree,

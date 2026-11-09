@@ -11,6 +11,9 @@ export type ContextId =
   | 'okul'
   | 'dijital'
 
+/** Senaryonun içerik dili; liste mobilde kullanıcının diline göre filtrelenir. */
+export type ScenarioLanguage = 'tr' | 'en'
+
 export type CharacterArchetype =
   | 'babacanManipulator'
   | 'duygusalKurban'
@@ -72,6 +75,8 @@ export interface AdminScenarioUpsert {
   title: string
   shortDescription: string
   contextId: ContextId
+  /** Oluşturulduktan sonra değiştirilemez (ID öneki ve geçmiş pratiklerin dili). */
+  language: ScenarioLanguage
   difficulty: number
   estimatedDurationMinutes: number
   isFree: boolean

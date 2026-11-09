@@ -1,6 +1,6 @@
 # CanSayNo: Mağaza Metinleri ve Form Cevapları
 
-Karakter sınırları parantez içinde. Uygulama şu an **yalnızca Türkçe**; İngilizce listeleme, uygulama İngilizceye çevrilince açılmalı (yoksa İngilizce kullanıcı Türkçe uygulamayla karşılaşır ve kötü puan verir).
+Karakter sınırları parantez içinde. Uygulama **Türkçe ve İngilizce** (2026-11-09): cihaz dili Türkçe değilse İngilizce açılır, Profil › Dil'den değiştirilir. İngilizcede 45 senaryo var (İş 10 ücretsiz + diğer 7 bağlamda 5'er).
 
 ---
 
@@ -59,14 +59,45 @@ Karakter sınırları parantez içinde. Uygulama şu an **yalnızca Türkçe**; 
 
 **Apple "Bu sürümde yenilikler":** İlk sürüm. Hayır demeye hazır mısın?
 
-## 3. İngilizce listeleme (uygulama çevrilince)
+## 3. İngilizce listeleme
 
 **Name (30):** CanSayNo: Learn to Say No (25)
 **Subtitle (30):** Practise boundaries with AI (27)
 **Short description (80):** Practise saying "no" to pushy people with realistic AI characters. (66)
 **Keywords (100):** `say,no,boundaries,assertive,assertiveness,confidence,communication,people,pleaser,roleplay,coach` (96)
 
-Uzun açıklama: Türkçe metnin çevirisi. Uygulama İngilizceye çevrilirken birlikte yazılacak.
+**Full description (4000):**
+
+> Your manager wants "a quick favour" at 5:45 on a Friday. Your brother needs money. Again. The gym won't let you cancel without a "special offer". And once more, you say "fine".
+>
+> CanSayNo lets you practise saying "no" in a safe space, just like it happens in real life.
+>
+> **HOW IT WORKS**
+> • Pick a scenario: work, family, friends, relationships, sales, home, school or social media.
+> • Chat with an AI character. Like real people, they insist, guilt-trip, flatter or pile on the pressure.
+> • At the end, your replies are scored on 5 skills: clarity, courtesy, resilience, offering alternatives and apology balance.
+> • See your strengths, what to work on next and an example of a better reply.
+>
+> **WHY CANSAYNO?**
+> • Realistic characters: from the warm manipulator to the emotional victim, the smooth-talking seller to the bossy manager.
+> • 45 scenarios across 8 areas of life.
+> • Build the habit with streaks, levels and badges.
+> • Daily reminders to keep you going.
+> • No ads. Your data is never sold.
+>
+> **FREE AND PREMIUM**
+> All Work & Career scenarios are free, with 1 practice a day. Premium unlocks all 8 areas and up to 30 practices a day.
+>
+> Premium is an auto-renewing monthly or yearly subscription. Payment is charged to your App Store / Google Play account when you confirm the purchase. The subscription renews automatically unless cancelled at least 24 hours before the end of the current period. You can manage and cancel it in your store account settings.
+>
+> CanSayNo is not therapy or psychological counselling; it is a tool for practising communication skills.
+>
+> Terms of Use: https://cansayno.com/en/terms/
+> Privacy Policy: https://cansayno.com/en/privacy/
+
+**What's New:** First release. Ready to say no?
+
+**Apple abonelik adı/açıklaması (İngilizce):** "Premium: all areas and up to 30 practices a day"
 
 ## 4. Abonelik ürünleri (App Store Connect + Google Play + RevenueCat)
 

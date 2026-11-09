@@ -5,6 +5,7 @@ import type {
   CharacterArchetype,
   ContextId,
   PressureTactic,
+  ScenarioLanguage,
   SessionStatus,
   SubscriptionStatus,
 } from '~/types/hayirci'
@@ -49,6 +50,17 @@ export const TACTICS: { value: PressureTactic; title: string }[] = [
 ]
 
 export const tacticTitle = (t: PressureTactic) => TACTICS.find((x) => x.value === t)?.title ?? t
+
+export const LANGUAGES: { value: ScenarioLanguage; title: string; color: string }[] = [
+  { value: 'tr', title: 'Türkçe', color: 'red' },
+  { value: 'en', title: 'İngilizce', color: 'indigo' },
+]
+
+export const languageOf = (l: ScenarioLanguage) => LANGUAGES.find((x) => x.value === l) ?? LANGUAGES[0]
+
+/** ID öneki: Türkçe "romantik", İngilizce "en_romantik" (backend AdminScenarioIds.Prefix ile aynı). */
+export const scenarioIdPrefix = (contextId: ContextId, language: ScenarioLanguage) =>
+  language === 'en' ? `en_${contextOf(contextId).idPrefix}` : contextOf(contextId).idPrefix
 
 export const DIFFICULTY_LABELS: Record<number, string> = {
   1: '1 · Çok kolay',
