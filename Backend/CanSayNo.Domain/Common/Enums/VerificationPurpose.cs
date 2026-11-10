@@ -13,5 +13,7 @@ public enum VerificationPurpose
     /// OTP code sent to the NEW address when changing email from the mobile app (no web page needed).
     /// Separate from <see cref="EmailChange"/> because links and codes are hashed differently.
     /// </summary>
-    EmailChangeCode = 6
+    EmailChangeCode = 6,
+    /// <summary>OTP code that verifies the email of a new account registered from the mobile app.</summary>
+    RegistrationCode = 7
 }

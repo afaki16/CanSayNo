@@ -32,6 +32,8 @@ import {
 } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { rememberPendingCredentials } from '@/hooks/useEmailVerification';
+import { API_ERROR_CODE, ApiError, authService } from '@/lib/api';
 import { t as translate } from '@/lib/i18n';
 
 // Mesajlar fonksiyon: doğrulama anındaki dil kullanılır.
@@ -64,8 +66,15 @@ export default function LoginScreen() {
     try {
       await login(data.email, data.password);
       router.replace('/(app)/(tabs)/home');
-    } catch {
-      // Hata mesajı loginError üzerinden formun altında gösteriliyor.
+    } catch (error) {
+      // Doğrulanmamış hesap: yeni kod gönder ve kod ekranına geç (şifre
+      // bellekte kalır, doğrulayınca otomatik giriş). Diğer hatalar formun
+      // altında loginError ile gösteriliyor.
+      if (error instanceof ApiError && error.code === API_ERROR_CODE.EMAIL_NOT_CONFIRMED) {
+        rememberPendingCredentials(data.email, data.password);
+        authService.resendVerification({ email: data.email.trim(), tenantId: 0 }).catch(() => {});
+        router.push({ pathname: '/(auth)/verify-email', params: { email: data.email.trim() } });
+      }
     }
   };
 

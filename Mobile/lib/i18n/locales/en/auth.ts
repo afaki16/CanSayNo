@@ -71,13 +71,20 @@ export const auth: Translation<typeof trAuth> = {
     resendCountdown: 'Resend ({{seconds}}s)',
   },
   verifyEmail: {
-    title: 'Check your email',
-    descriptionWithEmail:
-      "We've sent a verification link to <bold>{{email}}</bold>. Once you've tapped it, you can sign in.",
-    description:
-      "We've sent a verification link to your email. Once you've tapped it, you can sign in.",
+    title: 'Verify your email',
+    subtitleWithEmail:
+      "We've sent a 6-digit code to <bold>{{email}}</bold>. It's valid for 10 minutes.",
+    subtitle: "We've sent a 6-digit code to your email. It's valid for 10 minutes.",
     hint: "Can't see it in your inbox? Don't forget to check your spam folder.",
-    submit: 'Sign in',
+    submit: 'Verify',
+    noCode: "Didn't get a code?",
+    resend: 'Resend',
+    resendCountdown: 'Resend ({{seconds}}s)',
+    resendFailedTitle: "Couldn't send the code",
+    resendFailedMessage: 'Please try again in a little while.',
+    successTitle: 'Your account is verified',
+    successMessage: 'You can now sign in with your email and password.',
+    successAction: 'Sign in',
   },
   errors: {
     invalidCredentials: 'Incorrect email or password',

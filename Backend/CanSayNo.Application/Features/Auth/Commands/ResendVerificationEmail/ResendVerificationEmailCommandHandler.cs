@@ -18,17 +18,20 @@ namespace CanSayNo.Application.Features.Auth.Commands.ResendVerificationEmail
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly ILogger<ResendVerificationEmailCommandHandler> _logger;
+        private readonly IOtpService _otpService;
 
         public ResendVerificationEmailCommandHandler(
             IUnitOfWork unitOfWork,
             IEmailService emailService,
             IConfiguration configuration,
-            ILogger<ResendVerificationEmailCommandHandler> logger)
+            ILogger<ResendVerificationEmailCommandHandler> logger,
+            IOtpService otpService)
         {
             _unitOfWork = unitOfWork;
             _emailService = emailService;
             _configuration = configuration;
             _logger = logger;
+            _otpService = otpService;
         }
 
         public async Task<Result> Handle(ResendVerificationEmailCommand request, CancellationToken cancellationToken)
@@ -63,6 +66,18 @@ namespace CanSayNo.Application.Features.Auth.Commands.ResendVerificationEmail
                 _logger.LogInformation(
                     "Resend verification requested for already-verified email. UserId: {UserId}, Email: {Email}, IpAddress: {IpAddress}",
                     targetUser.Id, normalizedEmail, request.IpAddress);
+                return Result.Success();
+            }
+
+            if (request.UseCode)
+            {
+                // Cooldown/send failures stay silent: the answer must look the same for every email
+                var issue = await _otpService.IssueAsync(targetUser, VerificationPurpose.RegistrationCode, request.IpAddress, cancellationToken);
+                if (issue.IsSuccess)
+                {
+                    await _emailService.SendRegistrationCodeAsync(targetUser.Email, targetUser.FirstName, issue.Value.Code, issue.Value.ValidMinutes);
+                    _logger.LogInformation("Registration code resent. UserId: {UserId}, IpAddress: {IpAddress}", targetUser.Id, request.IpAddress);
+                }
                 return Result.Success();
             }
 

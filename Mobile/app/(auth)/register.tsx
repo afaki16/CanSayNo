@@ -35,6 +35,7 @@ import {
 } from '@/components/ui';
 import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
+import { rememberPendingCredentials } from '@/hooks/useEmailVerification';
 import { t as translate } from '@/lib/i18n';
 import { openLegalPage } from '@/lib/utils/openLegalPage';
 import { newPasswordSchema } from '@/lib/validation/password';
@@ -83,6 +84,8 @@ export default function RegisterScreen() {
         confirmPassword: data.password,
       });
       // Otomatik login yok: hesap doğrulanmadan backend girişi reddediyor.
+      // Şifre yalnızca bellekte tutulur; kod girilince otomatik giriş için.
+      rememberPendingCredentials(result.email, data.password);
       router.replace({
         pathname: '/(auth)/verify-email',
         params: { email: result.email },

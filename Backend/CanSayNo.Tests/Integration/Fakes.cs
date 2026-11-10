@@ -61,6 +61,14 @@ public sealed class FakeEmailService : IEmailService
         return Ok();
     }
 
+    public ConcurrentDictionary<string, string> RegistrationCodes { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public Task<Result> SendRegistrationCodeAsync(string email, string firstName, string code, int validMinutes)
+    {
+        RegistrationCodes[email] = code;
+        return Ok();
+    }
+
     public Task<Result> SendEmailAsync(string to, string subject, string body) => Ok();
     public Task<Result> SendEmailConfirmationAsync(string email, string confirmationLink) => Ok();
     public Task<Result> SendPasswordResetAsync(string email, string firstName, string resetLink) => Ok();

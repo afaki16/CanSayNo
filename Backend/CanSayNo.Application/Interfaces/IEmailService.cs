@@ -6,6 +6,8 @@ namespace CanSayNo.Application.Interfaces
     {
         Task<Result> SendEmailAsync(string to, string subject, string body);
         Task<Result> SendEmailConfirmationAsync(string email, string confirmationLink);
+        /// <summary>Sends the one-time code that verifies a newly registered account (mobile).</summary>
+        Task<Result> SendRegistrationCodeAsync(string email, string firstName, string code, int validMinutes);
         Task<Result> SendPasswordResetAsync(string email, string firstName, string resetLink);
         Task<Result> SendEmailChangeVerificationAsync(string newEmail, string firstName, string confirmLink, int validHours);
         Task<Result> SendEmailChangedNoticeAsync(string oldEmail, string firstName, string newEmail);

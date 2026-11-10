@@ -41,6 +41,7 @@ namespace CanSayNo.Application.Features.Auth.Commands.Register
         private readonly IMapper _mapper;
         private readonly ILogger<RegisterCommandHandler> _logger;
         private readonly IJsonStringLocalizer _localizer;
+        private readonly IOtpService _otpService;
 
         public RegisterCommandHandler(
             IUnitOfWork unitOfWork,
@@ -49,7 +50,8 @@ namespace CanSayNo.Application.Features.Auth.Commands.Register
             IConfiguration configuration,
             IMapper mapper,
             ILogger<RegisterCommandHandler> logger,
-            IJsonStringLocalizer localizer)
+            IJsonStringLocalizer localizer,
+            IOtpService otpService)
         {
             _unitOfWork = unitOfWork;
             _passwordService = passwordService;
@@ -58,6 +60,7 @@ namespace CanSayNo.Application.Features.Auth.Commands.Register
             _mapper = mapper;
             _logger = logger;
             _localizer = localizer;
+            _otpService = otpService;
         }
 
         public async Task<Result<UserDto>> Handle(RegisterCommand request, CancellationToken cancellationToken)
@@ -116,10 +119,33 @@ namespace CanSayNo.Application.Features.Auth.Commands.Register
                 "User registered. UserId: {UserId}, Email: {Email}, TenantId: {TenantId}",
                 user.Id, normalizedEmail, user.TenantId);
 
-            await IssueVerificationEmailAsync(user, request.IpAddress, cancellationToken);
+            if (request.UseCode)
+                await IssueVerificationCodeAsync(user, request.IpAddress, cancellationToken);
+            else
+                await IssueVerificationEmailAsync(user, request.IpAddress, cancellationToken);
 
             var userDto = _mapper.Map<UserDto>(user);
             return Result<UserDto>.Success(userDto);
+        }
+
+        // Mobile: 6-digit code entered in the app (no web page needed). A send failure is only logged —
+        // the user can ask for a new code from the verification screen.
+        private async Task IssueVerificationCodeAsync(User user, string ipAddress, CancellationToken cancellationToken)
+        {
+            var issue = await _otpService.IssueAsync(user, VerificationPurpose.RegistrationCode, ipAddress, cancellationToken);
+            if (!issue.IsSuccess)
+                return;
+
+            try
+            {
+                var sendResult = await _emailService.SendRegistrationCodeAsync(user.Email, user.FirstName, issue.Value.Code, issue.Value.ValidMinutes);
+                if (!sendResult.IsSuccess)
+                    _logger.LogError("Failed to send registration code. UserId: {UserId}", user.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception while sending registration code. UserId: {UserId}", user.Id);
+            }
         }
 
         private async Task IssueVerificationEmailAsync(User user, string ipAddress, CancellationToken cancellationToken)

@@ -12,7 +12,9 @@ import type {
   LogoutRequest,
   RegisterRequest,
   RegisterResponse,
+  ResendVerificationRequest,
   ResetPasswordCodeRequest,
+  VerifyEmailCodeRequest,
   EmailChangeCodeRequest,
   EmailChangeConfirmRequest,
   UpdateProfileRequest,
@@ -58,6 +60,15 @@ export const authService = {
       AUTH_ENDPOINTS.RESET_PASSWORD_CODE,
       body,
     ),
+
+  // Kayıt doğrulama: 400 = kod hatalı/süresi dolmuş/yanmış (bilinmeyen e-posta da
+  // aynı cevabı alır). Başarıdan sonra hesap girişe açıktır.
+  verifyEmailWithCode: (body: VerifyEmailCodeRequest) =>
+    apiPostVoid<VerifyEmailCodeRequest>(AUTH_ENDPOINTS.VERIFY_EMAIL_CODE, body),
+
+  // Her zaman 200; 60 sn içindeki tekrar istekte yeni kod gitmez.
+  resendVerification: (body: ResendVerificationRequest) =>
+    apiPostVoid<ResendVerificationRequest>(AUTH_ENDPOINTS.RESEND_VERIFICATION, body),
 
   // Hatalar: 400 (yanlış şifre, aynı adres, 60 sn bekleme), 409 (adres kullanımda).
   sendEmailChangeCode: (body: EmailChangeCodeRequest) =>

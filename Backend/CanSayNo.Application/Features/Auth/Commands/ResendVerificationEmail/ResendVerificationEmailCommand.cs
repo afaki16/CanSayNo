@@ -9,5 +9,7 @@ namespace CanSayNo.Application.Features.Auth.Commands.ResendVerificationEmail
         public int TenantId { get; set; }
         public string IpAddress { get; set; } = string.Empty;
         public string UserAgent { get; set; } = string.Empty;
+        /// <summary>Mobile clients get a new 6-digit code instead of a link.</summary>
+        public bool UseCode { get; set; }
     }
 }

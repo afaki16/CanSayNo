@@ -69,13 +69,20 @@ export const auth = {
     resendCountdown: 'Tekrar gönder ({{seconds}} sn)',
   },
   verifyEmail: {
-    title: 'E-postanı kontrol et',
-    descriptionWithEmail:
-      '<bold>{{email}}</bold> adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıkladıktan sonra giriş yapabilirsin.',
-    description:
-      'E-posta adresine bir doğrulama bağlantısı gönderdik. Bağlantıya tıkladıktan sonra giriş yapabilirsin.',
+    title: 'E-postanı doğrula',
+    subtitleWithEmail:
+      '<bold>{{email}}</bold> adresine 6 haneli bir kod gönderdik. Kod 10 dakika geçerli.',
+    subtitle: 'E-posta adresine 6 haneli bir kod gönderdik. Kod 10 dakika geçerli.',
     hint: 'Gelen kutunda göremiyorsan spam klasörüne bakmayı unutma.',
-    submit: 'Giriş yap',
+    submit: 'Doğrula',
+    noCode: 'Kod gelmedi mi?',
+    resend: 'Tekrar gönder',
+    resendCountdown: 'Tekrar gönder ({{seconds}} sn)',
+    resendFailedTitle: 'Kod gönderilemedi',
+    resendFailedMessage: 'Lütfen biraz sonra tekrar dene.',
+    successTitle: 'Hesabın doğrulandı',
+    successMessage: 'Artık e-posta adresin ve şifrenle giriş yapabilirsin.',
+    successAction: 'Giriş yap',
   },
   errors: {
     invalidCredentials: 'E-posta veya şifre hatalı',

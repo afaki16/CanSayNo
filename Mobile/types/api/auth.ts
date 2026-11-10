@@ -105,6 +105,16 @@ export interface ForgotPasswordCodeRequest {
   tenantId: number;
 }
 
+export interface VerifyEmailCodeRequest {
+  email: string;
+  code: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+  tenantId: number;
+}
+
 export interface ResetPasswordCodeRequest {
   email: string;
   tenantId: number;

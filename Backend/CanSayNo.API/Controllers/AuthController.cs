@@ -112,7 +112,8 @@ namespace CanSayNo.API.Controllers
                 ConfirmPassword = request.ConfirmPassword,
                 PhoneNumber = request.PhoneNumber,
                 IpAddress = GetIpAddress(),
-                UserAgent = GetUserAgent()
+                UserAgent = GetUserAgent(),
+                UseCode = IsMobileClient
             };
 
             var result = await _mediator.Send(command);
@@ -580,7 +581,26 @@ namespace CanSayNo.API.Controllers
         }
 
         /// <summary>
-        /// Resend email verification link
+        /// Verify a new account with the 6-digit code emailed at registration (mobile clients)
+        /// </summary>
+        [HttpPost("verify-email/code")]
+        [AllowAnonymous]
+        [EnableRateLimiting("sensitive")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> VerifyEmailWithCode([FromBody] VerifyEmailWithCodeRequestDto request)
+        {
+            var result = await _mediator.Send(new VerifyEmailWithCodeCommand
+            {
+                Email = request.Email,
+                Code = request.Code,
+                IpAddress = GetIpAddress()
+            });
+            return HandleResult(result);
+        }
+
+        /// <summary>
+        /// Resend the verification email: a link for web clients, a new 6-digit code for mobile
         /// </summary>
         [HttpPost("resend-verification")]
         [AllowAnonymous]
@@ -593,7 +613,8 @@ namespace CanSayNo.API.Controllers
                 Email = request.Email,
                 TenantId = request.TenantId,
                 IpAddress = GetIpAddress(),
-                UserAgent = GetUserAgent()
+                UserAgent = GetUserAgent(),
+                UseCode = IsMobileClient
             };
 
             var result = await _mediator.Send(command);
