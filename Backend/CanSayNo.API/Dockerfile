@@ -1,19 +1,27 @@
+# CanSayNo API — üretim imajı. Bağlam: Backend/ klasörü
+#   docker build -f CanSayNo.API/Dockerfile -t cansayno-api .
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY Kickstart.API/Kickstart.API.csproj Kickstart.API/
-COPY Kickstart.Application/Kickstart.Application.csproj Kickstart.Application/
-COPY Kickstart.Domain/Kickstart.Domain.csproj Kickstart.Domain/
-COPY Kickstart.Infrastructure/Kickstart.Infrastructure.csproj Kickstart.Infrastructure/
+# Önce yalnızca proje dosyaları → restore katmanı kod değişmedikçe önbellekten gelir
+COPY CanSayNo.API/CanSayNo.API.csproj CanSayNo.API/
+COPY CanSayNo.Application/CanSayNo.Application.csproj CanSayNo.Application/
+COPY CanSayNo.Domain/CanSayNo.Domain.csproj CanSayNo.Domain/
+COPY CanSayNo.Infrastructure/CanSayNo.Infrastructure.csproj CanSayNo.Infrastructure/
+RUN dotnet restore CanSayNo.API/CanSayNo.API.csproj
 
-RUN dotnet restore Kickstart.API/Kickstart.API.csproj
-
-COPY . .
-RUN dotnet publish Kickstart.API/Kickstart.API.csproj -c Release -o /app/publish
+COPY CanSayNo.API/ CanSayNo.API/
+COPY CanSayNo.Application/ CanSayNo.Application/
+COPY CanSayNo.Domain/ CanSayNo.Domain/
+COPY CanSayNo.Infrastructure/ CanSayNo.Infrastructure/
+RUN dotnet publish CanSayNo.API/CanSayNo.API.csproj -c Release -o /app/publish --no-restore /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8080
+# aspnet imajı zaten 8080'i dinler (HTTP_PORTS). Küçük sunucuda daha az bellek: workstation GC
+ENV DOTNET_gcServer=0
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "Kickstart.API.dll"]
+# Görüntüdeki yetkisiz kullanıcı (root değil)
+USER $APP_UID
+ENTRYPOINT ["dotnet", "CanSayNo.API.dll"]

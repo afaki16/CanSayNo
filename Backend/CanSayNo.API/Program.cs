@@ -143,6 +143,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Liveness + DB check for the reverse proxy / uptime monitor. Anonymous, not rate limited,
+// reveals nothing but "ok" or 503.
+app.MapGet("/health", async (ApplicationDbContext db, CancellationToken ct) =>
+        await db.Database.CanConnectAsync(ct)
+            ? Results.Ok(new { status = "ok" })
+            : Results.StatusCode(StatusCodes.Status503ServiceUnavailable))
+    .AllowAnonymous()
+    .DisableRateLimiting()
+    .ExcludeFromDescription();
+
 // Apply pending migrations automatically
 using (var scope = app.Services.CreateScope())
 {

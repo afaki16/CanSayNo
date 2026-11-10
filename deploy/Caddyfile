@@ -1,0 +1,7 @@
+# api.cansayno.com → API. Caddy sertifikayı Let's Encrypt'ten kendisi alır ve yeniler.
+# Cloudflare DNS'te api kaydı "DNS only" (gri bulut) olmalı — yoksa sertifika alınamaz
+# ve API gerçek istemci IP'sini göremez (IP başına hız sınırları bozulur).
+api.cansayno.com {
+	encode zstd gzip
+	reverse_proxy api:8080
+}

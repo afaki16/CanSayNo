@@ -18,6 +18,15 @@ namespace CanSayNo.Tests.Integration;
 [Collection(ApiCollection.Name)]
 public class SecurityTests(ApiFactory factory)
 {
+    [Fact]
+    public async Task Health_is_public_and_checks_database()
+    {
+        var response = await NewClient(factory).GetAsync("/health");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("""{"status":"ok"}""", await response.Content.ReadAsStringAsync());
+    }
+
     [Theory]
     [InlineData("/api/Scenarios")]
     [InlineData("/api/Sessions/my")]

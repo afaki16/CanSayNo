@@ -10,3 +10,5 @@
 .github/
 setup.sh
 setup.ps1
+CanSayNo.Tests/
+**/appsettings.*.local.json

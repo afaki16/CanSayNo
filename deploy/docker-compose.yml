@@ -1,0 +1,75 @@
+# CanSayNo canlı sunucu: Postgres + API + Caddy (otomatik HTTPS).
+# Sunucuda: /opt/cansayno içinde repo klonu → cd deploy → cp .env.example .env (doldur)
+#   docker compose up -d --build
+# Kurulum adımları: deploy/KURULUM.md
+
+name: cansayno
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cansayno
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d cansayno"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Dışarıya port AÇILMAZ; yalnızca api erişir.
+
+  api:
+    build:
+      context: ../Backend
+      dockerfile: CanSayNo.API/Dockerfile
+    image: cansayno-api:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=cansayno;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      JwtSettings__SecretKey: ${JWT_SECRET}
+      CorsSettings__AllowedOrigins__0: https://cansayno.com
+      App__FrontendUrl: ${FRONTEND_URL:-https://cansayno.com}
+      Anthropic__ApiKey: ${ANTHROPIC_API_KEY}
+      RevenueCat__WebhookAuthorization: ${REVENUECAT_WEBHOOK_AUTH}
+      NotificationService__Mail__Host: ${SMTP_HOST:-smtp-relay.brevo.com}
+      NotificationService__Mail__Port: ${SMTP_PORT:-587}
+      NotificationService__Mail__Username: ${SMTP_USER}
+      NotificationService__Mail__Password: ${SMTP_PASSWORD}
+      NotificationService__Mail__FromAddress: ${SMTP_FROM:-noreply@cansayno.com}
+      NotificationService__Mail__FromName: CanSayNo
+      NotificationService__Mail__EnableSsl: "true"
+      # Yalnızca veritabanı boşken (ilk açılış) admin hesaplarını oluşturur; sonra .env'den sil.
+      INITIAL_SUPERADMIN_PASSWORD: ${INITIAL_SUPERADMIN_PASSWORD:-}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [api]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
