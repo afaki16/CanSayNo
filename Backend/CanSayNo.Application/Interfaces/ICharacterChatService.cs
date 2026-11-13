@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using CanSayNo.Domain.Enums;
 
 namespace CanSayNo.Application.Interfaces;
 
@@ -35,10 +36,15 @@ public enum AiCallOutcome
     Unavailable
 }
 
+/// <param name="Text">Balonların birleşimi — geçmişe ve değerlendirmeye bu girer.</param>
+/// <param name="Parts">Ayrı balonlar (1-3); başarısız cevapta boş.</param>
+/// <param name="Mood">Karakterin ruh hali; başarısız cevapta null.</param>
 public sealed record CharacterReply(
     AiCallOutcome Outcome,
     string Text,
-    int TokensUsed)
+    int TokensUsed,
+    IReadOnlyList<string>? Parts = null,
+    CharacterMood? Mood = null)
 {
     public static CharacterReply Unavailable(int tokensUsed = 0) =>
         new(AiCallOutcome.Unavailable, string.Empty, tokensUsed);

@@ -13,11 +13,18 @@ export type ApiEvaluationAxis =
   | 'alternatifSunma'
   | 'ozurDengesi';
 
+// Karakterin cevaptaki ruh hali (backend CharacterMood). Yazma temposunu belirler.
+export type ApiCharacterMood = 'calm' | 'insistent' | 'hurt' | 'annoyed' | 'yielding';
+
 export interface ApiSessionMessage {
   id: string;
   role: 'ai' | 'user';
-  content: string;
+  content: string; // balonların birleşimi
   timestamp: string;
+  // Karakter cevabının ayrı balonları (1-3). Boş/yoksa content tek balondur
+  // (kullanıcı mesajı, açılış mesajı, eski kayıt).
+  parts?: string[] | null;
+  mood?: ApiCharacterMood | null;
 }
 
 export interface ApiSessionEvaluation {

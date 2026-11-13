@@ -50,18 +50,29 @@ import {
   toSendMessageErrorMessage,
   toSessionErrorMessage,
 } from '@/lib/api';
+import { typingDelayMs } from '@/lib/chat/typingPace';
 import { useContexts } from '@/lib/mockData';
 import { getInitials } from '@/lib/utils/initials';
-import type { ApiSessionMessage } from '@/types/api/session';
+import type { ApiCharacterMood } from '@/types/api/session';
 
-// Yeni başlamış pratikte açılış mesajı, kısa bir "yazıyor" animasyonundan sonra görünür.
-const OPENING_TYPING_MS = 1200;
+// Açılış mesajının "yazıyor" süresi bundan uzun olmaz (ekran açılır açılmaz uzun bekletmesin).
+const OPENING_TYPING_MAX_MS = 1800;
 const ENTER_ANIM_MS = 300; // yeni balon giriş animasyonu
 // Backend de doğrular; buradaki sınır kullanıcıyı erken durdurmak için.
 const MAX_MESSAGE_LENGTH = 500;
 
-// Gönderilmekte olan mesajın geçici id'si (sunucu cevabı gelince gerçek liste gelir).
-const PENDING_MESSAGE_ID = 'pending-user-message';
+// Gönderilmekte olan mesajın geçici anahtarı (sunucu cevabı gelince gerçek liste gelir).
+const PENDING_BUBBLE_KEY = 'pending-user-message';
+
+// Ekrandaki tek balon. Karakter cevabı 1-3 balona bölünmüş gelir (gerçek mesajlaşmadaki gibi
+// art arda); kullanıcı ve açılış mesajı tek balondur.
+interface ChatBubble {
+  key: string;
+  role: 'ai' | 'user';
+  content: string;
+  mood?: ApiCharacterMood | null;
+  partIndex: number; // mesajın kaçıncı balonu (0 = ilk)
+}
 
 export default function PracticeScreen() {
   const { t } = useTranslation();
@@ -87,43 +98,65 @@ export default function PracticeScreen() {
   const [inputText, setInputText] = useState('');
   const [pendingText, setPendingText] = useState<string | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
-  // Hiç mesaj atılmamış oturumda açılış balonu animasyonla gelir; devam edilen oturumda hemen.
-  const [openingRevealed, setOpeningRevealed] = useState(false);
 
-  const listRef = useRef<FlatList<ApiSessionMessage>>(null);
+  const listRef = useRef<FlatList<ChatBubble>>(null);
 
-  const isFreshSession = !!session && session.currentRound === 0;
+  // Oturumun tüm balonları (henüz gösterilmemişler dahil).
+  const bubbles = useMemo<ChatBubble[]>(() => {
+    if (!session) return [];
+    return session.messages.flatMap((m) => {
+      const parts = m.role === 'ai' && m.parts && m.parts.length > 0 ? m.parts : [m.content];
+      return parts.map((content, partIndex) => ({
+        key: `${m.id}:${partIndex}`,
+        role: m.role,
+        content,
+        mood: m.mood,
+        partIndex,
+      }));
+    });
+  }, [session]);
+
+  // Gösterilen balon sayısı. Yeni gelen balonlar karakterin temposunda tek tek açılır: cevabın
+  // ilk balonu hemen (bekleme sunucu cevabı sırasında "yazıyor" ile geçti), sonrakiler
+  // uzunluğa/karakter tipine/ruh haline göre bir "yazıyor"dan sonra. Yeni pratikte açılış
+  // balonu da kısa bir "yazıyor"la gelir; devam edilen pratikte geçmiş hemen görünür.
+  const [revealedCount, setRevealedCount] = useState<number | null>(null);
   useEffect(() => {
-    if (!session || openingRevealed) return;
-    if (!isFreshSession) {
-      setOpeningRevealed(true);
-      return;
+    if (!session || revealedCount !== null) return;
+    setRevealedCount(session.currentRound === 0 ? 0 : bubbles.length);
+  }, [session, bubbles.length, revealedCount]);
+
+  const visibleCount = Math.min(revealedCount ?? 0, bubbles.length);
+  const nextBubble = visibleCount < bubbles.length ? bubbles[visibleCount] : undefined;
+  const archetype = scenario?.character.archetype;
+
+  useEffect(() => {
+    if (!nextBubble) return;
+    let delay = 0;
+    if (nextBubble.role === 'ai') {
+      const pace = typingDelayMs(nextBubble.content, archetype, nextBubble.mood);
+      if (visibleCount === 0) delay = Math.min(pace, OPENING_TYPING_MAX_MS);
+      else if (nextBubble.partIndex > 0) delay = pace;
     }
-    const timer = setTimeout(() => setOpeningRevealed(true), OPENING_TYPING_MS);
+    const timer = setTimeout(() => setRevealedCount(visibleCount + 1), delay);
     return () => clearTimeout(timer);
-  }, [session, isFreshSession, openingRevealed]);
+  }, [nextBubble, visibleCount, archetype]);
 
-  const messages = useMemo<ApiSessionMessage[]>(() => {
-    if (!session || !openingRevealed) return [];
-    if (pendingText === null) return session.messages;
-    return [
-      ...session.messages,
-      {
-        id: PENDING_MESSAGE_ID,
-        role: 'user',
-        content: pendingText,
-        timestamp: new Date().toISOString(),
-      },
-    ];
-  }, [session, openingRevealed, pendingText]);
+  const messages = useMemo<ChatBubble[]>(() => {
+    const visible = bubbles.slice(0, visibleCount);
+    if (pendingText === null) return visible;
+    return [...visible, { key: PENDING_BUBBLE_KEY, role: 'user', content: pendingText, partIndex: 0 }];
+  }, [bubbles, visibleCount, pendingText]);
 
-  const isAITyping = sendMessage.isPending || (!!session && !openingRevealed);
-  const isCompleted = session?.status === 'completed';
+  const isRevealing = !!nextBubble || revealedCount === null;
+  const isAITyping = sendMessage.isPending || nextBubble?.role === 'ai' || revealedCount === null;
+  // Kapanış balonları bitmeden "tamamlandı" çubuğu çıkmasın.
+  const isCompleted = session?.status === 'completed' && !isRevealing;
 
   const handleSend = useCallback(() => {
     const text = inputText.trim();
     // Boşken, AI yazarken veya pratik bittiğinde gönderme.
-    if (!text || isAITyping || isCompleted || !sessionId) return;
+    if (!text || isAITyping || isCompleted || session?.status === 'completed' || !sessionId) return;
 
     setSendError(null);
     setPendingText(text);
@@ -138,12 +171,12 @@ export default function PracticeScreen() {
         setSendError(toSendMessageErrorMessage(error));
       },
     });
-  }, [inputText, isAITyping, isCompleted, sessionId, sendMessage]);
+  }, [inputText, isAITyping, isCompleted, session?.status, sessionId, sendMessage]);
 
   // Bitmemiş pratikten her çıkış — X butonu, Android geri tuşu, iOS kaydırma — aynı
   // onaydan geçer. Tamamlanınca (Sonuç ekranına replace dahil) engel kalkar.
   const navigation = useNavigation();
-  usePreventRemove(!!session && !isCompleted, ({ data }) => {
+  usePreventRemove(!!session && session.status !== 'completed', ({ data }) => {
     Alert.alert(
       t('practice.chat.leaveTitle'),
       t('practice.chat.leaveMessage'),
@@ -229,7 +262,7 @@ export default function PracticeScreen() {
   const displayRound = Math.min(session.currentRound + 1, totalRounds);
   const initials = getInitials(scenario.character.name);
 
-  const renderItem = ({ item, index }: { item: ApiSessionMessage; index: number }) => {
+  const renderItem = ({ item, index }: { item: ChatBubble; index: number }) => {
     const isAI = item.role === 'ai';
     const prev = index > 0 ? messages[index - 1] : undefined;
     // Avatar: ilk AI mesajında veya önceki mesaj AI değilse göster (gruplama).
@@ -278,8 +311,12 @@ export default function PracticeScreen() {
             <Text style={styles.headerName} numberOfLines={1}>
               {scenario.character.name}
             </Text>
-            <Text style={styles.headerRole} numberOfLines={1}>
-              {scenario.character.role}
+            {/* Mesajlaşma uygulamalarındaki gibi: karakter yazarken rolün yerinde "yazıyor…" */}
+            <Text
+              style={[styles.headerRole, isAITyping && { color: contextColor, fontWeight: FontWeight.semibold }]}
+              numberOfLines={1}
+            >
+              {isAITyping ? t('practice.chat.headerTyping') : scenario.character.role}
             </Text>
           </View>
         </View>
@@ -299,7 +336,7 @@ export default function PracticeScreen() {
           ref={listRef}
           data={messages}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.key}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() =>

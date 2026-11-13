@@ -2,13 +2,19 @@ using System.Collections.Concurrent;
 using CanSayNo.Application.Common.Results;
 using CanSayNo.Application.Features.Sessions.Common;
 using CanSayNo.Application.Interfaces;
+using CanSayNo.Domain.Enums;
 
 namespace CanSayNo.Tests.Integration;
 
-/// <summary>Karakter her rauntta sabit bir cevap verir; gelen prompt'lar incelenmek üzere saklanır.</summary>
+/// <summary>
+/// Karakter her rauntta sabit, iki balonlu bir cevap verir (ruh hali: ısrarcı); gelen prompt'lar
+/// incelenmek üzere saklanır.
+/// </summary>
 public sealed class FakeCharacterChatService : ICharacterChatService
 {
-    public const string ReplyText = "Hmm, emin misin? Bir düşün istersen.";
+    public static readonly string[] ReplyParts = ["Hmm, emin misin?", "Bir düşün istersen."];
+    public static readonly string ReplyText = CharacterReplyFormat.Join(ReplyParts);
+    public const CharacterMood ReplyMood = CharacterMood.Insistent;
     public const int TokensPerReply = 100;
 
     public List<CharacterPrompt> Prompts { get; } = [];
@@ -16,7 +22,7 @@ public sealed class FakeCharacterChatService : ICharacterChatService
     public Task<CharacterReply> GetReplyAsync(CharacterPrompt prompt, CancellationToken cancellationToken = default)
     {
         lock (Prompts) Prompts.Add(prompt);
-        return Task.FromResult(new CharacterReply(AiCallOutcome.Success, ReplyText, TokensPerReply));
+        return Task.FromResult(new CharacterReply(AiCallOutcome.Success, ReplyText, TokensPerReply, ReplyParts, ReplyMood));
     }
 }
 

@@ -82,6 +82,7 @@ export const practice = {
     placeholder: 'Cevabını yaz...',
     send: 'Gönder',
     typing: 'Yazıyor',
+    headerTyping: 'yazıyor…',
   },
   result: {
     notFound: 'Pratik bulunamadı',

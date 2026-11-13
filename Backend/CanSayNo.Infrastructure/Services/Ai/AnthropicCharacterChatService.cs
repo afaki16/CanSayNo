@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Anthropic.Models.Messages;
+using CanSayNo.Application.Features.Sessions.Common;
 using CanSayNo.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -32,7 +33,13 @@ public sealed class AnthropicCharacterChatService : ICharacterChatService
         {
             Model = settings.Model,
             MaxTokens = settings.MaxTokens,
-            OutputConfig = new OutputConfig { Effort = AnthropicClientProvider.ParseEffort(settings.Effort) },
+            // Cevap JSON: 1-3 ayrı mesaj + ruh hali (CharacterReplyFormat). Mobil balonları ayrı ayrı,
+            // karakterin temposunda gösterir.
+            OutputConfig = new OutputConfig
+            {
+                Effort = AnthropicClientProvider.ParseEffort(settings.Effort),
+                Format = new JsonOutputFormat { Schema = Schema },
+            },
             // Önbellek noktası senaryo bloğunun sonunda: kurallar + senaryo oturum boyunca
             // aynı kaldığı için her rauntta önbellekten okunur. Raunt bloğu noktadan sonra gelir.
             System = new List<TextBlockParam>
@@ -61,16 +68,24 @@ public sealed class AnthropicCharacterChatService : ICharacterChatService
             return new CharacterReply(AiCallOutcome.Refused, string.Empty, tokensUsed);
         }
 
-        var text = AnthropicClientProvider.ExtractText(response);
+        var json = AnthropicClientProvider.ExtractText(response);
 
-        // max_tokens'ta kesilen cevap yarım cümle olur; kullanıcıya göstermeyiz.
-        if (string.IsNullOrEmpty(text) || response.StopReason == "max_tokens")
+        // max_tokens'ta kesilen cevap yarım JSON olur; kullanıcıya göstermeyiz.
+        var parsed = response.StopReason == "max_tokens" ? null : CharacterReplyFormat.Parse(json);
+        if (parsed is null)
         {
-            _logger.LogWarning("Character reply unusable. StopReason: {StopReason}, TextLength: {Length}",
-                response.StopReason, text.Length);
+            _logger.LogWarning("Character reply unusable. StopReason: {StopReason}, Length: {Length}",
+                response.StopReason, json.Length);
             return CharacterReply.Unavailable(tokensUsed);
         }
 
-        return new CharacterReply(AiCallOutcome.Success, text, tokensUsed);
+        return new CharacterReply(
+            AiCallOutcome.Success,
+            CharacterReplyFormat.Join(parsed.Parts),
+            tokensUsed,
+            parsed.Parts,
+            parsed.Mood);
     }
+
+    private static readonly Dictionary<string, System.Text.Json.JsonElement> Schema = CharacterReplyFormat.BuildSchema();
 }

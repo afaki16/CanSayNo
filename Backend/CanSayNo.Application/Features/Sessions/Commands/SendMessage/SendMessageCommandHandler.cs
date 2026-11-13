@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -100,7 +101,14 @@ public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, Res
         session.Messages = new List<SessionMessage>(session.Messages)
         {
             new() { Role = SessionMessageRoles.User, Content = content, Timestamp = utcNow },
-            new() { Role = SessionMessageRoles.Ai, Content = reply.Text, Timestamp = DateTime.UtcNow }
+            new()
+            {
+                Role = SessionMessageRoles.Ai,
+                Content = reply.Text,
+                Parts = reply.Parts?.ToList(),
+                Mood = reply.Mood,
+                Timestamp = DateTime.UtcNow
+            }
         };
         session.CurrentRound = round;
 

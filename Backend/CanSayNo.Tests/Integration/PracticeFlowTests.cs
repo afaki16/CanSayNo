@@ -32,8 +32,24 @@ public class PracticeFlowTests(ApiFactory factory)
             Assert.True(reply.StatusCode == HttpStatusCode.OK, body.ToJsonString());
             Assert.Equal(round, body["data"]!["currentRound"]!.GetValue<int>());
             status = body["data"]!["status"]!.ToString();
+
+            // Karakter cevabı ayrı balonlar + ruh hali olarak gelir; Content birleşimidir.
+            var last = body["data"]!["messages"]!.AsArray().Last()!;
+            Assert.Equal("ai", last["role"]!.ToString());
+            Assert.Equal(FakeCharacterChatService.ReplyParts, last["parts"]!.AsArray().Select(p => p!.ToString()));
+            Assert.Equal("insistent", last["mood"]!.ToString());
+            Assert.Equal(FakeCharacterChatService.ReplyText, last["content"]!.ToString());
         }
         Assert.Equal("completed", status);
+
+        // Balonlar ve ruh hali kalıcı (JSONB): oturum sonradan açılınca da aynı.
+        var reloaded = await ReadJsonAsync(await user.Client.GetAsync($"/api/Sessions/{sessionId}"));
+        var reloadedLast = reloaded["data"]!["messages"]!.AsArray().Last()!;
+        Assert.Equal(2, reloadedLast["parts"]!.AsArray().Count);
+        Assert.Equal("insistent", reloadedLast["mood"]!.ToString());
+        // Açılış mesajı tek balon: parts boş (AutoMapper null listeyi [] yapar), mood yok.
+        Assert.Empty(reloaded["data"]!["messages"]![0]!["parts"]!.AsArray());
+        Assert.Null(reloaded["data"]!["messages"]![0]!["mood"]);
 
         // Bitmiş pratiğe mesaj atılamaz.
         var afterEnd = await SendMessageAsync(user.Client, sessionId, "Bir şey daha");

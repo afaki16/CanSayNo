@@ -83,6 +83,7 @@ export const practice: Translation<typeof trPractice> = {
     placeholder: 'Type your reply...',
     send: 'Send',
     typing: 'Typing',
+    headerTyping: 'typing…',
   },
   result: {
     notFound: 'Practice not found',

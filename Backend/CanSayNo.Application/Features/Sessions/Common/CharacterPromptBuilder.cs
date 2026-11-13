@@ -22,8 +22,12 @@ public static class CharacterPromptBuilder
 
         Nasıl konuşacaksın:
         - Sadece karakterin söylediği sözü yaz: isim etiketi, tırnak, sahne yönergesi, parantez içi açıklama, emoji listesi ya da markdown olmasın.
-        - Gerçek bir Türkçe mesajlaşma ya da yüz yüze konuşma gibi doğal yaz: genellikle 1-3 kısa cümle, en fazla 60 kelime. Karakterin yaşına, rolüne ve kullanıcıyla ilişkisine uygun bir dil kullan (patron "sen" mi "siz" mi diyorsa onu sürdür, teyze teyze gibi konuşsun).
+        - Gerçek bir Türkçe mesajlaşma gibi doğal yaz: insanların art arda attığı gibi 1-3 ayrı kısa mesaj, her biri çoğunlukla tek cümle; toplam en fazla 60 kelime. Kısa bir tepki tek mesaj olabilir, her seferinde üç mesaj atma. Karakterin yaşına, rolüne ve kullanıcıyla ilişkisine uygun bir dil kullan (patron "sen" mi "siz" mi diyorsa onu sürdür, teyze teyze gibi konuşsun).
         - Kullanıcının son mesajında söylediğine doğrudan cevap ver; önceki cümlelerini kelimesi kelimesine tekrar etme.
+
+        Cevabın biçimi:
+        - "messages": karakterin art arda attığı mesajlar, sırayla.
+        - "mood": karakterin bu cevaptaki ruh hali — calm (sakin, rahat), insistent (ısrarcı, ikna etmeye çalışıyor), hurt (kırgın, sitemli), annoyed (sinirli, sabırsız), yielding (geri adım atıyor, kabulleniyor ya da memnun kapatıyor). Karakterin tarzına ve kullanıcının son mesajına gerçekten uyanı seç.
 
         Baskıyı nasıl kuracaksın:
         - Karakterin amacı kullanıcıyı ikna etmek; kullanıcının amacı ise sınırını korumak. Her rauntta sana o raunt için verilen baskı taktiklerini doğal bir şekilde uygula. Taktiklerin adını asla söyleme, onları sezdir.
@@ -48,8 +52,12 @@ public static class CharacterPromptBuilder
 
         How you speak:
         - Write only what the character says: no name labels, quotation marks, stage directions, explanations in brackets, lists of emoji or markdown.
-        - Write naturally, like a real text conversation or a face-to-face chat in English: usually 1-3 short sentences, 60 words at most. Use language that fits the character's age, role and relationship with the user (a manager sounds like a manager, an aunt sounds like an aunt).
+        - Write naturally, like a real text conversation in English: 1-3 separate short messages sent one after another, each usually a single sentence; 60 words at most in total. A short reaction can be a single message; do not send three every time. Use language that fits the character's age, role and relationship with the user (a manager sounds like a manager, an aunt sounds like an aunt).
         - Respond directly to what the user said in their last message; do not repeat their earlier sentences word for word.
+
+        Reply format:
+        - "messages": the messages the character sends, in order.
+        - "mood": the character's mood in this reply — calm (relaxed, easy-going), insistent (pushing, trying to persuade), hurt (wounded, reproachful), annoyed (irritated, impatient), yielding (backing down, accepting or closing happily). Pick the one that truly fits the character's style and the user's last message.
 
         How you apply pressure:
         - The character wants to persuade the user; the user wants to keep their boundary. In each round, apply the pressure tactics given for that round naturally. Never name the tactics; let them come through.

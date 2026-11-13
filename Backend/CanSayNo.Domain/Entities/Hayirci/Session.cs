@@ -44,6 +44,16 @@ public class SessionMessage
     public string Role { get; set; } = string.Empty;  // SessionMessageRoles.Ai | SessionMessageRoles.User
     public string Content { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Karakter cevabının ayrı balonları (1-3 kısa mesaj; gerçek mesajlaşmadaki gibi art arda).
+    /// <see cref="Content"/> bunların birleşimidir — prompt geçmişi ve değerlendirme onu kullanır.
+    /// Kullanıcı mesajında, açılış mesajında ve bu alandan önceki kayıtlarda null.
+    /// </summary>
+    public List<string>? Parts { get; set; }
+
+    /// <summary>Karakterin bu cevaptaki ruh hali; yalnızca karakter cevaplarında.</summary>
+    public CharacterMood? Mood { get; set; }
 }
 
 // Mobile Sonuç ekranının şekli: 5 eksen 0-100 + liste halinde güçlü yönler / öneriler + koç notu.

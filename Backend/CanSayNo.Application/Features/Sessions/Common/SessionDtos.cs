@@ -30,6 +30,12 @@ public record SessionMessageDto
     public string Role { get; init; } = "";  // "ai" | "user"
     public string Content { get; init; } = "";
     public DateTime Timestamp { get; init; }
+
+    /// <summary>Karakter cevabının ayrı balonları; boşsa (kullanıcı, açılış, eski kayıt) Content tek balondur.</summary>
+    public List<string>? Parts { get; init; }
+
+    /// <summary>Karakterin ruh hali (calm | insistent | hurt | annoyed | yielding); yalnızca karakter cevaplarında.</summary>
+    public CharacterMood? Mood { get; init; }
 }
 
 public record SessionEvaluationDto
