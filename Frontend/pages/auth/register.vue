@@ -169,17 +169,6 @@ useHead({
   font-size: 0.92rem;
 }
 
-/* Form alanları: RegisterForm'un saydam beyaz alanları koyu zeminde biraz daha sakin */
-.right-inner :deep(.v-field) {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-}
-
-.right-inner :deep(.v-field--focused) {
-  border-color: var(--rp-accent) !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
-}
-
 .terms-section {
   margin-bottom: 20px;
 }

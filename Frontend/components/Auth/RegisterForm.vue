@@ -1,93 +1,104 @@
 <template>
-  <v-form ref="form" v-model="isValid" @submit.prevent="$emit('submit', formData)" :class="formClass">
-      <div class="input-group">
-        <BaseTextBox
+  <!-- Alan düzeni giriş sayfasıyla (ve Dernify ile) aynı: etiket ÜSTTE, alanın içinde yer tutucu,
+       ikonlar marka renginde, hata mesajı alanın altında. -->
+  <v-form ref="form" v-model="isValid" :class="formClass" @submit.prevent="$emit('submit', formData)">
+    <div class="field-row">
+      <div class="field-block">
+        <label class="field-label" for="register-first-name">{{ t('auth.firstNameLabel') }}</label>
+        <v-text-field
+          id="register-first-name"
           v-model="formData.firstName"
-          :label="t('auth.firstNameLabel')"
-          prepend-inner-icon="mdi-account"
+          :placeholder="t('auth.firstNamePlaceholder')"
+          prepend-inner-icon="mdi-account-outline"
           :rules="[rules.required, rules.minLength(2)]"
-          type="text"
-          required
-          min-length="2"
           :disabled="loading"
-          :class="inputClass"
+          autocomplete="given-name"
+          v-bind="fieldProps"
         />
       </div>
-      <div class="input-group">
-        <BaseTextBox
+      <div class="field-block">
+        <label class="field-label" for="register-last-name">{{ t('auth.lastNameLabel') }}</label>
+        <v-text-field
+          id="register-last-name"
           v-model="formData.lastName"
-          :label="t('auth.lastNameLabel')"
+          :placeholder="t('auth.lastNamePlaceholder')"
           :rules="[rules.required, rules.minLength(2)]"
-          type="text"
-          required
-          min-length="2"
           :disabled="loading"
-          :class="inputClass"
+          autocomplete="family-name"
+          v-bind="fieldProps"
         />
       </div>
+    </div>
 
-    <div class="input-group">
-      <BaseTextBox
+    <div class="field-block">
+      <label class="field-label" for="register-email">{{ t('auth.email') }}</label>
+      <v-text-field
+        id="register-email"
         v-model="formData.email"
-        :label="t('auth.email')"
         type="email"
-        prepend-inner-icon="mdi-email"
+        :placeholder="t('auth.emailPlaceholder')"
+        prepend-inner-icon="mdi-email-outline"
         :rules="[rules.required, rules.email]"
-        required
         :disabled="loading"
-        :class="inputClass"
+        autocomplete="email"
+        v-bind="fieldProps"
       />
     </div>
 
-    <div class="input-group">
-      <BaseTextBox
+    <div class="field-block">
+      <label class="field-label" for="register-phone">{{ t('auth.phoneLabel') }}</label>
+      <v-text-field
+        id="register-phone"
         v-model="formData.phoneNumber"
-        :label="t('auth.phoneLabel')"
         type="tel"
-        prepend-inner-icon="mdi-phone"
+        :placeholder="t('auth.phonePlaceholder')"
+        prepend-inner-icon="mdi-phone-outline"
         :rules="[rules.phone]"
         :disabled="loading"
-        hint="Format: +1234567890"
-        :class="inputClass"
+        autocomplete="tel"
+        v-bind="fieldProps"
       />
     </div>
 
-    <div class="input-group">
-        <BaseTextBox
-          v-model="formData.password"
-          :label="t('auth.password')"
-          type="password"
-          prepend-inner-icon="mdi-lock"
-          :rules="[rules.password]"
-          required
-          min-length="8"
-          require-uppercase
-          require-lowercase
-          require-number
-          require-special-character
-          :disabled="loading"
-          :class="inputClass"
-        />
-    </div>
-
-    <div class="input-group">
-      <BaseTextBox
-        v-model="formData.confirmPassword"
-        :label="t('auth.confirmPasswordLabel')"
-        type="password"
-        prepend-inner-icon="mdi-lock-check"
-        :rules="[rules.required, rules.confirmPassword(formData.password)]"
-        required
+    <div class="field-block">
+      <label class="field-label" for="register-password">{{ t('auth.password') }}</label>
+      <v-text-field
+        id="register-password"
+        v-model="formData.password"
+        :type="showPassword ? 'text' : 'password'"
+        :placeholder="t('auth.newPasswordPlaceholder')"
+        prepend-inner-icon="mdi-lock-outline"
+        :append-inner-icon="showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+        :rules="[rules.password]"
         :disabled="loading"
-        :class="inputClass"
+        autocomplete="new-password"
+        v-bind="fieldProps"
+        @click:append-inner="showPassword = !showPassword"
       />
     </div>
 
-    <!-- Password strength indicator -->
-    <div class="password-strength mb-4">
+    <div class="field-block">
+      <label class="field-label" for="register-confirm-password">{{ t('auth.confirmPasswordLabel') }}</label>
+      <v-text-field
+        id="register-confirm-password"
+        v-model="formData.confirmPassword"
+        :type="showConfirmPassword ? 'text' : 'password'"
+        :placeholder="t('auth.confirmPasswordPlaceholder')"
+        prepend-inner-icon="mdi-lock-check-outline"
+        :append-inner-icon="showConfirmPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+        :rules="[rules.required, rules.confirmPassword(formData.password)]"
+        :disabled="loading"
+        autocomplete="new-password"
+        v-bind="fieldProps"
+        @click:append-inner="showConfirmPassword = !showConfirmPassword"
+      />
+    </div>
+
+    <!-- Şifre gücü: yalnızca şifre yazılınca görünür -->
+    <div v-if="formData.password" class="password-strength">
       <div class="strength-header">
-        <span class="strength-label">{{ t('auth.passwordStrength') }}:</span>
-        <span class="strength-text" :class="passwordStrengthColor">
+        <span class="strength-label">{{ t('auth.passwordStrength') }}</span>
+        <span class="strength-text" :class="`text-${passwordStrengthColor}`">
           {{ passwordStrengthText }}
         </span>
       </div>
@@ -96,7 +107,6 @@
         :color="passwordStrengthColor"
         height="4"
         rounded
-        class="strength-bar"
       />
     </div>
 
@@ -110,7 +120,6 @@
       :loading="loading"
       :disabled="!isValid"
       :class="submitButtonClass"
-      elevation="8"
     >
       <slot name="submit-text">{{ t('auth.createAccountTitle') }}</slot>
     </v-btn>
@@ -119,29 +128,33 @@
 
 <script setup lang="ts">
 import type { RegisterRequest } from '~/types'
-import BaseTextBox from '~/components/UI/BaseTextBox.vue'
 
-// Props & Emits
-const props = defineProps<{
+defineProps<{
   loading?: boolean
-  config?: any
   formClass?: string
-  inputClass?: string
   submitButtonColor?: string
   submitButtonClass?: string
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   submit: [data: RegisterRequest]
 }>()
 
-// Composables
 const { t } = useI18n()
 const { validationRules: rules } = useValidators()
 
-// Reactive data
+// Tüm alanlarda ortak Vuetify ayarları (giriş sayfasındakiyle aynı görünüm)
+const fieldProps = {
+  variant: 'outlined',
+  density: 'comfortable',
+  hideDetails: 'auto',
+  class: 'field-input'
+} as const
+
 const form = ref()
 const isValid = ref(false)
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 const formData = reactive<RegisterRequest>({
   firstName: '',
@@ -152,22 +165,16 @@ const formData = reactive<RegisterRequest>({
   phoneNumber: ''
 })
 
-// Password strength computation
 const passwordStrength = computed(() => {
   const password = formData.password
   if (!password) return 0
-  
+
   let strength = 0
-  
-  // Length check
   if (password.length >= 8) strength += 25
-  
-  // Character variety checks
   if (/[a-z]/.test(password)) strength += 25
   if (/[A-Z]/.test(password)) strength += 25
   if (/\d/.test(password)) strength += 15
   if (/[^A-Za-z0-9]/.test(password)) strength += 10
-  
   return Math.min(strength, 100)
 })
 
@@ -187,10 +194,7 @@ const passwordStrengthColor = computed(() => {
   return 'success'
 })
 
-// Methods
-const validateForm = () => {
-  return form.value?.validate()
-}
+const validateForm = () => form.value?.validate()
 
 const reset = () => {
   form.value?.reset()
@@ -204,8 +208,6 @@ const reset = () => {
   })
 }
 
-
-// Expose methods
 defineExpose({
   validateForm,
   reset,
@@ -214,68 +216,100 @@ defineExpose({
 </script>
 
 <style scoped>
-.input-row {
+.field-row {
   display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 14px;
 }
 
-.input-row .input-group {
+.field-row .field-block {
   flex: 1;
+  min-width: 0;
 }
 
-.input-group {
-  margin-bottom: 20px;
+.field-block {
+  margin-bottom: 18px;
 }
 
-.input-group :deep(.v-field) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+.field-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 7px;
+}
+
+.field-input :deep(.v-field) {
+  background: rgba(255, 255, 255, 0.04) !important;
   border-radius: 12px !important;
+  color: #f1f1f4 !important;
 }
 
-.input-group :deep(.v-field__input) {
-  color: white !important;
+.field-input :deep(.v-field__outline) {
+  --v-field-border-opacity: 0.14;
+  color: #fff;
 }
 
-.input-group :deep(.v-field__label) {
-  color: rgba(255, 255, 255, 0.8) !important;
+.field-input :deep(.v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+  color: #8b9cff;
 }
 
-.input-group :deep(.v-icon) {
-  color: rgba(255, 255, 255, 0.8) !important;
+.field-input :deep(.v-field--focused) {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+}
+
+.field-input :deep(.v-field--error .v-field__outline) {
+  --v-field-border-opacity: 0.9;
+  color: rgb(var(--v-theme-error));
+}
+
+.field-input :deep(.v-field__input) {
+  color: #f1f1f4 !important;
+}
+
+.field-input :deep(.v-field__input::placeholder) {
+  color: rgba(255, 255, 255, 0.32);
+  opacity: 1;
+}
+
+/* İkonlar marka renginde (koyu zeminde açık ton) */
+.field-input :deep(.v-field__prepend-inner .v-icon),
+.field-input :deep(.v-field__append-inner .v-icon) {
+  color: #8b9cff !important;
+  opacity: 0.9;
+}
+
+.field-input :deep(.v-messages__message) {
+  font-size: 0.78rem;
+  padding-top: 2px;
 }
 
 .password-strength {
-  text-align: left;
+  margin: -4px 0 18px;
 }
 
 .strength-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .strength-label {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
 }
 
 .strength-text {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
-.strength-bar {
-  border-radius: 2px;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .input-row {
+@media (max-width: 480px) {
+  .field-row {
     flex-direction: column;
     gap: 0;
   }
 }
-</style> 
+</style>
