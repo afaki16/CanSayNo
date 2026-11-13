@@ -3,35 +3,9 @@
     <div class="lang-switcher-wrapper">
       <LanguageSwitcher />
     </div>
-    <!-- LEFT: Image Carousel -->
+    <!-- LEFT: marka sahnesi (mobil karşılama ekranının web karşılığı) -->
     <div class="left-panel">
-      <div
-        v-for="(image, index) in backgroundImages"
-        :key="index"
-        :class="['carousel-slide', { active: currentImageIndex === index }]"
-        :style="{ backgroundImage: `url(${image})` }"
-      />
-      <div class="left-overlay" />
-      <div class="left-content">
-        <div class="brand-badge">
-          <v-icon size="16" color="white">mdi-lightning-bolt</v-icon>
-          <span>{{ t("auth.brandBadge") }}</span>
-        </div>
-        <h2 class="left-title">
-          {{ t("auth.heroTitle") }}
-        </h2>
-        <p class="left-subtitle">
-          {{ t("auth.heroSubtitle") }}
-        </p>
-        <div class="carousel-dots">
-          <div
-            v-for="(_, index) in backgroundImages"
-            :key="index"
-            :class="['dot', { active: currentImageIndex === index }]"
-            @click="goToSlide(index)"
-          />
-        </div>
-      </div>
+      <BrandHero :logo-src="logoSrc" />
     </div>
 
     <!-- RIGHT: Login Form -->
@@ -200,7 +174,7 @@ const { t } = useI18n();
 const route = useRoute();
 const authStore = useAuthStore();
 const { validationRules } = useValidators();
-const { getBackgroundImages, getLoginConfig, getLogo } = useAppData();
+const { getLogo } = useAppData();
 
 const logoSrc = computed(() => getLogo.value?.src || "/favicon.ico");
 const logoAlt = computed(() => getLogo.value?.alt || "Logo");
@@ -212,7 +186,6 @@ const loginApiErrors = ref<string[]>([]);
 const emailNotConfirmed = ref(false);
 const sessionExpiredDismissed = ref(false);
 const resending = ref(false);
-const currentImageIndex = ref(0);
 
 // Resend verification UI state
 const resendState = ref<"idle" | "sent" | "error">("idle");
@@ -272,9 +245,6 @@ const onCloseEmailNotConfirmed = () => {
   resendCooldown.value = 0;
 };
 
-const backgroundImages = computed(() => getBackgroundImages.value || []);
-const loginConfig = computed(() => getLoginConfig.value);
-
 const form = reactive<LoginRequest>({
   email: "",
   password: "",
@@ -282,21 +252,6 @@ const form = reactive<LoginRequest>({
   deviceId: "",
   deviceName: "",
 });
-
-// ── Carousel Logic ──
-let imageInterval: ReturnType<typeof setInterval>;
-let isPaused = false;
-
-const goToSlide = (index: number) => {
-  currentImageIndex.value = index;
-};
-
-const nextSlide = () => {
-  if (!isPaused && backgroundImages.value.length > 0) {
-    currentImageIndex.value =
-      (currentImageIndex.value + 1) % backgroundImages.value.length;
-  }
-};
 
 // ── Login Handler ──
 const handleLogin = async () => {
@@ -357,16 +312,9 @@ onMounted(() => {
   // NOT: deviceId ve deviceName artık useAuth.login() içinde otomatik üretiliyor
   // (cookie-based, localStorage'a yazmıyor). Burada manuel set etmeye gerek yok.
   // Eski localStorage-based deviceId kodu güvenlik nedeniyle kaldırıldı.
-
-  // Start carousel
-  imageInterval = setInterval(
-    nextSlide,
-    loginConfig.value?.rotationInterval || 3000,
-  );
 });
 
 onUnmounted(() => {
-  if (imageInterval) clearInterval(imageInterval);
   clearResendTimers();
 });
 </script>
@@ -399,94 +347,6 @@ onUnmounted(() => {
   position: relative;
   overflow: hidden;
   display: flex;
-  align-items: flex-end;
-}
-
-.carousel-slide {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  /* Sadece crossfade — zoom/scale yok (önceki “geri küçülme” hissi kalkar) */
-  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.carousel-slide.active {
-  z-index: 1;
-  opacity: 1;
-}
-
-.left-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to right, transparent 60%, var(--lp-bg) 100%),
-    linear-gradient(to top, rgba(10, 10, 15, 0.85) 0%, transparent 50%),
-    linear-gradient(to bottom, rgba(10, 10, 15, 0.3) 0%, transparent 30%);
-  z-index: 2;
-}
-
-.left-content {
-  position: relative;
-  z-index: 3;
-  padding: 48px;
-  width: 100%;
-}
-
-.brand-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 100px;
-  padding: 8px 18px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  margin-bottom: 24px;
-}
-
-.left-title {
-  font-size: 2.4rem;
-  font-weight: 700;
-  line-height: 1.15;
-  color: white;
-  margin-bottom: 14px;
-  max-width: 440px;
-}
-
-.left-subtitle {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.55);
-  line-height: 1.6;
-  max-width: 400px;
-}
-
-.carousel-dots {
-  display: flex;
-  gap: 8px;
-  margin-top: 28px;
-}
-
-.dot {
-  width: 32px;
-  height: 3px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.2);
-  transition: all 0.5s ease;
-  cursor: pointer;
-}
-
-.dot.active {
-  width: 48px;
-  background: var(--lp-accent);
-  box-shadow: 0 0 12px var(--lp-accent-glow);
 }
 
 /* ── RIGHT PANEL ── */
