@@ -7,6 +7,9 @@ export const auth: Translation<typeof trAuth> = {
     subtitle: 'Practise in safe scenarios, then hold your boundaries with ease in real life.',
     start: "Let's get started",
     haveAccount: 'I already have an account',
+    pressure1: 'Just a minute…',
+    pressure2: 'Pleeease?',
+    pressure3: 'Just this once',
   },
   fields: {
     email: 'Email',
@@ -36,6 +39,8 @@ export const auth: Translation<typeof trAuth> = {
   login: {
     title: 'Welcome back 👋',
     subtitle: 'Pick up where you left off.',
+    previewAsk: 'Could you stay a bit later tonight?',
+    previewReply: "Not today, I'll pick it up tomorrow.",
     forgotPassword: 'Forgot password?',
     submit: 'Sign in',
     noAccount: "Don't have an account?",

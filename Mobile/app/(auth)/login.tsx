@@ -3,11 +3,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   ArrowLeft,
   EnvelopeSimple,
   Eye,
   EyeSlash,
+  HandPalm,
   LockSimple,
 } from 'phosphor-react-native';
 import { useState } from 'react';
@@ -20,17 +23,18 @@ import {
   View,
 } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 import {
+  BrandMark,
   Button,
   FormError,
   FormField,
-  IconButton,
   Text,
 } from '@/components/ui';
-import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
+import { Colors, FontSize, FontWeight, Gradients, Shadow, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { rememberPendingCredentials } from '@/hooks/useEmailVerification';
 import { API_ERROR_CODE, ApiError, authService } from '@/lib/api';
@@ -50,6 +54,7 @@ export default function LoginScreen() {
   const { t } = useTranslation();
   const { login, isLoggingIn, loginError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const {
     control,
@@ -79,7 +84,8 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
+      <StatusBar style="light" />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior="padding"
@@ -89,21 +95,51 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Üst bar */}
-          <View style={styles.topBar}>
-            <IconButton
-              icon={ArrowLeft}
-              bordered
-              onPress={() => router.back()}
-              accessibilityLabel={t('common.back')}
-            />
-          </View>
+          {/* Marka başlığı: geçişli zemin + ürünün özü (ısrar → kibar bir "hayır") */}
+          <LinearGradient
+            colors={Gradients.brand.colors}
+            start={Gradients.brand.start}
+            end={Gradients.brand.end}
+            style={[styles.hero, { paddingTop: insets.top + Spacing.md }]}
+          >
+            <View style={styles.topBar}>
+              <Pressable
+                onPress={() => router.back()}
+                style={styles.backButton}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={t('common.back')}
+              >
+                <ArrowLeft size={20} color="#FFFFFF" weight="bold" />
+              </Pressable>
+              <View style={styles.logoChip}>
+                <BrandMark size={26} />
+              </View>
+            </View>
 
-          {/* Başlık */}
-          <View style={styles.header}>
+            <View
+              style={styles.preview}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Animated.View
+                entering={FadeInDown.delay(150).duration(450)}
+                style={[styles.previewBubble, styles.previewAsk]}
+              >
+                <Text style={styles.previewAskText}>{t('auth.login.previewAsk')}</Text>
+              </Animated.View>
+              <Animated.View
+                entering={FadeInDown.delay(750).duration(450)}
+                style={[styles.previewBubble, styles.previewReply]}
+              >
+                <HandPalm size={15} color={Colors.secondary} weight="fill" />
+                <Text style={styles.previewReplyText}>{t('auth.login.previewReply')}</Text>
+              </Animated.View>
+            </View>
+
             <Text style={styles.title}>{t('auth.login.title')}</Text>
             <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
-          </View>
+          </LinearGradient>
 
           {/* Form */}
           <View style={styles.form}>
@@ -162,32 +198,34 @@ export default function LoginScreen() {
           </View>
 
           {/* Aksiyon */}
-          <FormError message={loginError} />
+          <View style={styles.actions}>
+            <FormError message={loginError} />
 
-          <Button
-            variant="primary"
-            size="lg"
-            fullWidth
-            disabled={!isValid}
-            loading={isLoggingIn}
-            onPress={handleSubmit(onSubmit)}
-          >
-            {t('auth.login.submit')}
-          </Button>
+            <Button
+              variant="primary"
+              size="lg"
+              fullWidth
+              disabled={!isValid}
+              loading={isLoggingIn}
+              onPress={handleSubmit(onSubmit)}
+            >
+              {t('auth.login.submit')}
+            </Button>
 
-          {/* Alt link */}
-          <Pressable
-            onPress={() => router.replace('/register')}
-            style={styles.bottomLink}
-            accessibilityRole="link"
-          >
-            <Text style={styles.bottomLinkText}>
-              {t('auth.login.noAccount')}{' '}
-              <Text style={styles.bottomLinkAccent}>
-                {t('auth.login.signUp')}
+            {/* Alt link */}
+            <Pressable
+              onPress={() => router.replace('/register')}
+              style={styles.bottomLink}
+              accessibilityRole="link"
+            >
+              <Text style={styles.bottomLinkText}>
+                {t('auth.login.noAccount')}{' '}
+                <Text style={styles.bottomLinkAccent}>
+                  {t('auth.login.signUp')}
+                </Text>
               </Text>
-            </Text>
-          </Pressable>
+            </Pressable>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -204,32 +242,90 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 28,
-    paddingTop: Spacing.md,
     paddingBottom: Spacing.xl,
+  },
+  hero: {
+    paddingHorizontal: 28,
+    paddingBottom: 30,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  header: {
-    marginTop: 26,
-    marginBottom: 30,
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.28)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoChip: {
+    padding: 3,
+    borderRadius: 11,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  },
+  preview: {
+    marginTop: 22,
+    marginBottom: 22,
+    gap: 10,
+  },
+  previewBubble: {
+    maxWidth: '82%',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 18,
+  },
+  previewAsk: {
+    alignSelf: 'flex-start',
+    borderBottomLeftRadius: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.22)',
+  },
+  previewAskText: {
+    fontSize: FontSize.sm,
+    color: 'rgba(255, 255, 255, 0.92)',
+  },
+  previewReply: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    borderBottomRightRadius: 5,
+    backgroundColor: Colors.surface,
+    ...Shadow.lg,
+  },
+  previewReplyText: {
+    flexShrink: 1,
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
   },
   title: {
     fontSize: 30,
     fontWeight: FontWeight.black,
     letterSpacing: -0.9,
-    color: Colors.text,
+    color: '#FFFFFF',
   },
   subtitle: {
-    marginTop: Spacing.sm,
+    marginTop: 6,
     fontSize: FontSize.base,
-    color: Colors.textSecondary,
+    color: 'rgba(255, 255, 255, 0.82)',
   },
   form: {
     gap: 18,
+    marginTop: 28,
     marginBottom: Spacing.lg,
+    paddingHorizontal: 28,
+  },
+  actions: {
+    paddingHorizontal: 28,
   },
   forgotLink: {
     alignSelf: 'flex-end',

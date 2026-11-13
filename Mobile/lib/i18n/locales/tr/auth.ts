@@ -5,6 +5,10 @@ export const auth = {
     subtitle: 'Güvenli senaryolarda pratik yap, gerçek hayatta sınırını rahatça koru.',
     start: 'Hadi başlayalım',
     haveAccount: 'Zaten hesabım var',
+    // Karşılama animasyonundaki ısrar balonları (kısa tutulmalı, ~16 karakter)
+    pressure1: 'Bir dakika…',
+    pressure2: 'Lütfen ya?',
+    pressure3: 'Sadece bu sefer',
   },
   fields: {
     email: 'E-posta',
@@ -34,7 +38,10 @@ export const auth = {
   login: {
     title: 'Tekrar hoş geldin 👋',
     subtitle: 'Kaldığın yerden devam et.',
-    forgotPassword: 'Şifremi unuttum',
+    // Başlıktaki sohbet önizlemesi: karakterin ısrarı ve kibar bir "hayır"
+    previewAsk: 'Bu akşam biraz daha kalabilir misin?',
+    previewReply: 'Bugün olmaz, yarın sabah bakarım.',
+    forgotPassword:'Şifremi unuttum',
     submit: 'Giriş yap',
     noAccount: 'Hesabın yok mu?',
     signUp: 'Kayıt Ol',
