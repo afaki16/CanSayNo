@@ -16,7 +16,7 @@ public static class RevenueCatEventApplier
     {
         /// <summary>Kayıt güncellendi (ya da yeni kayıt dolduruldu).</summary>
         Applied,
-        /// <summary>Durumu etkilemeyen olay (TEST, PRODUCT_CHANGE, SUBSCRIPTION_PAUSED, TRANSFER...).</summary>
+        /// <summary>Durumu etkilemeyen olay (TEST, PRODUCT_CHANGE, SUBSCRIPTION_PAUSED...). TRANSFER handler'da işlenir.</summary>
         NoStateChange
     }
 

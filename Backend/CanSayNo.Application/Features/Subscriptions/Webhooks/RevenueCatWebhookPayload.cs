@@ -71,4 +71,15 @@ public sealed class RevenueCatEvent
     /// <summary>Yalnızca EXPIRATION'da.</summary>
     [JsonPropertyName("expiration_reason")]
     public string? ExpirationReason { get; set; }
+
+    /// <summary>Yalnızca TRANSFER'da: işlemlerin alındığı App User ID'ler.</summary>
+    [JsonPropertyName("transferred_from")]
+    public List<string>? TransferredFrom { get; set; }
+
+    /// <summary>
+    /// Yalnızca TRANSFER'da: işlemleri devralan App User ID'ler. TRANSFER'da app_user_id,
+    /// aliases ve transaction alanları gelmez.
+    /// </summary>
+    [JsonPropertyName("transferred_to")]
+    public List<string>? TransferredTo { get; set; }
 }

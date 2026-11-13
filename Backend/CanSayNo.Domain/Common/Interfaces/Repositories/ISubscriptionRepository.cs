@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CanSayNo.Domain.Entities.Hayirci;
@@ -17,11 +18,19 @@ public interface ISubscriptionRepository : IRepository<Subscription, Guid>
         DateTime utcNow,
         CancellationToken cancellationToken = default);
 
-    /// <summary>Webhook: kullanıcının bu mağaza işlemine ait kaydı (tracked). Yoksa null.</summary>
+    /// <summary>
+    /// Webhook: bu mağaza işlemine ait kayıt (tracked), sahibi kim olursa olsun — işlem TRANSFER ile
+    /// başka kullanıcıya geçmiş olabilir. Yoksa null.
+    /// </summary>
     Task<Subscription?> GetByProviderTransactionAsync(
-        int userId,
         string appId,
         string providerTransactionId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Webhook TRANSFER: verilen kullanıcıların bu uygulamadaki tüm kayıtları (tracked).</summary>
+    Task<List<Subscription>> GetAllForUsersAsync(
+        IReadOnlyCollection<int> userIds,
+        string appId,
         CancellationToken cancellationToken = default);
 
     /// <summary>

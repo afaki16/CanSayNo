@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,16 +44,24 @@ public class SubscriptionRepository : RepositoryBase<Subscription, Guid>, ISubsc
              && (s.ExpiresAt == null || s.ExpiresAt > utcNow);
 
     public async Task<Subscription?> GetByProviderTransactionAsync(
-        int userId,
         string appId,
         string providerTransactionId,
         CancellationToken cancellationToken = default)
     {
         return await _context.Subscriptions
-            .FirstOrDefaultAsync(s => s.UserId == userId
-                                      && s.AppId == appId
-                                      && s.ProviderTransactionId == providerTransactionId,
-                cancellationToken);
+            .Where(s => s.AppId == appId && s.ProviderTransactionId == providerTransactionId)
+            .OrderByDescending(s => s.UpdatedDate ?? s.CreatedDate)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<List<Subscription>> GetAllForUsersAsync(
+        IReadOnlyCollection<int> userIds,
+        string appId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.Subscriptions
+            .Where(s => userIds.Contains(s.UserId) && s.AppId == appId)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<Subscription?> GetCurrentAsync(

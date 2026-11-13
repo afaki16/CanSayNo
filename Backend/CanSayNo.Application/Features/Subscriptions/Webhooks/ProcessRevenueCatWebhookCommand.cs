@@ -92,13 +92,8 @@ public class ProcessRevenueCatWebhookCommandHandler : IRequestHandler<ProcessRev
             return WebhookResult.Ok;
         }
 
-        var userId = await ResolveUserIdAsync(e);
-        if (userId is null)
-        {
-            // Anonim RevenueCat kullanıcısı ya da silinmiş hesap: tekrar denemenin faydası yok.
-            _logger.LogWarning("RevenueCat event for unknown user ignored. EventId: {EventId}, Type: {Type}", e.Id, e.Type);
-            return WebhookResult.Ok;
-        }
+        if (e.Type == "TRANSFER")
+            return await ApplyTransferAsync(e, cancellationToken);
 
         var transactionKey = e.OriginalTransactionId ?? e.TransactionId;
         if (string.IsNullOrEmpty(transactionKey))
@@ -107,8 +102,18 @@ public class ProcessRevenueCatWebhookCommandHandler : IRequestHandler<ProcessRev
             return WebhookResult.Ok;
         }
 
+        // Kaydı olan işlem, kaydın sahibine uygulanır: TRANSFER'dan sonra olayın original_app_user_id'si
+        // hâlâ eski hesabı gösterebilir — kullanıcıyı olaydan çözmek aboneliği eski hesaba geri verirdi.
         var subscription = await _unitOfWork.Subscriptions.GetByProviderTransactionAsync(
-            userId.Value, _hayirci.AppId, transactionKey, cancellationToken);
+            _hayirci.AppId, transactionKey, cancellationToken);
+
+        var userId = subscription?.UserId ?? await ResolveUserIdAsync(e);
+        if (userId is null)
+        {
+            // Anonim RevenueCat kullanıcısı ya da silinmiş hesap: tekrar denemenin faydası yok.
+            _logger.LogWarning("RevenueCat event for unknown user ignored. EventId: {EventId}, Type: {Type}", e.Id, e.Type);
+            return WebhookResult.Ok;
+        }
 
         // Tekrar gelen ya da sırası karışmış (daha eski) olay durumu geri almasın.
         // Yeniden denemeler aynı id ve event_timestamp_ms ile gelir.
@@ -151,6 +156,58 @@ public class ProcessRevenueCatWebhookCommandHandler : IRequestHandler<ProcessRev
         return WebhookResult.Ok;
     }
 
+    // TRANSFER: kullanıcı başka hesapta "Satın alımları geri yükle" dedi; RevenueCat işlemleri
+    // transferred_from hesaplarından transferred_to hesabına taşıdı. Kayıtları da taşırız — yoksa
+    // geri yükleyen hesap premium olmaz, eski hesap premium kalır. Tekrar gelen olay zararsız
+    // (taşınacak kayıt kalmaz). Ham gövde yazılmaz: işlem olaylarının sıra kontrolü onu kullanıyor.
+    private async Task<WebhookResult> ApplyTransferAsync(RevenueCatEvent e, CancellationToken cancellationToken)
+    {
+        var toUserId = await FirstExistingUserIdAsync(e.TransferredTo);
+        if (toUserId is null)
+        {
+            _logger.LogWarning("RevenueCat TRANSFER to unknown user ignored. EventId: {EventId}", e.Id);
+            return WebhookResult.Ok;
+        }
+
+        var fromUserIds = (e.TransferredFrom ?? new List<string>())
+            .Select(id => int.TryParse(id, out var parsed) ? parsed : (int?)null)
+            .Where(id => id is not null && id != toUserId)
+            .Select(id => id!.Value)
+            .Distinct()
+            .ToList();
+
+        var moved = fromUserIds.Count == 0
+            ? new List<Subscription>()
+            : await _unitOfWork.Subscriptions.GetAllForUsersAsync(fromUserIds, _hayirci.AppId, cancellationToken);
+
+        foreach (var subscription in moved)
+        {
+            subscription.UserId = toUserId.Value;
+            subscription.ProviderUserId = toUserId.Value.ToString();
+        }
+
+        if (moved.Count > 0)
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation(
+            "RevenueCat TRANSFER applied. EventId: {EventId}, ToUserId: {ToUserId}, FromUserIds: {FromUserIds}, Moved: {Moved}",
+            e.Id, toUserId, fromUserIds, moved.Count);
+        return WebhookResult.Ok;
+    }
+
+    private async Task<int?> FirstExistingUserIdAsync(IEnumerable<string?>? candidates)
+    {
+        if (candidates is null)
+            return null;
+
+        foreach (var id in candidates.Where(c => !string.IsNullOrEmpty(c)).Distinct())
+        {
+            if (int.TryParse(id, out var userId) && await _unitOfWork.Users.GetByIdAsync(userId) is not null)
+                return userId;
+        }
+        return null;
+    }
+
     private bool IsAuthorized(string? header)
     {
         if (string.IsNullOrEmpty(header))
@@ -168,18 +225,12 @@ public class ProcessRevenueCatWebhookCommandHandler : IRequestHandler<ProcessRev
 
     // Mobil, RevenueCat'e bizim kullanıcı Id'mizi App User ID olarak verir. Belgenin önerdiği gibi
     // original_app_user_id, app_user_id ve aliases taranır; var olan ilk sayısal Id kullanılır.
-    private async Task<int?> ResolveUserIdAsync(RevenueCatEvent e)
+    private Task<int?> ResolveUserIdAsync(RevenueCatEvent e)
     {
         var candidates = new List<string?> { e.OriginalAppUserId, e.AppUserId };
         if (e.Aliases is not null)
             candidates.AddRange(e.Aliases);
-
-        foreach (var id in candidates.Where(c => !string.IsNullOrEmpty(c)).Distinct())
-        {
-            if (int.TryParse(id, out var userId) && await _unitOfWork.Users.GetByIdAsync(userId) is not null)
-                return userId;
-        }
-        return null;
+        return FirstExistingUserIdAsync(candidates);
     }
 
     private static bool IsNewerThanStored(Subscription subscription, RevenueCatEvent incoming)
