@@ -1,102 +1,66 @@
 <template>
-  <div class="register-container" :style="{ background: 'var(--theme-gradient-sidebar)' }">
+  <!-- Giriş sayfasıyla aynı düzen: solda marka sahnesi, sağda koyu zeminde form. -->
+  <div class="register-page">
     <div class="lang-switcher-wrapper">
       <LanguageSwitcher />
     </div>
-    <!-- 3D Background with rotating images -->
-    <div class="background-container">
-      <div
-        v-for="(image, index) in backgroundImages"
-        :key="index"
-        :class="['background-image', { active: currentImageIndex === index }]"
-        :style="{ backgroundImage: `url(${image})` }"
-      />
-      <div
-        class="background-overlay"
-        :style="{ background: registerConfig?.overlay?.color || 'rgba(0, 0, 0, 0.4)' }"
-      ></div>
+
+    <div class="left-panel">
+      <BrandHero :logo-src="logoSrc" />
     </div>
 
-    <!-- 3D Register Card -->
-    <div class="register-card-container">
-      <div
-        class="register-card"
-        :style="{
-          background: registerConfig?.card?.background || 'rgba(255, 255, 255, 0.1)',
-          backdropFilter: registerConfig?.card?.backdropFilter || 'blur(20px)',
-          borderRadius: registerConfig?.card?.borderRadius || '20px',
-          border: registerConfig?.card?.border || '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: registerConfig?.card?.shadow || '0 25px 45px rgba(0, 0, 0, 0.2)'
-        }"
-      >
-        <div class="card-content">
-          <div class="logo-section">
-            <div class="logo-icon">
-              <v-icon size="64" color="white">mdi-account-plus</v-icon>
+    <div class="right-panel">
+      <div class="right-inner">
+        <div class="form-header">
+          <img :src="logoSrc" :alt="logoAlt" class="form-header-logo" />
+          <h1>{{ t('auth.createAccountTitle') }}</h1>
+          <p>{{ t('auth.createAccountSubtitle') }}</p>
+        </div>
+
+        <AuthRegisterForm
+          ref="registerFormRef"
+          :loading="authStore.isLoading"
+          submit-button-class="register-submit"
+          @submit="handleRegister"
+        >
+          <template #terms>
+            <div class="terms-section">
+              <v-checkbox
+                v-model="acceptTerms"
+                :rules="[v => !!v || t('auth.mustAcceptTerms')]"
+                density="compact"
+                hide-details
+                class="terms-checkbox"
+              >
+                <template #label>
+                  <span class="terms-text">
+                    {{ t('auth.agreeTo') }}
+                    <a href="/terms" target="_blank" class="terms-link">{{ t('auth.termsOfService') }}</a>
+                    {{ t('auth.and') }}
+                    <a href="/privacy" target="_blank" class="terms-link">{{ t('auth.privacyPolicy') }}</a>
+                  </span>
+                </template>
+              </v-checkbox>
             </div>
-            <h1 class="welcome-text">{{ t('auth.createAccountTitle') }}</h1>
-            <p class="subtitle-text">{{ t('auth.createAccountSubtitle') }}</p>
-          </div>
+          </template>
 
-          <!-- Register Form Component -->
-          <AuthRegisterForm
-            ref="registerFormRef"
-            :loading="authStore.isLoading"
-            @submit="handleRegister"
-          >
-            <template #terms>
-              <!-- Terms and conditions -->
-              <div class="terms-section mb-4">
-                <v-checkbox
-                  v-model="acceptTerms"
-                  :rules="[v => !!v || 'You must accept the terms and conditions']"
-                  density="compact"
-                  color="white"
-                  hide-details
-                >
-                  <template #label>
-                    <span class="terms-text">
-                      {{ t('auth.agreeTo') }}
-                      <a href="/terms" target="_blank" class="terms-link">{{ t('auth.termsOfService') }}</a>
-                      {{ t('auth.and') }}
-                      <a href="/privacy" target="_blank" class="terms-link">{{ t('auth.privacyPolicy') }}</a>
-                    </span>
-                  </template>
-                </v-checkbox>
-              </div>
-            </template>
+          <template #submit-text>
+            {{ t('auth.createAccountTitle') }}
+          </template>
+        </AuthRegisterForm>
 
-            <template #submit-text>
-              <span class="btn-text">{{ t('auth.createAccountTitle') }}</span>
-            </template>
-          </AuthRegisterForm>
+        <div class="divider">
+          <span>{{ t('auth.or') }}</span>
+        </div>
 
-          <div class="divider-section">
-            <div class="divider-line"></div>
-            <span class="divider-text">{{ t('auth.or') }}</span>
-            <div class="divider-line"></div>
-          </div>
-
-          <div class="login-section">
-            <p class="login-text">
-              {{ t('auth.alreadyHaveAccount') }}
-            </p>
-            <v-btn
-              variant="outlined"
-              color="white"
-              @click="$router.push('/')"
-              class="login-btn"
-            >
-              {{ t('auth.signIn') }}
-            </v-btn>
-          </div>
+        <div class="login-section">
+          <p>{{ t('auth.alreadyHaveAccount') }}</p>
+          <v-btn variant="outlined" class="login-btn" @click="$router.push('/')">
+            <v-icon start size="18">mdi-login</v-icon>
+            {{ t('auth.signIn') }}
+          </v-btn>
         </div>
       </div>
-    </div>
-
-    <!-- Floating particles for 3D effect -->
-    <div class="particles">
-      <div v-for="i in 20" :key="i" class="particle" :style="getParticleStyle(i)"></div>
     </div>
   </div>
 </template>
@@ -105,30 +69,22 @@
 import type { RegisterRequest } from '~/types'
 import AuthRegisterForm from '~/components/Auth/RegisterForm.vue'
 
-// Meta
 definePageMeta({
   layout: false,
   middleware: 'guest'
 })
 
-// Composables
 const { t } = useI18n()
 const authStore = useAuthStore()
 const auth = useAuth()
 
-// Reactive data
 const registerFormRef = ref()
 const acceptTerms = ref(false)
-const currentImageIndex = ref(0)
 
-// App data
-const { loadAppData, getBackgroundImages, getRegisterConfig } = useAppData()
+const { loadAppData, getLogo } = useAppData()
+const logoSrc = computed(() => getLogo.value?.src || '/favicon.ico')
+const logoAlt = computed(() => getLogo.value?.alt || 'CanSayNo')
 
-// Background images from data.json
-const backgroundImages = computed(() => getBackgroundImages.value || [])
-const registerConfig = computed(() => getRegisterConfig.value)
-
-// Methods
 const handleRegister = async (formData: RegisterRequest) => {
   if (!acceptTerms.value) return
 
@@ -139,44 +95,10 @@ const handleRegister = async (formData: RegisterRequest) => {
   }
 }
 
-const getParticleStyle = (index: number) => {
-  const delay = index * 0.1
-  const size = Math.random() * 4 + 2
-  const x = Math.random() * 100
-  const y = Math.random() * 100
-  const duration = Math.random() * 3 + 2
-
-  return {
-    left: `${x}%`,
-    top: `${y}%`,
-    width: `${size}px`,
-    height: `${size}px`,
-    animationDelay: `${delay}s`,
-    animationDuration: `${duration}s`
-  }
-}
-
-// Background image rotation
-let imageInterval: NodeJS.Timeout
-
-// Lifecycle
 onMounted(async () => {
-  // Load app data
   await loadAppData()
-
-  // Start background image rotation
-  imageInterval = setInterval(() => {
-    currentImageIndex.value = (currentImageIndex.value + 1) % backgroundImages.value.length
-  }, registerConfig.value?.rotationInterval || 3000)
 })
 
-onUnmounted(() => {
-  if (imageInterval) {
-    clearInterval(imageInterval)
-  }
-})
-
-// SEO
 useHead({
   title: 'Hesap Oluştur - CanSayNo',
   meta: [
@@ -186,240 +108,160 @@ useHead({
 </script>
 
 <style scoped>
-.register-container {
+.register-page {
+  --rp-bg: #0a0a0f;
+  --rp-border: rgba(255, 255, 255, 0.06);
+  /* CanSayNo marka renkleri — koyu zeminde okunsun diye açık ton */
+  --rp-accent: #8b9cff;
+  --rp-gradient: linear-gradient(135deg, #5b4be0, #2d7ff9);
+  --rp-text: #f1f1f4;
+  --rp-text-secondary: rgba(255, 255, 255, 0.5);
+  --rp-text-muted: rgba(255, 255, 255, 0.3);
+
+  display: flex;
   min-height: 100vh;
+  background: var(--rp-bg);
+  color: var(--rp-text);
+}
+
+.left-panel {
+  flex: 1.1;
   position: relative;
   overflow: hidden;
   display: flex;
+}
+
+.right-panel {
+  flex: 0.9;
+  display: flex;
   align-items: center;
   justify-content: center;
+  padding: 48px 40px;
 }
 
-.background-container {
-  position: absolute;
-  top: 0;
-  left: 0;
+.right-inner {
   width: 100%;
-  height: 100%;
-  z-index: 1;
+  max-width: 420px;
 }
 
-.background-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-}
-
-.background-image.active {
-  opacity: 1;
-}
-
-.background-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 2;
-}
-
-.register-card-container {
-  position: relative;
-  z-index: 10;
-  perspective: 1000px;
-}
-
-.register-card {
-  padding: 40px;
-  width: 450px;
-  max-width: 90vw;
-}
-
-.card-content {
+.form-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  margin-bottom: 32px;
 }
 
-.logo-section {
-  margin-bottom: 30px;
+.form-header-logo {
+  max-height: 56px;
+  width: auto;
+  margin-bottom: 22px;
 }
 
-.logo-icon {
-  margin-bottom: 20px;
-  animation: float 3s ease-in-out infinite;
-}
-
-.welcome-text {
-  color: white;
-  font-size: 2.5rem;
+.form-header h1 {
+  font-size: 1.7rem;
   font-weight: 700;
-  margin-bottom: 10px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin-bottom: 6px;
 }
 
-.subtitle-text {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1.1rem;
-  margin-bottom: 0;
+.form-header p {
+  color: var(--rp-text-secondary);
+  font-size: 0.92rem;
 }
 
+/* Form alanları: RegisterForm'un saydam beyaz alanları koyu zeminde biraz daha sakin */
+.right-inner :deep(.v-field) {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.right-inner :deep(.v-field--focused) {
+  border-color: var(--rp-accent) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important;
+}
 
 .terms-section {
-  text-align: left;
+  margin-bottom: 20px;
 }
 
-.terms-section :deep(.v-checkbox) {
-  color: white;
+.terms-checkbox :deep(.v-selection-control__input) {
+  color: var(--rp-accent) !important;
 }
 
 .terms-text {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.875rem;
-  line-height: 1.4;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--rp-text-secondary);
 }
 
 .terms-link {
-  color: white;
-  text-decoration: underline;
+  color: var(--rp-accent);
   font-weight: 600;
+  text-decoration: none;
 }
 
 .terms-link:hover {
-  color: rgba(255, 255, 255, 0.9);
+  color: #b5c1ff;
 }
 
-.register-btn {
+.right-inner :deep(.register-submit) {
   border-radius: 12px !important;
   height: 50px !important;
   font-weight: 600 !important;
   text-transform: none !important;
-  transition: all 0.3s ease !important;
+  letter-spacing: 0.3px;
+  background: var(--rp-gradient) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
 }
 
-.register-btn:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+.right-inner :deep(.register-submit:hover:not(:disabled)) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.35) !important;
 }
 
-.btn-text {
-  font-size: 1.1rem;
-}
-
-.divider-section {
+.divider {
   display: flex;
   align-items: center;
-  margin: 30px 0;
+  gap: 16px;
+  margin: 28px 0;
 }
 
-.divider-line {
+.divider span {
+  font-size: 0.8rem;
+  color: var(--rp-text-muted);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.divider-text {
-  color: rgba(255, 255, 255, 0.6);
-  margin: 0 15px;
-  font-size: 0.9rem;
+  background: var(--rp-border);
 }
 
 .login-section {
   text-align: center;
 }
 
-.login-text {
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 15px;
+.login-section p {
+  font-size: 0.88rem;
+  color: var(--rp-text-secondary);
+  margin-bottom: 14px;
 }
 
 .login-btn {
-  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 12px !important;
-  color: white !important;
-  font-weight: 600 !important;
+  color: var(--rp-text) !important;
+  font-weight: 500 !important;
   text-transform: none !important;
-  transition: all 0.3s ease !important;
 }
 
 .login-btn:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-color: white !important;
-  transform: translateY(-2px) !important;
-}
-
-.particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 5;
-  pointer-events: none;
-}
-
-.particle {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 50%;
-  animation: float-particle 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes float-particle {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-    opacity: 1;
-  }
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .register-card {
-    width: 90%;
-    max-width: 400px;
-    padding: 30px 20px;
-  }
-
-  .welcome-text {
-    font-size: 2rem;
-  }
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  border-color: var(--rp-accent) !important;
+  background: rgba(99, 102, 241, 0.06) !important;
 }
 
 .lang-switcher-wrapper {
@@ -427,5 +269,20 @@ useHead({
   top: 24px;
   right: 24px;
   z-index: 100;
+}
+
+@media (max-width: 1024px) {
+  .left-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .right-panel {
+    padding: 24px 20px;
+  }
+  .form-header h1 {
+    font-size: 1.4rem;
+  }
 }
 </style>

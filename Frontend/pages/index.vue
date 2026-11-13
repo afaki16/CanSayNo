@@ -1,7 +1,5 @@
 <template>
-  <SplashScreen2 v-if="showSplash" @complete="onSplashComplete" />
-
-  <template v-else-if="!isLoading">
+  <template v-if="!isLoading">
     <component
       :is="loginComponent"
       :show-register="false"
@@ -18,9 +16,6 @@ definePageMeta({
   layout: false,
   middleware: 'guest'
 })
-
-const showSplash = ref(true) // Eğer açılışta screen açılmasın istiyorsak false çek
-const onSplashComplete = () => { showSplash.value = false }
 
 const { loadAppData, isLoading, appData } = useAppData()
 
